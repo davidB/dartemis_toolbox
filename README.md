@@ -1,3 +1,4 @@
+[![Build Status](https://drone.io/github.com/davidB/dartemis_addons/status.png)](https://drone.io/github.com/davidB/dartemis_addons/latest)
 # Overview
 
 `dartemis_addons` is a repository of various addons usable with [dartemis][], like Systems, Components, helpers.
