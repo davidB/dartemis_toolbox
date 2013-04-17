@@ -1,0 +1,12 @@
+pubspec.lock
+
+*.dart.js*
+package
+packages
+off
+target
+.buildlog
+web/out
+.idea
+*.orig
+/.project
