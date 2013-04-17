@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="VDrones" default="default">
+    <!-- Expect ant-contrib 1.0b5 available -->
+<!--
+  <taskdef resource="net/sf/antcontrib/antlib.xml"/>
+-->
+  <property environment="env" />
+  <fail message="ERROR: Please set environmental variable DART_SDK">
+    <condition>
+      <not>
+        <isset property="env.DART_SDK" />
+      </not>
+    </condition>
+  </fail>
+
+  <property name="dart.sdk.dir" value="${env.DART_SDK}" />
+  <property name="dart" value="${dart.sdk.dir}/bin/dart" />
+  <property name="dart2js" value="${dart.sdk.dir}/bin/dart2js" />
+  <property name="dartdoc" value="${dart.sdk.dir}/bin/dartdoc" />
+  <property name="dart_analyzer" value="${dart.sdk.dir}/bin/dart_analyzer" />
+  <property name="pub" value="${dart.sdk.dir}/bin/pub" />
+  <property name="target" location="${basedir}/target"/>
+
+  <target name="clean">
+    <delete includeEmptyDirs="true" removeNotFollowedSymlinks="true">
+      <fileset dir="${target}" followSymlinks="false"/>
+    </delete>
+  </target>
+
+  <target name="pub_install" depends="">
+    <exec executable="${pub}" failonerror="true">
+      <arg line="install"/>
+    </exec>
+  </target>
+
+  <target name="check">
+    <exec executable="${dart_analyzer}" failonerror="true">
+      <arg line="--work target/dart-work --package-root=packages/ --enable_type_checks --dart-sdk '${dart.sdk.dir}' lib/entity_state.dart"/>
+    </exec>
+  </target>
+
+  <target name="test" depends="check">
+    <exec executable="${dart}" failonerror="true">
+      <arg line="--enable-checked-mode test/entity_state_test.dart"/>
+    </exec>
+  </target>
+
+</project>
