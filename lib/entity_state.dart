@@ -54,10 +54,10 @@ class EntityStateComponent implements Component {
  *   modifications).
  * * More EntitySystem way of doing (IMHO)
  */
-class EntityStateSystem extends EntityProcessingSystem {
+class System_EntityState extends EntityProcessingSystem {
   ComponentMapper<EntityStateComponent> _escMapper;
 
-  EntityStateSystem() : super(Aspect.getAspectForAllOf([EntityStateComponent]));
+  System_EntityState() : super(Aspect.getAspectForAllOf([EntityStateComponent]));
 
   void initialize(){
     _escMapper = new ComponentMapper<EntityStateComponent>(EntityStateComponent, world);

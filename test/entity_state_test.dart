@@ -1,5 +1,4 @@
-import "package:dartemis/dartemis.dart" hide ComponentProvider, EntityState,
-       EntityStateComponent;
+import "package:dartemis/dartemis.dart" hide ComponentProvider, EntityState, EntityStateComponent;
 import "package:unittest/mock.dart";
 import "package:unittest/unittest.dart";
 import "dart:math" as Math;
@@ -7,7 +6,7 @@ import "package:dartemis_addons/entity_state.dart";
 
 main() {
 
-  group('EntityStateSystem tests',(){
+  group('System_EntityState tests',(){
     const stateAB = 1;
     const stateAC = 2;
     const stateC = 3;
@@ -42,7 +41,7 @@ main() {
       )
       ;
     var world = new World();
-    world.addSystem(new EntityStateSystem());
+    world.addSystem(new System_EntityState());
     world.initialize();
 
     setUp(() {
