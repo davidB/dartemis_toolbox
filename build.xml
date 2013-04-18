@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="VDrones" default="default">
-    <!-- Expect ant-contrib 1.0b5 available -->
-<!--
-  <taskdef resource="net/sf/antcontrib/antlib.xml"/>
--->
+<project name="dartemis_addons" default="default">
+
   <property environment="env" />
   <fail message="ERROR: Please set environmental variable DART_SDK">
     <condition>
@@ -19,7 +16,6 @@
   <property name="dartdoc" value="${dart.sdk.dir}/bin/dartdoc" />
   <property name="dart_analyzer" value="${dart.sdk.dir}/bin/dart_analyzer" />
   <property name="pub" value="${dart.sdk.dir}/bin/pub" />
-  <property name="target" location="${basedir}/target"/>
 
   <macrodef name="dart_check">
     <attribute name="file"/>
@@ -46,9 +42,19 @@
     </exec>
   </target>
 
-  <target name="check">
+  
+  <target name="entity_state">
     <dart_check file="entity_state"/>
+  </target>
+  
+  <target name="utils">
     <dart_check file="utils"/>
   </target>
+  
+  <target name="animator">
+    <dart_check file="animator"/>
+  </target>
 
+  <target name="default" depends="entity_state, utils, animator">
+  </target>
 </project>
