@@ -21,6 +21,19 @@
   <property name="pub" value="${dart.sdk.dir}/bin/pub" />
   <property name="target" location="${basedir}/target"/>
 
+  <macrodef name="dart_check">
+    <attribute name="file"/>
+    <sequential>
+      <echo>${line.separator}---- check @{file} ----</echo>
+      <exec executable="${dart_analyzer}" failonerror="true">
+        <arg line="--work target/dart-work --package-root=packages/ --enable_type_checks --dart-sdk '${dart.sdk.dir}' lib/@{file}.dart"/>
+      </exec>
+      <exec executable="${dart}" failonerror="true">
+        <arg line="--enable-checked-mode test/@{file}_test.dart"/>
+      </exec>
+    </sequential>
+  </macrodef>
+
   <target name="clean">
     <delete includeEmptyDirs="true" removeNotFollowedSymlinks="true">
       <fileset dir="${target}" followSymlinks="false"/>
@@ -34,15 +47,8 @@
   </target>
 
   <target name="check">
-    <exec executable="${dart_analyzer}" failonerror="true">
-      <arg line="--work target/dart-work --package-root=packages/ --enable_type_checks --dart-sdk '${dart.sdk.dir}' lib/entity_state.dart"/>
-    </exec>
-  </target>
-
-  <target name="test" depends="check">
-    <exec executable="${dart}" failonerror="true">
-      <arg line="--enable-checked-mode test/entity_state_test.dart"/>
-    </exec>
+    <dart_check file="entity_state"/>
+    <dart_check file="utils"/>
   </target>
 
 </project>
