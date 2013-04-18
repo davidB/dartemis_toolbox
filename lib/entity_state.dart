@@ -1,5 +1,5 @@
 library entity_state;
-import "package:dartemis/dartemis.dart" hide ComponentProvider, EntityState, EntityStateComponent;
+import "package:dartemis/dartemis.dart";
 
 /**
  * A component containing information about [EntityState] to used for the component.

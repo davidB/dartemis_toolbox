@@ -1,4 +1,4 @@
-import "package:dartemis/dartemis.dart" hide ComponentProvider, EntityState, EntityStateComponent;
+import "package:dartemis/dartemis.dart";
 import "package:unittest/mock.dart";
 import "package:unittest/unittest.dart";
 import "dart:math" as Math;
