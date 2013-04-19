@@ -22,6 +22,18 @@ class Animatable implements Component {
     c.l.clear();
     return c;
   }
+
+  /// this is a sugar method for [l].add([a])
+  /// sugar because you can write
+  ///
+  ///    new Animatable()
+  ///      ..add(new Animation())
+  ///      ..add(new Animation())
+  ///
+  Animatable add(Animation a) {
+    l.add(a);
+    return this;
+  }
 }
 
 typedef bool OnStart(Entity e, double t, double t0);
@@ -69,9 +81,13 @@ class System_Animator extends EntityProcessingSystem {
     _animatableMapper = new ComponentMapper<Animatable>(Animatable, world);
   }
 
+  void begin() {
+    _tickTime += world.delta;
+    //if (_tickTime < 10000) print("_tickTime ${_tickTime}");
+  }
+
   void processEntity(Entity entity) {
     var animatable = _animatableMapper.get(entity);
-    _tickTime += world.delta;
     animatable.l.iterateAndUpdate((anim) {
       if (anim._t0 < 0) {
         anim._t0 = _tickTime;
