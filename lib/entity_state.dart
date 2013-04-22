@@ -6,9 +6,9 @@ import "package:dartemis/dartemis.dart";
  *
  * Based on <http://www.richardlord.net/blog/finite-state-machines-with-ash>
  */
-class EntityStateComponent implements Component {
-  int _currentState;
-  int _previousState;
+class EntityStateComponent extends Component {
+  int _currentState = null;
+  int _previousState = null;
   Map<int, EntityState> _states;
 
   /// the name of the 'virtual' state (if != currentState, then it be after next
@@ -21,16 +21,7 @@ class EntityStateComponent implements Component {
   get previousState => _previousState;
 
 
-  EntityStateComponent._();
-  static _ctor() => new EntityStateComponent._();
-  factory EntityStateComponent(int startState, Map<int, EntityState> states) {
-    var c = new Component(EntityStateComponent, _ctor);
-    c._currentState = null;
-    c._previousState = null;
-    c._states = states;
-    c.state = startState;
-    return c;
-  }
+  EntityStateComponent(this.state, Map<int, EntityState> this._states);
 }
 
 /**
@@ -91,7 +82,8 @@ class System_EntityState extends EntityProcessingSystem {
       // keep existing Component of the same type
       // (not previously removed because same provider.id or managed outside of the state machine)
       next.forEach((provider){
-        if (e.getComponent(provider.type) == null) {
+        var components = world.componentManager.getComponentsByType(provider.type);
+        if (components == null || !components.isIndexWithinBounds(e.id) || components[e.id] == null) {
           e.addComponent(provider.createComponent(e));
         }
       });

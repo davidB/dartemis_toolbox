@@ -12,15 +12,19 @@ import 'package:dartemis_addons/utils.dart';
  * Because Animation are a bag of "callback" function, it doesn't follow
  * the philosofy of EntitySystem (Component should be only primitive).
  */
-class Animatable implements Component {
+class Animatable extends ComponentPoolable {
   final l = new LinkedBag<Animation>();
 
   Animatable._();
   static _ctor() => new Animatable._();
   factory Animatable() {
-    var c = new Component(Animatable, _ctor);
+    var c = new Poolable.of(Animatable, _ctor);
     c.l.clear();
     return c;
+  }
+
+  void cleanUp() {
+    l.clear();
   }
 
   /// this is a sugar method for [l].add([a])
