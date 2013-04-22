@@ -185,24 +185,13 @@ main() {
   });
 }
 
-class ComponentA implements Component {
-  ComponentA._();
-  factory ComponentA() => new Component(ComponentA, () => new ComponentA._());
-}
-class ComponentB implements Component {
-  ComponentB._();
-  factory ComponentB() => new Component(ComponentB, () => new ComponentB._());
-}
-class ComponentC implements Component {
+class ComponentA extends Component {}
+class ComponentB extends Component {}
+class ComponentC extends ComponentPoolable {
   ComponentC._();
-  factory ComponentC() => new Component(ComponentC, () => new ComponentC._());
+  factory ComponentC() => new Poolable.of(ComponentC, () => new ComponentC._());
 }
-class ComponentD implements Component {
+class ComponentD extends Component {
   int d = 0;
-  ComponentD._();
-  factory ComponentD(int d) {
-    var component = new Component(ComponentD, () => new ComponentD._());
-    component.d = d;
-    return component;
-  }
+  ComponentD(this.d);
 }
