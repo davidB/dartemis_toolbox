@@ -1,5 +1,6 @@
 library transform;
 
+import 'dart:math' as math;
 import 'package:dartemis/dartemis.dart';
 import 'package:vector_math/vector_math.dart';
 
@@ -24,14 +25,14 @@ class Transform extends ComponentPoolable {
 
   Transform._();
   static _ctor() => new Transform._();
-  factory Transform.w2d(num x, num y, num a) {
-    return new Transform.w3d(new vec3(x, y, 0), new vec3(0,0,a));
+  factory Transform.w2d(double x, double y, double a) {
+    return new Transform.w3d(new vec3(x, y, 0.0), new vec3(0.0, 0.0, a));
   }
   factory Transform.w3d(vec3 position, [vec3 rotation, vec3 scale]) {
     var c = new Poolable.of(Transform, _ctor) as Transform;
     c.position3d = position;
-    c.rotation3d = (rotation == null) ? new vec3(0,0,0) : rotation;
-    c.scale3d = (scale == null) ? new vec3(1,1,1) : scale;
+    c.rotation3d = (rotation == null) ? new vec3(0.0, 0.0, 0.0) : rotation;
+    c.scale3d = (scale == null) ? new vec3(1.0, 1.0, 1.0) : scale;
     return c;
   }
   /// this method mofidy the Transform (usefull for creation)
