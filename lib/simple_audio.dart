@@ -13,6 +13,9 @@ import 'package:simple_audio/simple_audio.dart';
 class AudioDef extends ComponentPoolable {
   final l = new LinkedBag<String>();
 
+  /// only one entity can be the audioListener at time t.
+  var isAudioListener = false;
+
   AudioDef._();
   static _ctor() => new AudioDef._();
   factory AudioDef() {
@@ -23,6 +26,7 @@ class AudioDef extends ComponentPoolable {
 
   void cleanUp() {
     l.clear();
+    isAudioListener = false;
   }
 
   /// this is a sugar method for [l].add([a])
@@ -54,23 +58,25 @@ class System_Audio extends EntityProcessingSystem {
   ComponentMapper<Transform> _transformMapper;
   ComponentMapper<AudioDef> _objDefMapper;
   ComponentMapper<_AudioCache> _objCacheMapper;
-  GroupManager _groupManager;
 
   var _listener;
   var _positional = false;
   final AudioManager _audioManager;
 
-  /// the function to find AudioClip from name,
-  /// default implementation is [clipProvider0]
-  final ClipProvider clipProvider;
+  ClipProvider _clipProvider;
 
-  System_Audio(this._audioManager, {clipProvider : clipProvider0, positional : false}):super(Aspect.getAspectForAllOf([AudioDef])), _positional = positional;
+  /// [clipProvider] is the function to find AudioClip from name,
+  /// default implementation is [clipProvider0]
+  System_Audio(this._audioManager, {clipProvider, positional : false}):
+    super(Aspect.getAspectForAllOf([AudioDef])),
+    _positional = positional {
+    _clipProvider = (clipProvider == null) ? this.clipProvider0 : clipProvider;
+  }
 
   void initialize(){
     _transformMapper = new ComponentMapper<Transform>(Transform, world);
     _objDefMapper = new ComponentMapper<AudioDef>(AudioDef, world);
     _objCacheMapper = new ComponentMapper<_AudioCache>(_AudioCache, world);
-    _groupManager = world.getManager(GroupManager) as GroupManager;
   }
 
   /// a default implementation for clipProvider, that retreive clip from [AudioManager]
@@ -84,7 +90,7 @@ class System_Audio extends EntityProcessingSystem {
       _applyTransform(obj, entity);
       var def = _objDefMapper.get(entity);
       def.l.iterateAndUpdate((x) {
-        var clip = clipProvider(x);
+        var clip = _clipProvider(x);
         if (clip == null) {
           //TODO log("can't play sound '${x}' : notfound in audioManager nor assetManager");
         } else {
@@ -108,7 +114,7 @@ class System_Audio extends EntityProcessingSystem {
     entity.addComponent(new _AudioCache(obj));
     entity.changedInWorld();
     _applyTransform(obj, entity);
-    if (_groupManager.isInGroup(entity, GROUP_AUDIOLISTENER)) {
+    if (objDef.isAudioListener) {
       //log("set audiolistener");
       _listener = obj;
     }

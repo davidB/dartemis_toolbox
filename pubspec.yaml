@@ -10,10 +10,9 @@ dev_dependencies:
   unittest: any
   vector_math: '>=0.9.7'
   simple_audio:
-    path: ../simpleaudio
+    git: git://github.com/johnmccutchan/simpleaudio.git
 #environment:
 #    sdk: 0.4.5+1.r21094
 #    path: ../dartemis
 #  box2d: any
 #  vector_math: '>=0.9.7'
-#    git: git://github.com/johnmccutchan/simpleaudio.git
