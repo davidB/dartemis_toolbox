@@ -4,13 +4,16 @@ author: david bernard
 description: A set of addons (Component, System, helper, ...) usable with dartemis
 homepage: https://github.com/davidB/dartemis_addons
 documentation: https://github.com/davidB/dartemis_addons
+dependencies:
+  dartemis: '>=0.4.1'
+dev_dependencies:
+  unittest: any
+  vector_math: '>=0.9.7'
+  simple_audio:
+    path: ../simpleaudio
 #environment:
 #    sdk: 0.4.5+1.r21094
-dependencies:
-  dartemis:
-    git: git://github.com/denniskaselow/dartemis.git
 #    path: ../dartemis
-dev_dependencies:
 #  box2d: any
 #  vector_math: '>=0.9.7'
-  unittest: any
+#    git: git://github.com/johnmccutchan/simpleaudio.git
