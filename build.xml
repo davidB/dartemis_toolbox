@@ -55,6 +55,14 @@
     <dart_check file="animator"/>
   </target>
 
-  <target name="default" depends="entity_state, utils, animator">
+  <target name="simple_audio" depends="transform">
+    <dart_check file="simple_audio"/>
+  </target>
+  
+  <target name="transform">
+    <dart_check file="transform"/>
+  </target>
+
+  <target name="default" depends="entity_state, utils, animator, simple_audio, transform">
   </target>
 </project>
