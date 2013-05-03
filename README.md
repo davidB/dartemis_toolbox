@@ -2,7 +2,16 @@
 # Overview
 
 `dartemis_addons` is a repository of various addons usable with [dartemis][], like Systems, Components, helpers.
-Each addon is defined its own library (often single source file).
+Each addon is defined its own library (often single source file). Some can be used without [dartemis][] like [ease](https://github.com/davidB/dartemis_addons/lib/ease.dart), [utils](https://github.com/davidB/dartemis_addons/lib/utils.dart).
+But you don't need to embrace the dartemis framework in your application to use addons.
+
+Current addons :
+
+* [transform](https://github.com/davidB/dartemis_addons/lib/transform.dart) used to define the position of your entity in space (2D and/or 3D).
+* [animator](https://github.com/davidB/dartemis_addons/lib/animator.dart) components + system to manage animation (any update on entity, with a start, a duration (infinity) and a stop).
+* [entity_state](https://github.com/davidB/dartemis_addons/lib/entity_state.dart) a way to manage states (of a finite state machine) of your entity : state == group of component (to add, to remove, to modify).
+* [simple_audio](https://github.com/davidB/dartemis_addons/lib/entity_state.dart) a way to integrate simple_audio into your dartemis application to play sound, music.  
+
 
 Contributions are welcome.
 
