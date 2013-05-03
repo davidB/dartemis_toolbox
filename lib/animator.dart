@@ -19,7 +19,7 @@ class Animatable extends ComponentPoolable {
   static _ctor() => new Animatable._();
   factory Animatable() {
     var c = new Poolable.of(Animatable, _ctor);
-    c.l.clear();
+    c.cleanUp();
     return c;
   }
 
@@ -58,17 +58,17 @@ bool onNoop(Entity e, num t, num t0){ return false;}
 class Animation {
   /// set by System_Animator when it start playing
   double _t0 = -1.0;
-  
+
   /// Callback before first call of [onTick] (same tick)
   OnStart onBegin = onNoop;
-  
+
   /// Callback each tick of the [System_Animator],
   /// the animation is ended when onUpdate return false
   OnUpdate onTick = onNoop;
-  
+
   /// Callback when animation is ended (after last [onTick], same tick)
   OnComplete onEnd = onNoop;
-  
+
   /// [Animation] to chain (to animate when this is completed)
   Animation next = null;
 }
@@ -116,7 +116,7 @@ class System_Animator extends EntityProcessingSystem {
  * [ratio] is the progression (0.0 .. 1.0).
  * [change] is the "amplitute" of the variation for the final variable,
  * or the difference between [baseValue] and the final value.
- * [baseValue] the initiale value of the variable 
+ * [baseValue] the initiale value of the variable
  * return the intermediate value.
  *
  * Functions can be used without dartemis or dartemis_addons (there are fully standalone)

@@ -46,7 +46,7 @@ class _AudioCache extends Component {
 /// ClipProvider find an AudioClip from name;
 /// eg a clipProvider from assetPackManager :
 ///
-///     (x) => _assetManager[x]
+///     (name) => _assetManager[name]
 ///
 typedef AudioClip ClipProvider(String name);
 

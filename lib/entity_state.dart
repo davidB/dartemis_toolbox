@@ -137,8 +137,7 @@ class ComponentProvider {
 }
 
 /**
- * Creates a component that can be added to the entity [e]
- * (but it should not add component to entity [e]).
+ * Modify an existing component [c] of the entity.
  */
 typedef void ModifyComponent<T>(T c);
 
