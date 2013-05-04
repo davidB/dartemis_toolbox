@@ -61,6 +61,8 @@ class LinkedBag<E> {
   /**
    * Iterate over the entries (!= null) in the bag.
    * [f] update the entry in the bag (return null => free the entry)
+   * The function can be used to loop (forEach) over entry if [f] return
+   * its parameter.
    */
   void iterateAndUpdate(E f(E)) {
     int i = 0;
