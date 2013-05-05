@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="dartemis_addons" default="default">
+<project name="dartemis_addons" default="check">
 
   <property environment="env" />
   <fail message="ERROR: Please set environmental variable DART_SDK">
@@ -67,6 +67,77 @@
     <dart_check file="transform"/>
   </target>
 
-  <target name="default" depends="entity_state, utils, animator, simple_audio, transform, ease">
+  <target name="check" depends="entity_state, utils, animator, simple_audio, transform, ease">
   </target>
+<!--
+  <path id="tools.path">
+    <fileset dir="tools" includes="*.jar"/>
+  </path>
+  <taskdef name="fmpp" classname="fmpp.tools.AntTask" classpathref="tools.path"/>
+-->
+  <target name="-init">
+    <mkdir dir="${target}"/>
+    <symlink link="${target}/packages" resource="${basedir}/packages" overwrite="true"/>
+    <symlink link="packages/vdrones" resource="${basedir}/lib" overwrite="true"/>
+  </target>
+
+  <target name="web" depends="-init">
+    <exec executable="rsync">
+        <arg line="-av --delete --links web target"/>
+      </exec>
+      <fmpp sourceFile="src/index.css.ftl" outputFile="${target}/web/index.css" />
+      <exec executable="${dart}" dir="${target}/web">
+        <arg line="--package-root=packages/ packages/web_ui/dwc.dart ease_graphics.html xtchart_demo.html"/>
+      </exec>
+    <delete file="${target}/web/index0.html"/>
+    <move file="${target}/web/_ease_graphics.html.html" tofile="${target}/web/ease_graphics.html"/>
+    <move file="${target}/web/_xtchart_demo.html.html" tofile="${target}/web/xtchart_demo.html"/>
+  </target>
+
+  <target name="js" depends="check, web">
+    <exec executable="${dart2js}" dir="${target}/web">
+      <arg line="--package-root=packages/ _index0.html_bootstrap.dart -o_index0.html_bootstrap.dart.js"/>
+    </exec>
+    <copy file="${target}/web/index0.html" tofile="${target}/web/index.html"/>
+    <replace file="${target}/web/index.html">
+      <replacefilter token='type="application/dart"' value='type="application/javascript"'/>
+      <replacefilter token='.dart' value='.dart.js'/>
+    </replace>
+   </target>
+
+   <target name="remove_packages" depends="js">
+    <delete includeEmptyDirs="true" removeNotFollowedSymlinks="true">
+      <fileset dir="${target}/web" includes="**/packages" followsymlinks="false"/>
+      <!--fileset dir="${target}/web/packages" followsymlinks="false"/-->
+    </delete>
+    <delete includeemptydirs="true">
+      <fileset dir="${target}/web" includes="*.dart,*.dart.map"/>
+    </delete>
+    <delete includeemptydirs="true">
+      <fileset dir="${target}/web" includes="**/out" followsymlinks="false"/>
+    </delete>
+    <!-- keep browser/dart.js : required by js-interop -->
+    <mkdir dir="${target}/web/packages"/>
+    <copy todir="${target}/web/packages/browser">
+    <fileset dir="packages/browser"/>
+    </copy>
+  </target>
+
+  <target name="deploy0" depends="js, remove_packages"/>
+  <target name="deploy" depends="deploy0">
+    <echo file="target/publish-site.sh">
+        #!/bin/sh
+        cd ${basedir}/../${name}.gh-pages
+        git checkout gh-pages
+        git pull
+        mkdir compo
+        cp -fr ${basedir}/target/web/. .
+        git add .
+        git commit -a -m "publish reports to gh-pages"
+        git push -u origin gh-pages
+    </echo>
+    <chmod perm="+x" file="target/publish-site.sh"/>
+    <!--exec executable="target/publish-site.sh" failonerror="true" failifexecutionfails="true"/-->
+  </target>
+
 </project>
