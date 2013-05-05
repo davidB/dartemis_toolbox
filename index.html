@@ -1,1 +1,81 @@
-My GitHub Page
+<!DOCTYPE html>
+<html class="no-js">
+  <head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <link type="text/plain" rel="author" href="humans.txt" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"/>
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--script src="_vendors/modernizr-2.6.2.min.js"></script-->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/2.3.1/simplex/bootstrap.min.css"/>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-responsive.min.css">
+    <!--link rel="stylesheet" href="index.css"-->
+    <link rel="stylesheet" href="http://weloveiconfonts.com/api/?family=fontawesome">
+    <title>Home : dartemis_addons</title>
+  </head>
+
+<body>
+
+    <header>
+      <div class="container">
+        <h1>Dartemis addons</h1>
+        <h2>A set of addons (Component, System, helper, ...) to use with dartemis or not</h2>
+
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+
+<h1>Overview</h1>
+
+<p><code>dartemis_addons</code> is a repository of various addons usable with <a href="https://github.com/denniskaselow/dartemis">dartemis</a>, like Systems, Components, helpers.
+Each addon is defined its own library (often single source file).
+Some libraries can be used without <a href="https://github.com/denniskaselow/dartemis">dartemis</a> like <a href="https://github.com/davidB/dartemis_addons/lib/ease.dart">ease</a>, <a href="https://github.com/davidB/dartemis_addons/lib/utils.dart">utils</a>.
+</p>
+<p>You don't need to embrace the dartemis framework in your application to use addons.</p>
+
+<p>Current addons :</p>
+
+<ul>
+<li>
+<a href="https://github.com/davidB/dartemis_addons/lib/ease.dart">ease</a> is a set of common ease functions for interpolation, transition, animations, <strong>(no dependencies)</strong></li>
+<li>
+<a href="https://github.com/davidB/dartemis_addons/lib/transform.dart">transform</a> used to define the position of your entity in space (2D and/or 3D).</li>
+<li>
+<a href="https://github.com/davidB/dartemis_addons/lib/animator.dart">animator</a> components + system to manage animation (any update on entity, with a start, a duration (infinity) and a stop).</li>
+<li>
+<a href="https://github.com/davidB/dartemis_addons/lib/entity_state.dart">entity_state</a> a way to manage states (of a finite state machine) of your entity : state == group of component (to add, to remove, to modify).</li>
+<li>
+<a href="https://github.com/davidB/dartemis_addons/lib/entity_state.dart">simple_audio</a> a way to integrate simple_audio into your dartemis application to play sound, music.</li>
+<li>widgets (webcomponent) :
+
+<ul>
+<li>xfchart to display a function (eg: used in the <a href="ease_graphics.html">Graphics of the ease's functions</a>)</li>
+<li>xtchart to display chart of realtime data like time serie (via push) (see <a href="xtchart_demo.html">Demo</a>)<br>
+</li>
+</ul>
+</li>
+</ul><h1>Dependencies</h1>
+
+<p>Every dependencies are defined as <code>dev_dependencies</code> so :</p>
+
+<ul>
+<li>users'project aren't pollute by not required thrid-party lib (if you use entity_state, you don't need box2d)</li>
+<li>users should explicitly list dependencies requeried by the dartemis addon (eg: box2d, vector_math) in its own project.</li>
+</ul><p>Contributions are welcome.</p>
+      </section>
+
+        <section id="downloads">
+          <p><a href="https://drone.io/github.com/davidB/dartemis_addons/latest"><img src="https://drone.io/github.com/davidB/dartemis_addons/status.png" alt="Build Status"></a></p>
+          <a href="https://github.com/davidB/dartemis_addons/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/davidB/dartemis_addons/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/davidB/dartemis_addons" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+    </div>
+
+
+</body>
+</html>
