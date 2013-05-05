@@ -4,9 +4,8 @@ author: david bernard
 description: A set of addons (Component, System, helper, ...) usable with dartemis
 homepage: https://github.com/davidB/dartemis_addons
 documentation: https://github.com/davidB/dartemis_addons
-dependencies:
-  dartemis: '>=0.4.1'
 dev_dependencies:
+  dartemis: '>=0.4.1'
   unittest: any
   vector_math: '>=0.9.7'
   simple_audio:
