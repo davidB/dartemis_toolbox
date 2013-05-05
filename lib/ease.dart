@@ -49,27 +49,62 @@ import 'dart:collection';
 /// a list/map of all functions, use for test, demo, editor
 final all = new LinkedHashMap<String, Function>()
   ..['linear'] = linear
+  ..['random'] = random
   ..['inQuad'] = inQuad
   ..['outQuad'] = outQuad
   ..['inOutQuad'] = inOutQuad
+  ..['outInQuad'] = outInQuad
   ..['inCubic'] = inCubic
   ..['outCubic'] = outCubic
   ..['inOutCubic'] = inOutCubic
+  ..['outInCubic'] = outInCubic
   ..['inQuartic'] = inQuartic
   ..['outQuartic'] = outQuartic
   ..['inOutQuartic'] = inOutQuartic
+  ..['outInQuartic'] = outInQuartic
   ..['inQuintic'] = inQuintic
   ..['outQuintic'] = outQuintic
   ..['inOutQuintic'] = inOutQuintic
+  ..['outInQuintic'] = outInQuintic
   ..['inSine'] = inSine
   ..['outSine'] = outSine
+  ..['inOutSine'] = inOutSine
+  ..['outInSine'] = outInSine
   ..['inExponential'] = inExponential
   ..['outExponential'] = outExponential
   ..['inOutExponential'] = inOutExponential
+  ..['outInExponential'] = outInExponential
   ..['inCircular'] = inCircular
   ..['outCircular'] = outCircular
   ..['inOutCircular'] = inOutCircular
+  ..['outInCircular'] = outInCircular
+  ..['inBack'] = inBack
+  ..['outBack'] = outBack
+  ..['inOutBack'] = inOutBack
+  ..['outInBack'] = outInBack
+  ..['inElastic'] = inElastic
+  ..['outElastic'] = outElastic
+  ..['inOutElastic'] = inOutElastic
+  ..['outInElastic'] = outInElastic
+  ..['inBounce'] = inBounce
+  ..['outBounce'] = outBounce
+  ..['inOutBounce'] = inOutBounce
+  ..['outInBounce'] = outInBounce
   ;
+
+/// create a new ease function by chaining 2 ease function
+chain(f0, f1) => (double ratio, num change, num baseValue) {
+  ratio = ratio * 2.0;
+  var c = change / 2;
+  return (ratio < 1.0) ? f0(ratio, c, baseValue) : f1(ratio - 1.0, c, baseValue) + c;
+};
+
+/// create a new ease function by chaining 2 ease function
+goback(f0) => (double ratio, num change, num baseValue) {
+  ratio = ratio * 2.0;
+  var c = change;
+  return (ratio < 1.0) ? f0(ratio, c, baseValue) : f0(ratio - 1.0, -c, baseValue + c);
+};
 
 /**
  * Performs a linear.
@@ -78,97 +113,58 @@ num linear(double ratio, num change, num baseValue) {
   return change * ratio + baseValue;
 }
 
+/**
+ * Performs a random value (except for ratio == 0 or ratio == 1).
+ */
+num random(double ratio, num change, num baseValue) {
+  var r = (ratio > 0.0 && ratio < 1.0) ? _randomRatio.nextDouble() : ratio;
+  return change * r + baseValue;
+}
+final _randomRatio = new Random();
+
 // QUADRATIC
 
-/**
- * Performs a quadratic easy-in.
- */
 num inQuad(double ratio, num change, num baseValue) {
   return change * ratio * ratio + baseValue;
 }
 
-/**
- * Performs a quadratic easy-out.
- */
 num outQuad(double ratio, num change, num baseValue) {
   return -change * ratio * (ratio - 2) + baseValue;
 }
 
-/**
- * Performs a quadratic easy-in-out.
- */
-num inOutQuad(double ratio, num change, num baseValue) {
-  var r = 2 * ratio;
+final inOutQuad = chain(inQuad, outQuad);
 
-  if (r < 1)
-    return change / 2 * r * r + baseValue;
-
-  r--;
-
-  return -change / 2 * (r * (r - 2) - 1) + baseValue;
-}
+final outInQuad = chain(outQuad, inQuad);
 
 // CUBIC
 
-/**
- * Performs a cubic easy-in.
- */
 num inCubic(double ratio, num change, num baseValue) {
   return change * ratio * ratio * ratio + baseValue;
 }
 
-/**
- * Performs a cubic easy-out.
- */
 num outCubic(double ratio, num change, num baseValue) {
   ratio--;
   return change * (ratio * ratio * ratio + 1) + baseValue;
 }
 
-/**
- * Performs a cubic easy-in-out.
- */
-num inOutCubic(double ratio, num change, num baseValue) {
-  var r = 2 * ratio;
+final inOutCubic = chain(inCubic, outCubic);
 
-  if (r < 1)
-    return change / 2 * r * r * r + baseValue;
-
-  r -= 2;
-
-  return change / 2 * (r * r * r + 2) + baseValue;
-}
+final outInCubic = chain(outCubic, inCubic);
 
 // QUARTIC
 
-/**
- * Performs a quartic easy-in.
- */
 num inQuartic(double ratio, num change, num baseValue) {
   return change * ratio * ratio * ratio * ratio + baseValue;
 }
 
-/**
- * Performs a quartic easy-out.
- */
 num outQuartic(double ratio, num change, num baseValue) {
   ratio--;
   return -change * (ratio * ratio * ratio * ratio - 1) + baseValue;
 }
 
-/**
- * Performs a quartic easy-in-out.
- */
-num inOutQuartic(double ratio, num change, num baseValue) {
-  var r = 2 * ratio;
+final inOutQuartic = chain(inQuartic, outQuartic);
 
-  if (r < 1)
-    return change / 2 * r * r * r * r + baseValue;
-
-  r -= 2;
-
-  return -change / 2 * (r * r * r * r - 2) + baseValue;
-}
+final outInQuartic = chain(outQuartic, inQuartic);
 
 // QUINTIC
 
@@ -179,109 +175,126 @@ num inQuintic(double ratio, num change, num baseValue) {
   return change * ratio * ratio * ratio * ratio * ratio + baseValue;
 }
 
-/**
- * Performs a quintic easy-out.
- */
 num outQuintic(double ratio, num change, num baseValue) {
   ratio--;
   return change * (ratio * ratio * ratio * ratio * ratio + 1) + baseValue;
 }
 
-/**
- * Performs a quintic easy-in-out.
- */
-num inOutQuintic(double ratio, num change, num baseValue) {
-  var r = 2 * ratio;
+final inOutQuintic = chain(inQuintic, outQuintic);
 
-  if (r < 1)
-    return change / 2 * r * r * r * r * r + baseValue;
-
-  r -= 2;
-
-  return change / 2 * (r * r * r * r * r + 2) + baseValue;
-}
+final outInQuintic = chain(outQuintic, inQuintic);
 
 // SINUSOIDAL
 
-/**
- * Performs a sine easy-in.
- */
 num inSine(double ratio, num change, num baseValue) {
   return -change * cos(ratio * (PI / 2)) + change + baseValue;
 }
 
-/**
- * Performs a sine easy-out.
- */
 num outSine(double ratio, num change, num baseValue) {
   return change * sin(ratio * (PI / 2)) + baseValue;
 }
 
-/**
- * Performs a sine easy-in-out.
- */
-num inOutSine(double ratio, num change, num baseValue) {
-  return -change / 2 * (cos(ratio * PI) - 1) + baseValue;
-}
+//num inOutSine(double ratio, num change, num baseValue) {
+//  return -change / 2 * (cos(ratio * PI) - 1) + baseValue;
+//}
+
+final inOutSine = chain(inSine, outSine);
+
+final outInSine = chain(outSine, inSine);
 
 // EXPONENTIAL
 
-/**
- * Performs an exponential easy-in.
- */
 num inExponential(double ratio, num change, num baseValue) {
   return change * pow(2, 10 * (ratio - 1)) + baseValue;
 }
 
-/**
- * Performs an exponential easy-out.
- */
 num outExponential(double ratio, num change, num baseValue) {
   return change * (-pow(2, -10 * ratio) + 1) + baseValue;
 }
 
-/**
- * Performs an exponential easy-in-out.
- */
-num inOutExponential(double ratio, num change, num baseValue) {
-  var r = 2 * ratio;
 
-  if (r < 1)
-    return change / 2 * pow(2, 10 * (r - 1)) + baseValue;
+final inOutExponential = chain(inExponential, outExponential);
 
-  r--;
-
-  return change / 2 * (-pow(2, -10 * r) + 2) + baseValue;
-}
+final outInExponential = chain(outExponential, inExponential);
 
 // CIRCULAR
 
-/**
- * Performs a circular easy-in.
- */
 num inCircular(double ratio, num change, num baseValue) {
   return -change * (sqrt(1 - ratio * ratio) - 1) + baseValue;
 }
 
-/**
- * Performs a circular easy-out.
- */
 num outCircular(double ratio, num change, num baseValue) {
   ratio--;
 
   return change * sqrt(1 - ratio * ratio) + baseValue;
 }
 
-/**
- * Performs a circular easy-in-out.
- */
-num inOutCircular(double ratio, num change, num baseValue) {
-  var r = 2 * ratio;
+final inOutCircular = chain(inCircular, outCircular);
 
-  if (r < 1)
-    return -change / 2 * (sqrt(1 - r * r) - 1) + baseValue;
+final outInCircular = chain(outCircular, inCircular);
 
-  r -= 2;
-  return change / 2 * (sqrt(1 - r * r) + 1) + baseValue;
+// Back
+
+num inBack(double ratio, num change, num baseValue) {
+  num s = 1.70158;
+  return ratio * ratio * ((s + change) * ratio - s) + baseValue;
 }
+
+num outBack(double ratio, num change, num baseValue) {
+  num s = 1.70158;
+  ratio = ratio - 1.0;
+  return ratio * ratio * ((s + change) * ratio + s) + change  + baseValue;
+}
+
+final inOutBack = chain(inBack, outBack);
+
+final outInBack = chain(outBack, inBack);
+
+// Elastic
+
+num inElastic(double ratio, num change, num baseValue) {
+  var r = ratio;
+  if (!(ratio == 0.0 || ratio == 1.0)) {
+    ratio = ratio - 1.0;
+    r = - pow(2.0, 10.0 * ratio) * sin((ratio - 0.3 / 4.0) * (2.0 * PI) / 0.3);
+  }
+  return r * change + baseValue;
+}
+
+num outElastic(double ratio, num change, num baseValue) {
+  var r =  (ratio == 0.0 || ratio == 1.0) ? ratio
+    : pow(2.0, - 10.0 * ratio) * sin((ratio - 0.3 / 4.0) * (2.0 * PI) / 0.3) + 1;
+  return r * change + baseValue;
+}
+
+final inOutElastic = chain(inElastic, outElastic);
+
+final outInElastic = chain(outElastic, inElastic);
+
+// Bounce
+
+num inBounce(double ratio, num change, num baseValue) {
+  var r = 1.0 - outBounce(1.0 - ratio, 1.0, 0.0);
+  return r * change + baseValue;
+}
+
+num outBounce(double ratio, num change, num baseValue) {
+  if (ratio < 1 / 2.75) {
+    ratio =  7.5625 * ratio * ratio;
+  } else if (ratio < 2 / 2.75) {
+    ratio = ratio - 1.5 / 2.75;
+    ratio = 7.5625 * ratio * ratio + 0.75;
+  } else if (ratio < 2.5 / 2.75) {
+    ratio = ratio - 2.25 / 2.75;
+    ratio = 7.5625 * ratio * ratio + 0.9375;
+  } else {
+    ratio = ratio - 2.625 / 2.75;
+    ratio = 7.5625 * ratio * ratio + 0.984375;
+  }
+  return ratio * change + baseValue;
+}
+
+final inOutBounce = chain(inBounce, outBounce);
+
+final outInBounce = chain(outBounce, inBounce);
 
