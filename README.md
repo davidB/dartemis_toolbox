@@ -7,7 +7,7 @@ But you don't need to embrace the dartemis framework in your application to use 
 
 Current addons :
 
-* [ease](https://github.com/davidB/dartemis_addons/lib/ease.dart) is a set of common ease functions used for interpolation, transition, animations, (*no dependencies*)
+* [ease](https://github.com/davidB/dartemis_addons/lib/ease.dart) is a set of common ease functions for interpolation, transition, animations, (*no dependencies*)
 * [transform](https://github.com/davidB/dartemis_addons/lib/transform.dart) used to define the position of your entity in space (2D and/or 3D).
 * [animator](https://github.com/davidB/dartemis_addons/lib/animator.dart) components + system to manage animation (any update on entity, with a start, a duration (infinity) and a stop).
 * [entity_state](https://github.com/davidB/dartemis_addons/lib/entity_state.dart) a way to manage states (of a finite state machine) of your entity : state == group of component (to add, to remove, to modify).
