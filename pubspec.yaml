@@ -11,6 +11,7 @@ dev_dependencies:
   vector_math: '>=0.9.7'
   simple_audio:
     git: git://github.com/johnmccutchan/simpleaudio.git
+  web_ui: any
 #environment:
 #    sdk: 0.4.5+1.r21094
 #    path: ../dartemis

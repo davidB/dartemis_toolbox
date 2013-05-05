@@ -42,27 +42,31 @@
     </exec>
   </target>
 
-  
+
   <target name="entity_state">
     <dart_check file="entity_state"/>
   </target>
-  
+
   <target name="utils">
     <dart_check file="utils"/>
   </target>
-  
+
   <target name="animator">
     <dart_check file="animator"/>
+  </target>
+
+  <target name="ease">
+    <dart_check file="ease"/>
   </target>
 
   <target name="simple_audio" depends="transform">
     <dart_check file="simple_audio"/>
   </target>
-  
+
   <target name="transform">
     <dart_check file="transform"/>
   </target>
 
-  <target name="default" depends="entity_state, utils, animator, simple_audio, transform">
+  <target name="default" depends="entity_state, utils, animator, simple_audio, transform, ease">
   </target>
 </project>
