@@ -1,0 +1,181 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>LinkedBag&lt;E&gt; class / utils Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="utils" data-type="LinkedBag&amp;lt;E&amp;gt;">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../utils.html">utils</a> &rsaquo; <a href="../utils/LinkedBag.html">LinkedBag&lt;E&gt;</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>LinkedBag&lt;E&gt;</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<pre class="source">
+class LinkedBag&lt;E&gt; {
+ LinkedEntry _head = new LinkedEntry();
+
+ get length {
+   int i = 0;
+   for(var a = _head; a != null; a = a._next) {
+     if (a._obj != null) i++;
+   }
+   return i;
+ }
+
+ void clear() {
+   for(var a = _head; a != null; a = a._next) {
+     a._obj = null;
+   }
+ }
+
+ void add(E obj) {
+   var a = _head;
+   while(a != null) {
+     if (a._obj == null) {
+       a._obj = obj;
+       return;
+     }
+     if (a._next == null) {
+       var e = new LinkedEntry();
+       e._obj = obj;
+       a._next = e;
+       return;
+     }
+     a = a._next;
+   }
+ }
+
+ /**
+  * Iterate over the entries (!= null) in the bag.
+  * [f] update the entry in the bag (return null =&gt; free the entry)
+  * The function can be used to loop (forEach) over entry if [f] return
+  * its parameter.
+  */
+ void iterateAndUpdate(E f(E)) {
+   int i = 0;
+   for(var current = _head; current != null; current = current._next) {
+     if (current._obj != null) {
+       current._obj = f(current._obj);
+     }
+   }
+ }
+}
+</pre>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="length">
+<button class="show-code">Code</button>
+final         <strong>length</strong> <a class="anchor-link"
+            href="#length"
+            title="Permalink to LinkedBag&lt;E&gt;.length">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+get length {
+ int i = 0;
+ for(var a = _head; a != null; a = a._next) {
+   if (a._obj != null) i++;
+ }
+ return i;
+}
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="add">
+<button class="show-code">Code</button>
+void <strong>add</strong>(<a href="../utils/LinkedBag.html">E</a> obj) <a class="anchor-link" href="#add"
+              title="Permalink to LinkedBag&lt;E&gt;.add">#</a></h4>
+<div class="doc">
+<pre class="source">
+void add(E obj) {
+ var a = _head;
+ while(a != null) {
+   if (a._obj == null) {
+     a._obj = obj;
+     return;
+   }
+   if (a._next == null) {
+     var e = new LinkedEntry();
+     e._obj = obj;
+     a._next = e;
+     return;
+   }
+   a = a._next;
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="clear">
+<button class="show-code">Code</button>
+void <strong>clear</strong>() <a class="anchor-link" href="#clear"
+              title="Permalink to LinkedBag&lt;E&gt;.clear">#</a></h4>
+<div class="doc">
+<pre class="source">
+void clear() {
+ for(var a = _head; a != null; a = a._next) {
+   a._obj = null;
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="iterateAndUpdate">
+<button class="show-code">Code</button>
+void <strong>iterateAndUpdate</strong>(<a href="../utils/LinkedBag.html">E</a> f(E)) <a class="anchor-link" href="#iterateAndUpdate"
+              title="Permalink to LinkedBag&lt;E&gt;.iterateAndUpdate">#</a></h4>
+<div class="doc">
+<p>Iterate over the entries (!= null) in the bag.
+
+<span class="param">f</span> update the entry in the bag (return null => free the entry)
+The function can be used to loop (forEach) over entry if 
+<span class="param">f</span> return
+its parameter.</p>
+<pre class="source">
+void iterateAndUpdate(E f(E)) {
+ int i = 0;
+ for(var current = _head; current != null; current = current._next) {
+   if (current._obj != null) {
+     current._obj = f(current._obj);
+   }
+ }
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-05 23:19:56.331</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

@@ -1,0 +1,318 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>EntityManager class / dartemis Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="dartemis" data-type="EntityManager">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../dartemis.html">dartemis</a> &rsaquo; <a href="../dartemis/EntityManager.html">EntityManager</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>EntityManager</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<pre class="source">
+class EntityManager extends Manager {
+
+ Bag&lt;Entity&gt; _entities;
+ Bag&lt;Entity&gt; _deletedEntities;
+ Bag&lt;bool&gt; _disabled;
+
+ int _active = 0;
+ int _added = 0;
+ int _created = 0;
+ int _deleted = 0;
+
+ _IdentifierPool _identifierPool;
+
+ EntityManager() : _entities = new Bag&lt;Entity&gt;(),
+                   _deletedEntities = new Bag&lt;Entity&gt;(),
+                   _disabled = new Bag&lt;bool&gt;(),
+                   _identifierPool = new _IdentifierPool();
+
+ void initialize() {}
+
+ Entity _createEntityInstance() {
+   Entity e = _deletedEntities.removeLast();
+   if (null == e) {
+     e = new Entity._(_world, _identifierPool.checkOut());
+   }
+   _created++;
+   return e;
+ }
+
+ void added(Entity e) {
+   _active++;
+   _added++;
+   _entities[e.id] = e;
+ }
+
+ void enabled(Entity e) {
+   _disabled[e.id] = false;
+ }
+
+ void disabled(Entity e) {
+   _disabled[e.id] = true;
+ }
+
+ void deleted(Entity e) {
+   _entities[e.id] = null;
+
+   _disabled[e.id] = false;
+
+   _deletedEntities.add(e);
+
+   _active--;
+   _deleted++;
+ }
+
+
+ /**
+  * Check if this entity is active.
+  * Active means the entity is being actively processed.
+  */
+ bool isActive(int entityId) =&gt; _entities[entityId] != null;
+
+ /**
+  * Check if the specified entityId is enabled.
+  */
+ bool isEnabled(int entityId) =&gt; !_disabled[entityId];
+
+ /**
+  * Get a entity with this id.
+  */
+ Entity _getEntity(int entityId) =&gt; _entities[entityId];
+
+ /**
+  * Get how many entities are active in this world.
+  */
+ int get activeEntityCount =&gt; _active;
+
+ /**
+  * Get how many entities have been created in the world since start.
+  * Note: A created entity may not have been added to the world, thus
+  * created count is always equal or larger than added count.
+  */
+ int get totalCreated =&gt; _created;
+
+ /**
+  * Get how many entities have been added to the world since start.
+  */
+ int get totalAdded =&gt; _added;
+
+ /**
+  * Get how many entities have been deleted from the world since start.
+  */
+ int get totalDeleted =&gt; _deleted;
+}
+</pre>
+</div>
+<h3>Extends</h3>
+<p>
+<span class="type-box"><span class="icon-class"></span><a href="../dartemis/Manager.html">Manager</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><strong>EntityManager</strong></span></p>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="EntityManager">
+<button class="show-code">Code</button>
+new <strong>EntityManager</strong>() <a class="anchor-link" href="#EntityManager"
+              title="Permalink to EntityManager.EntityManager">#</a></h4>
+<div class="doc">
+<pre class="source">
+EntityManager() : _entities = new Bag&lt;Entity&gt;(),
+                 _deletedEntities = new Bag&lt;Entity&gt;(),
+                 _disabled = new Bag&lt;bool&gt;(),
+                 _identifierPool = new _IdentifierPool();
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="activeEntityCount">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>activeEntityCount</strong> <a class="anchor-link"
+            href="#activeEntityCount"
+            title="Permalink to EntityManager.activeEntityCount">#</a>
+        </h4>
+        <div class="doc">
+<p>Get how many entities are active in this world.</p>
+<pre class="source">
+int get activeEntityCount =&gt; _active;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="totalAdded">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>totalAdded</strong> <a class="anchor-link"
+            href="#totalAdded"
+            title="Permalink to EntityManager.totalAdded">#</a>
+        </h4>
+        <div class="doc">
+<p>Get how many entities have been added to the world since start.</p>
+<pre class="source">
+int get totalAdded =&gt; _added;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="totalCreated">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>totalCreated</strong> <a class="anchor-link"
+            href="#totalCreated"
+            title="Permalink to EntityManager.totalCreated">#</a>
+        </h4>
+        <div class="doc">
+<p>Get how many entities have been created in the world since start.
+Note: A created entity may not have been added to the world, thus
+created count is always equal or larger than added count.</p>
+<pre class="source">
+int get totalCreated =&gt; _created;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="totalDeleted">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>totalDeleted</strong> <a class="anchor-link"
+            href="#totalDeleted"
+            title="Permalink to EntityManager.totalDeleted">#</a>
+        </h4>
+        <div class="doc">
+<p>Get how many entities have been deleted from the world since start.</p>
+<pre class="source">
+int get totalDeleted =&gt; _deleted;
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="added">
+<button class="show-code">Code</button>
+void <strong>added</strong>(<a href="../dartemis/Entity.html">Entity</a> e) <a class="anchor-link" href="#added"
+              title="Permalink to EntityManager.added">#</a></h4>
+<div class="doc">
+<pre class="source">
+void added(Entity e) {
+ _active++;
+ _added++;
+ _entities[e.id] = e;
+}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="changed">
+<button class="show-code">Code</button>
+void <strong>changed</strong>(<a href="../dartemis/Entity.html">Entity</a> e) <a class="anchor-link" href="#changed"
+              title="Permalink to EntityManager.changed">#</a></h4>
+<div class="inherited-from">inherited from <a href="../dartemis/Manager.html">Manager</a> </div><div class="doc">
+<pre class="source">
+void changed(Entity e) {}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="deleted">
+<button class="show-code">Code</button>
+void <strong>deleted</strong>(<a href="../dartemis/Entity.html">Entity</a> e) <a class="anchor-link" href="#deleted"
+              title="Permalink to EntityManager.deleted">#</a></h4>
+<div class="doc">
+<pre class="source">
+void deleted(Entity e) {
+ _entities[e.id] = null;
+
+ _disabled[e.id] = false;
+
+ _deletedEntities.add(e);
+
+ _active--;
+ _deleted++;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="disabled">
+<button class="show-code">Code</button>
+void <strong>disabled</strong>(<a href="../dartemis/Entity.html">Entity</a> e) <a class="anchor-link" href="#disabled"
+              title="Permalink to EntityManager.disabled">#</a></h4>
+<div class="doc">
+<pre class="source">
+void disabled(Entity e) {
+ _disabled[e.id] = true;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="enabled">
+<button class="show-code">Code</button>
+void <strong>enabled</strong>(<a href="../dartemis/Entity.html">Entity</a> e) <a class="anchor-link" href="#enabled"
+              title="Permalink to EntityManager.enabled">#</a></h4>
+<div class="doc">
+<pre class="source">
+void enabled(Entity e) {
+ _disabled[e.id] = false;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="initialize">
+<button class="show-code">Code</button>
+void <strong>initialize</strong>() <a class="anchor-link" href="#initialize"
+              title="Permalink to EntityManager.initialize">#</a></h4>
+<div class="doc">
+<pre class="source">
+void initialize() {}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="isActive">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>isActive</strong>(<a href="http://api.dartlang.org/dart_core/int.html">int</a> entityId) <a class="anchor-link" href="#isActive"
+              title="Permalink to EntityManager.isActive">#</a></h4>
+<div class="doc">
+<p>Check if this entity is active.
+Active means the entity is being actively processed.</p>
+<pre class="source">
+bool isActive(int entityId) =&gt; _entities[entityId] != null;
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="isEnabled">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>isEnabled</strong>(<a href="http://api.dartlang.org/dart_core/int.html">int</a> entityId) <a class="anchor-link" href="#isEnabled"
+              title="Permalink to EntityManager.isEnabled">#</a></h4>
+<div class="doc">
+<p>Check if the specified entityId is enabled.</p>
+<pre class="source">
+bool isEnabled(int entityId) =&gt; !_disabled[entityId];
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-05 23:19:56.072</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

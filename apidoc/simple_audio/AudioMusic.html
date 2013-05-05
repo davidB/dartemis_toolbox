@@ -1,0 +1,204 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>AudioMusic class / simple_audio Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="simple_audio" data-type="AudioMusic">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../simple_audio.html">simple_audio</a> &rsaquo; <a href="../simple_audio/AudioMusic.html">AudioMusic</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>AudioMusic</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p><a class="crossref" href="../simple_audio/AudioMusic.html">AudioMusic</a> plays a clip from an omnidirectional <a class="crossref" href="../simple_audio/AudioSource.html">AudioSource</a>.</p>
+<pre class="source">
+class AudioMusic {
+ final AudioManager _manager;
+ AudioSource _source;
+ AudioSound _sound;
+ AudioClip _clip;
+ AudioMusic._internal(this._manager, GainNode output) {
+   _source = new AudioSource._internal(_manager, 'music', output);
+   _source.positional = false;
+ }
+
+ Map toJson() {
+   Map map = new Map();
+   map['clipName'] = _clip._name;
+   return map;
+ }
+
+ void fromMap(Map map) {
+   _clip = _manager.findClip(map['clipName']);
+ }
+
+ void _stop() {
+   if (_sound != null) {
+     _sound.stop();
+     _sound = null;
+   }
+ }
+
+ /** Is the music paused? */
+ bool get pause =&gt; _sound == null ? false : _sound.pause;
+ /** Pause or unpause the music */
+ void set pause(bool b) {
+   if (_sound != null) {
+     _sound.pause = b;
+   }
+ }
+
+ AudioClip get clip =&gt; _clip;
+
+ void set clip(AudioClip clip) {
+   _clip = clip;
+ }
+
+ /** Play the music clip. The music will loop. */
+ void play({loop: true}) {
+   _stop();
+   _sound = new AudioSound._internal(_source, _clip, loop);
+   _sound.play();
+ }
+
+ /** Stop the music. */
+ void stop() {
+   _stop();
+ }
+}
+</pre>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="clip">
+<button class="show-code">Code</button>
+<a href="../simple_audio/AudioClip.html">AudioClip</a>         <strong>clip</strong> <a class="anchor-link"
+            href="#clip"
+            title="Permalink to AudioMusic.clip">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+AudioClip get clip =&gt; _clip;
+</pre>
+<pre class="source">
+void set clip(AudioClip clip) {
+ _clip = clip;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="pause">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>get pause</strong> <a class="anchor-link" href="#pause"
+              title="Permalink to AudioMusic.get pause">#</a></h4>
+<div class="doc">
+<p>Is the music paused? </p>
+<pre class="source">
+bool get pause =&gt; _sound == null ? false : _sound.pause;
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="pause=">
+<button class="show-code">Code</button>
+void <strong>set pause</strong>(<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> b) <a class="anchor-link" href="#pause="
+              title="Permalink to AudioMusic.set pause">#</a></h4>
+<div class="doc">
+<p>Pause or unpause the music </p>
+<pre class="source">
+void set pause(bool b) {
+ if (_sound != null) {
+   _sound.pause = b;
+ }
+}
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="fromMap">
+<button class="show-code">Code</button>
+void <strong>fromMap</strong>(<a href="http://api.dartlang.org/dart_core/Map.html">Map</a> map) <a class="anchor-link" href="#fromMap"
+              title="Permalink to AudioMusic.fromMap">#</a></h4>
+<div class="doc">
+<pre class="source">
+void fromMap(Map map) {
+ _clip = _manager.findClip(map['clipName']);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="play">
+<button class="show-code">Code</button>
+void <strong>play</strong>({loop: true}) <a class="anchor-link" href="#play"
+              title="Permalink to AudioMusic.play">#</a></h4>
+<div class="doc">
+<p>Play the music clip. The music will loop. </p>
+<pre class="source">
+void play({loop: true}) {
+ _stop();
+ _sound = new AudioSound._internal(_source, _clip, loop);
+ _sound.play();
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="stop">
+<button class="show-code">Code</button>
+void <strong>stop</strong>() <a class="anchor-link" href="#stop"
+              title="Permalink to AudioMusic.stop">#</a></h4>
+<div class="doc">
+<p>Stop the music. </p>
+<pre class="source">
+void stop() {
+ _stop();
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="toJson">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/Map.html">Map</a> <strong>toJson</strong>() <a class="anchor-link" href="#toJson"
+              title="Permalink to AudioMusic.toJson">#</a></h4>
+<div class="doc">
+<pre class="source">
+Map toJson() {
+ Map map = new Map();
+ map['clipName'] = _clip._name;
+ return map;
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-05 23:19:56.263</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

@@ -1,0 +1,130 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>ComponentModifier&lt;T&gt; class / entity_state Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="entity_state" data-type="ComponentModifier&amp;lt;T&amp;gt;">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../entity_state.html">entity_state</a> &rsaquo; <a href="../entity_state/ComponentModifier.html">ComponentModifier&lt;T&gt;</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>ComponentModifier&lt;T&gt;</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<pre class="source">
+class ComponentModifier&lt;T&gt; {
+ final ComponentType type;
+ final ModifyComponent&lt;T&gt; modifyComponent;
+
+ //TODO use generic to define ctype and secure that ctype == T
+ //(see https://code.google.com/p/dart/source/browse/branches/bleeding_edge/dart/tests/language/type_parameter_literal_test.dart)
+ ComponentModifier(Type ctype, this.modifyComponent) : type = ComponentTypeManager.getTypeFor(ctype);
+
+ void applyE(Entity e) {
+   var c = e.getComponent(type);
+   applyC(e.getComponent(type));
+ }
+ void applyC(T c) {
+   if (c != null) modifyComponent(c);
+ }
+}
+</pre>
+</div>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="ComponentModifier">
+<button class="show-code">Code</button>
+new <strong>ComponentModifier</strong>(<a href="http://api.dartlang.org/dart_core/Type.html">Type</a> ctype, <a href="../entity_state/ModifyComponent.html">ModifyComponent</a> modifyComponent) <a class="anchor-link" href="#ComponentModifier"
+              title="Permalink to ComponentModifier&lt;T&gt;.ComponentModifier">#</a></h4>
+<div class="doc">
+<pre class="source">
+ComponentModifier(Type ctype, this.modifyComponent) : type = ComponentTypeManager.getTypeFor(ctype);
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="modifyComponent">
+<button class="show-code">Code</button>
+final <a href="../entity_state/ModifyComponent.html">ModifyComponent</a>         <strong>modifyComponent</strong> <a class="anchor-link"
+            href="#modifyComponent"
+            title="Permalink to ComponentModifier&lt;T&gt;.modifyComponent">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final ModifyComponent&lt;T&gt; modifyComponent
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="type">
+<button class="show-code">Code</button>
+final <a href="../dartemis/ComponentType.html">ComponentType</a>         <strong>type</strong> <a class="anchor-link"
+            href="#type"
+            title="Permalink to ComponentModifier&lt;T&gt;.type">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final ComponentType type
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="applyC">
+<button class="show-code">Code</button>
+void <strong>applyC</strong>(<a href="../entity_state/ComponentModifier.html">T</a> c) <a class="anchor-link" href="#applyC"
+              title="Permalink to ComponentModifier&lt;T&gt;.applyC">#</a></h4>
+<div class="doc">
+<pre class="source">
+void applyC(T c) {
+ if (c != null) modifyComponent(c);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="applyE">
+<button class="show-code">Code</button>
+void <strong>applyE</strong>(<a href="../dartemis/Entity.html">Entity</a> e) <a class="anchor-link" href="#applyE"
+              title="Permalink to ComponentModifier&lt;T&gt;.applyE">#</a></h4>
+<div class="doc">
+<pre class="source">
+void applyE(Entity e) {
+ var c = e.getComponent(type);
+ applyC(e.getComponent(type));
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-05 23:19:56.190</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

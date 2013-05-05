@@ -1,0 +1,586 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>AudioSource class / simple_audio Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="simple_audio" data-type="AudioSource">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../simple_audio.html">simple_audio</a> &rsaquo; <a href="../simple_audio/AudioSource.html">AudioSource</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>AudioSource</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p>An <a class="crossref" href="../simple_audio/AudioSource.html">AudioSource</a> is analogous to a speaker in the game world.</p>
+<p>The only way to play an <a class="crossref" href="../simple_audio/AudioClip.html">AudioClip</a> is with an <a class="crossref" href="../simple_audio/AudioSource.html">AudioSource</a>.</p>
+<p>An <a class="crossref" href="../simple_audio/AudioSource.html">AudioSource</a> can be <a class="crossref" href="../simple_audio/AudioSource.html#positional">positional</a> or not. Positional <a class="crossref" href="../simple_audio/AudioSource.html">AudioSource</a>s
+sound different depending on where the listener is. Non-positional
+<a class="crossref" href="../simple_audio/AudioSource.html">AudioSource</a>s sound the same regarldess of where the listener is.
+The location of the listener can be controlled with an <a class="crossref" href="../simple_audio/AudioManager.html">AudioManager</a>.</p>
+<p><em>NOTE:</em> By default an <a class="crossref" href="../simple_audio/AudioSource.html">AudioSource</a> is <a class="crossref" href="../simple_audio/AudioSource.html#positional">positional</a>.</p>
+<pre class="source">
+class AudioSource {
+ AudioManager _manager;
+ String _name;
+ GainNode _output;
+ GainNode _gainNode;
+ PannerNode _panNode;
+ List&lt;AudioSound&gt; _sounds;
+ num _mutedVolume;
+ bool _isPaused = false;
+ num _x = 0.0;
+ num _y = 0.0;
+ num _z = 0.0;
+ bool _positional = true;
+
+ void _setupNodes() {
+   _panNode.disconnect(0);
+   _gainNode.disconnect(0);
+   if (_positional) {
+     _gainNode.connect(_panNode, 0, 0);
+     _panNode.connect(_output, 0, 0);
+   } else {
+     // Not positioned, we skip the panner node.
+     _gainNode.connect(_output, 0, 0);
+   }
+ }
+
+ AudioSource._internal(this._manager, this._name, this._output) {
+   _gainNode = _manager._context.createGain();
+   _panNode = _manager._context.createPanner();
+   _panNode.coneOuterGain = 1.0;
+   _setupNodes();
+   _sounds = new List&lt;AudioSound&gt;();
+ }
+
+ bool get positional =&gt; _positional;
+
+ void set positional(bool b) {
+   if (b != _positional) {
+     _positional = b;
+     _setupNodes();
+   }
+ }
+
+ /** Get the volume of the source. 0.0 &lt;= volume &lt;= 1.0. */
+ num get volume =&gt; _gainNode.gain.value;
+
+ /** Set the volume for the source. All sounds being played are affected. */
+ void set volume(num v) {
+   _gainNode.gain.value = v;
+ }
+
+ Map toJson() {
+   return {
+     "_name": _name,
+     "volume": _gainNode.gain.value,
+     "_mutedVolume": _mutedVolume,
+     "_isPaused": _isPaused,
+     "_x":_x,
+     "_y":_y,
+     "_z":_z,
+   };
+ }
+
+ AudioSource fromMap(Map map) {
+   _gainNode.gain.value = map["volume"];
+   _mutedVolume = map["_mutedVolume"];
+   _isPaused = map["_isPaused"];
+   _name = map["_name"];
+   _x = map["_x"];
+   _y = map["_y"];
+   _z = map["_z"];
+   setPosition(_x, _y, _z);
+   return this;
+ }
+
+ /** Is the source muted? */
+ bool get mute {
+   return _mutedVolume != null;
+ }
+
+ /** Mute or unmute the source. */
+ void set mute(bool b) {
+   if (b) {
+     if (_mutedVolume != null) {
+       // Double mute.
+       return;
+     }
+     _mutedVolume = volume;
+     volume = 0.0;
+   } else {
+     if (_mutedVolume == null) {
+       // Double unmute.
+       return;
+     }
+     volume = _mutedVolume;
+     _mutedVolume = null;
+   }
+ }
+
+ /** Play [clip] from the source. */
+ AudioSound playOnce(AudioClip clip) {
+   return playOnceIn(0.0, clip);
+ }
+
+ /** Play [clip] from the source starting in [delay] seconds. */
+ AudioSound playOnceIn(num delay, AudioClip clip) {
+   AudioSound sound = new AudioSound._internal(this, clip, false);
+   _sounds.add(sound);
+   sound.play(delay);
+   sound.pause = pause;
+
+   return sound;
+ }
+
+ /** Play [clip] from the source in a loop. */
+ AudioSound playLooped(AudioClip clip) {
+   return playLoopedIn(0.0, clip);
+ }
+
+ /** Play [clip] from the source in a loop starting in [delay]
+  * seconds.
+  */
+ AudioSound playLoopedIn(num delay, AudioClip clip) {
+   AudioSound sound = new AudioSound._internal(this, clip, true);
+   _sounds.add(sound);
+   sound.play(delay);
+   sound.pause = pause;
+   return sound;
+ }
+
+ bool _scanSounds() {
+   for (int i = _sounds.length-1; i &gt;= 0; i--) {
+     AudioSound sound = _sounds[i];
+     if (sound.isFinished) {
+       int last = _sounds.length-1;
+       // Copy last over
+       _sounds[i] = _sounds[last];
+       // Pop end
+       _sounds.removeLast();
+       print('removing sound.');
+       sound.stop();
+     }
+   }
+ }
+
+ /** Is the source currently paused? */
+ bool get pause =&gt; _isPaused;
+
+ /** Pause or resume the source */
+ void set pause(bool b) {
+   if (b) {
+     if (_isPaused == true) {
+       // Double pause.
+       return;
+     }
+     _pause();
+     _isPaused = true;
+   } else {
+     if (_isPaused == false) {
+       // Double unpause.
+       return;
+     }
+     _resume();
+     _isPaused = false;
+   }
+ }
+
+ void _pause() {
+   _scanSounds();
+   _sounds.forEach((sound) {
+     sound.pause = true;
+   });
+ }
+
+ void _resume() {
+   _scanSounds();
+   _sounds.forEach((sound) {
+     sound.pause = false;
+   });
+ }
+
+ /** Stop the source. Affects all playing and scheduled sounds. */
+ void stop() {
+   _sounds.forEach((sound) {
+     sound.stop();
+   });
+   _scanSounds();
+ }
+
+ /** X position of the source. */
+ num get x =&gt; _x;
+ /** Y position of the source. */
+ num get y =&gt; _y;
+ /** Z position of the source. */
+ num get z =&gt; _z;
+
+ /**
+  * Set the position of the source.
+  */
+ void setPosition(num x, num y, num z) {
+   _x = x;
+   _y = y;
+   _z = z;
+   _panNode.setPosition(x, y, z);
+ }
+
+ /**
+  * Set the linear velocity of the source.
+  */
+ void setVelocity(num x, num y, num z) {
+   _panNode.setVelocity(x, y, z);
+ }
+}
+</pre>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="method"><h4 id="mute">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>get mute</strong> <a class="anchor-link" href="#mute"
+              title="Permalink to AudioSource.get mute">#</a></h4>
+<div class="doc">
+<p>Is the source muted? </p>
+<pre class="source">
+bool get mute {
+ return _mutedVolume != null;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="mute=">
+<button class="show-code">Code</button>
+void <strong>set mute</strong>(<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> b) <a class="anchor-link" href="#mute="
+              title="Permalink to AudioSource.set mute">#</a></h4>
+<div class="doc">
+<p>Mute or unmute the source. </p>
+<pre class="source">
+void set mute(bool b) {
+ if (b) {
+   if (_mutedVolume != null) {
+     // Double mute.
+     return;
+   }
+   _mutedVolume = volume;
+   volume = 0.0;
+ } else {
+   if (_mutedVolume == null) {
+     // Double unmute.
+     return;
+   }
+   volume = _mutedVolume;
+   _mutedVolume = null;
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="pause">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>get pause</strong> <a class="anchor-link" href="#pause"
+              title="Permalink to AudioSource.get pause">#</a></h4>
+<div class="doc">
+<p>Is the source currently paused? </p>
+<pre class="source">
+bool get pause =&gt; _isPaused;
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="pause=">
+<button class="show-code">Code</button>
+void <strong>set pause</strong>(<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> b) <a class="anchor-link" href="#pause="
+              title="Permalink to AudioSource.set pause">#</a></h4>
+<div class="doc">
+<p>Pause or resume the source </p>
+<pre class="source">
+void set pause(bool b) {
+ if (b) {
+   if (_isPaused == true) {
+     // Double pause.
+     return;
+   }
+   _pause();
+   _isPaused = true;
+ } else {
+   if (_isPaused == false) {
+     // Double unpause.
+     return;
+   }
+   _resume();
+   _isPaused = false;
+ }
+}
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="positional">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a>         <strong>positional</strong> <a class="anchor-link"
+            href="#positional"
+            title="Permalink to AudioSource.positional">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+bool get positional =&gt; _positional;
+</pre>
+<pre class="source">
+void set positional(bool b) {
+ if (b != _positional) {
+   _positional = b;
+   _setupNodes();
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="volume">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>get volume</strong> <a class="anchor-link" href="#volume"
+              title="Permalink to AudioSource.get volume">#</a></h4>
+<div class="doc">
+<p>Get the volume of the source. 0.0 &lt;= volume &lt;= 1.0. </p>
+<pre class="source">
+num get volume =&gt; _gainNode.gain.value;
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="volume=">
+<button class="show-code">Code</button>
+void <strong>set volume</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> v) <a class="anchor-link" href="#volume="
+              title="Permalink to AudioSource.set volume">#</a></h4>
+<div class="doc">
+<p>Set the volume for the source. All sounds being played are affected. </p>
+<pre class="source">
+void set volume(num v) {
+ _gainNode.gain.value = v;
+}
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="x">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/num.html">num</a>         <strong>x</strong> <a class="anchor-link"
+            href="#x"
+            title="Permalink to AudioSource.x">#</a>
+        </h4>
+        <div class="doc">
+<p>X position of the source. </p>
+<pre class="source">
+num get x =&gt; _x;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="y">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/num.html">num</a>         <strong>y</strong> <a class="anchor-link"
+            href="#y"
+            title="Permalink to AudioSource.y">#</a>
+        </h4>
+        <div class="doc">
+<p>Y position of the source. </p>
+<pre class="source">
+num get y =&gt; _y;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="z">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/num.html">num</a>         <strong>z</strong> <a class="anchor-link"
+            href="#z"
+            title="Permalink to AudioSource.z">#</a>
+        </h4>
+        <div class="doc">
+<p>Z position of the source. </p>
+<pre class="source">
+num get z =&gt; _z;
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="fromMap">
+<button class="show-code">Code</button>
+<a href="../simple_audio/AudioSource.html">AudioSource</a> <strong>fromMap</strong>(<a href="http://api.dartlang.org/dart_core/Map.html">Map</a> map) <a class="anchor-link" href="#fromMap"
+              title="Permalink to AudioSource.fromMap">#</a></h4>
+<div class="doc">
+<pre class="source">
+AudioSource fromMap(Map map) {
+ _gainNode.gain.value = map["volume"];
+ _mutedVolume = map["_mutedVolume"];
+ _isPaused = map["_isPaused"];
+ _name = map["_name"];
+ _x = map["_x"];
+ _y = map["_y"];
+ _z = map["_z"];
+ setPosition(_x, _y, _z);
+ return this;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="playLooped">
+<button class="show-code">Code</button>
+<a href="../simple_audio/AudioSound.html">AudioSound</a> <strong>playLooped</strong>(<a href="../simple_audio/AudioClip.html">AudioClip</a> clip) <a class="anchor-link" href="#playLooped"
+              title="Permalink to AudioSource.playLooped">#</a></h4>
+<div class="doc">
+<p>Play 
+<span class="param">clip</span> from the source in a loop. </p>
+<pre class="source">
+AudioSound playLooped(AudioClip clip) {
+ return playLoopedIn(0.0, clip);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="playLoopedIn">
+<button class="show-code">Code</button>
+<a href="../simple_audio/AudioSound.html">AudioSound</a> <strong>playLoopedIn</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> delay, <a href="../simple_audio/AudioClip.html">AudioClip</a> clip) <a class="anchor-link" href="#playLoopedIn"
+              title="Permalink to AudioSource.playLoopedIn">#</a></h4>
+<div class="doc">
+<p>Play 
+<span class="param">clip</span> from the source in a loop starting in 
+<span class="param">delay</span>
+seconds.</p>
+<pre class="source">
+AudioSound playLoopedIn(num delay, AudioClip clip) {
+ AudioSound sound = new AudioSound._internal(this, clip, true);
+ _sounds.add(sound);
+ sound.play(delay);
+ sound.pause = pause;
+ return sound;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="playOnce">
+<button class="show-code">Code</button>
+<a href="../simple_audio/AudioSound.html">AudioSound</a> <strong>playOnce</strong>(<a href="../simple_audio/AudioClip.html">AudioClip</a> clip) <a class="anchor-link" href="#playOnce"
+              title="Permalink to AudioSource.playOnce">#</a></h4>
+<div class="doc">
+<p>Play 
+<span class="param">clip</span> from the source. </p>
+<pre class="source">
+AudioSound playOnce(AudioClip clip) {
+ return playOnceIn(0.0, clip);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="playOnceIn">
+<button class="show-code">Code</button>
+<a href="../simple_audio/AudioSound.html">AudioSound</a> <strong>playOnceIn</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> delay, <a href="../simple_audio/AudioClip.html">AudioClip</a> clip) <a class="anchor-link" href="#playOnceIn"
+              title="Permalink to AudioSource.playOnceIn">#</a></h4>
+<div class="doc">
+<p>Play 
+<span class="param">clip</span> from the source starting in 
+<span class="param">delay</span> seconds. </p>
+<pre class="source">
+AudioSound playOnceIn(num delay, AudioClip clip) {
+ AudioSound sound = new AudioSound._internal(this, clip, false);
+ _sounds.add(sound);
+ sound.play(delay);
+ sound.pause = pause;
+
+ return sound;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="setPosition">
+<button class="show-code">Code</button>
+void <strong>setPosition</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> x, <a href="http://api.dartlang.org/dart_core/num.html">num</a> y, <a href="http://api.dartlang.org/dart_core/num.html">num</a> z) <a class="anchor-link" href="#setPosition"
+              title="Permalink to AudioSource.setPosition">#</a></h4>
+<div class="doc">
+<p>Set the position of the source.</p>
+<pre class="source">
+void setPosition(num x, num y, num z) {
+ _x = x;
+ _y = y;
+ _z = z;
+ _panNode.setPosition(x, y, z);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="setVelocity">
+<button class="show-code">Code</button>
+void <strong>setVelocity</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> x, <a href="http://api.dartlang.org/dart_core/num.html">num</a> y, <a href="http://api.dartlang.org/dart_core/num.html">num</a> z) <a class="anchor-link" href="#setVelocity"
+              title="Permalink to AudioSource.setVelocity">#</a></h4>
+<div class="doc">
+<p>Set the linear velocity of the source.</p>
+<pre class="source">
+void setVelocity(num x, num y, num z) {
+ _panNode.setVelocity(x, y, z);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="stop">
+<button class="show-code">Code</button>
+void <strong>stop</strong>() <a class="anchor-link" href="#stop"
+              title="Permalink to AudioSource.stop">#</a></h4>
+<div class="doc">
+<p>Stop the source. Affects all playing and scheduled sounds. </p>
+<pre class="source">
+void stop() {
+ _sounds.forEach((sound) {
+   sound.stop();
+ });
+ _scanSounds();
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="toJson">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/Map.html">Map</a> <strong>toJson</strong>() <a class="anchor-link" href="#toJson"
+              title="Permalink to AudioSource.toJson">#</a></h4>
+<div class="doc">
+<pre class="source">
+Map toJson() {
+ return {
+   "_name": _name,
+   "volume": _gainNode.gain.value,
+   "_mutedVolume": _mutedVolume,
+   "_isPaused": _isPaused,
+   "_x":_x,
+   "_y":_y,
+   "_z":_z,
+ };
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-05 23:19:56.280</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

@@ -1,0 +1,425 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>System_Audio class / simple_audio Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="simple_audio" data-type="System_Audio">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../simple_audio.html">simple_audio</a> &rsaquo; <a href="../simple_audio/System_Audio.html">System_Audio</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>System_Audio</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<pre class="source">
+class System_Audio extends EntityProcessingSystem {
+ ComponentMapper&lt;Transform&gt; _transformMapper;
+ ComponentMapper&lt;AudioDef&gt; _objDefMapper;
+ ComponentMapper&lt;_AudioCache&gt; _objCacheMapper;
+
+ var _listener;
+ var _positional = false;
+ final AudioManager _audioManager;
+
+ ClipProvider _clipProvider;
+
+ /// [clipProvider] is the function to find AudioClip from name,
+ /// default implementation is [clipProvider0]
+ System_Audio(this._audioManager, {clipProvider, positional : false}):
+   super(Aspect.getAspectForAllOf([AudioDef])),
+   _positional = positional {
+   _clipProvider = (clipProvider == null) ? this.clipProvider0 : clipProvider;
+ }
+
+ void initialize(){
+   _transformMapper = new ComponentMapper&lt;Transform&gt;(Transform, world);
+   _objDefMapper = new ComponentMapper&lt;AudioDef&gt;(AudioDef, world);
+   _objCacheMapper = new ComponentMapper&lt;_AudioCache&gt;(_AudioCache, world);
+ }
+
+ /// a default implementation for clipProvider, that retreive clip from [AudioManager]
+ ///   (x) = &gt; _audioManager.findClip(x);
+ AudioClip clipProvider0(x) =&gt; _audioManager.findClip(x);
+
+ void processEntity(entity) {
+   var cache = _objCacheMapper.getSafe(entity);
+   if (cache != null) {
+     var obj = cache.source;
+     _applyTransform(obj, entity);
+     var def = _objDefMapper.get(entity);
+     def.l.iterateAndUpdate((x) {
+       var clip = _clipProvider(x);
+       if (clip == null) {
+         //TODO log("can't play sound '${x}' : notfound in audioManager nor assetManager");
+       } else {
+         //TODO log("play ${x} : ${_assetManager.getAssetAtPath(x).url} : ${clip}");
+         if (obj != _listener) {
+           obj.playOnce(clip);
+         } else {
+           _audioManager.music.stop();
+           _audioManager.music.clip = clip;
+           _audioManager.music.play(loop : false);
+         }
+       }
+       return null;
+     });
+   }
+ }
+
+ void inserted(Entity entity){
+   var objDef = _objDefMapper.get(entity);
+   var obj = _audioManager.makeSource(entity.id.toString());
+   entity.addComponent(new _AudioCache(obj));
+   entity.changedInWorld();
+   _applyTransform(obj, entity);
+   if (objDef.isAudioListener) {
+     //log("set audiolistener");
+     _listener = obj;
+   }
+ }
+
+ void removed(Entity entity){
+   var cache = _objCacheMapper.getSafe(entity);
+   if (cache != null) {
+     cache.source.stop();
+     if (cache.source == _listener) _listener = null;
+   }
+   entity.removeComponent(_AudioCache);
+   //log("removed audio ${entity}");
+ }
+
+ void _applyTransform(obj, Entity entity) {
+   if (! _positional) return;
+   var tf = _transformMapper.getSafe(entity);
+   if (obj != null &amp;&amp; tf != null) {
+     obj.positional = true;
+     obj.setPosition(tf.position3d.x, tf.position3d.y, tf.position3d.z);
+     if (obj == _listener) {
+       _audioManager.setPosition(tf.position3d.x, tf.position3d.y, tf.position3d.z);
+     }
+   }
+ }
+
+}
+</pre>
+</div>
+<h3>Extends</h3>
+<p>
+<span class="type-box"><span class="icon-class"></span><a href="../dartemis/EntitySystem.html">EntitySystem</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><a href="../dartemis/EntityProcessingSystem.html">EntityProcessingSystem</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><strong>System_Audio</strong></span></p>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="System_Audio">
+<button class="show-code">Code</button>
+new <strong>System_Audio</strong>(<a href="../simple_audio/AudioManager.html">AudioManager</a> _audioManager, {clipProvider, positional: false}) <a class="anchor-link" href="#System_Audio"
+              title="Permalink to System_Audio.System_Audio">#</a></h4>
+<div class="doc">
+<p>
+<span class="param">clipProvider</span> is the function to find AudioClip from name,
+default implementation is <a class="crossref" href="../simple_audio/System_Audio.html#clipProvider0">clipProvider0</a></p>
+<pre class="source">
+System_Audio(this._audioManager, {clipProvider, positional : false}):
+ super(Aspect.getAspectForAllOf([AudioDef])),
+ _positional = positional {
+ _clipProvider = (clipProvider == null) ? this.clipProvider0 : clipProvider;
+}
+</pre>
+</div>
+</div>
+</div>
+<div class="inherited">
+<h3>Properties</h3>
+<div class="field inherited"><h4 id="passive">
+<button class="show-code">Code</button>
+final         <strong>passive</strong> <a class="anchor-link"
+            href="#passive"
+            title="Permalink to System_Audio.passive">#</a>
+        </h4>
+        <div class="inherited-from">inherited from <a href="../dartemis/EntitySystem.html">EntitySystem</a> </div><div class="doc">
+<pre class="source">
+get passive =&gt; _passive;
+</pre>
+</div>
+</div>
+<div class="field inherited"><h4 id="world">
+<button class="show-code">Code</button>
+<a href="../dartemis/World.html">World</a>         <strong>world</strong> <a class="anchor-link"
+            href="#world"
+            title="Permalink to System_Audio.world">#</a>
+        </h4>
+        <div class="inherited-from">inherited from <a href="../dartemis/EntitySystem.html">EntitySystem</a> </div><div class="doc">
+<pre class="source">
+World world
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method inherited"><h4 id="added">
+<button class="show-code">Code</button>
+void <strong>added</strong>(<a href="../dartemis/Entity.html">Entity</a> e) <a class="anchor-link" href="#added"
+              title="Permalink to System_Audio.added">#</a></h4>
+<div class="inherited-from">inherited from <a href="../dartemis/EntitySystem.html">EntitySystem</a> </div><div class="doc">
+<pre class="source">
+void added(Entity e) =&gt; _check(e);
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="begin">
+<button class="show-code">Code</button>
+void <strong>begin</strong>() <a class="anchor-link" href="#begin"
+              title="Permalink to System_Audio.begin">#</a></h4>
+<div class="inherited-from">inherited from <a href="../dartemis/EntitySystem.html">EntitySystem</a> </div><div class="doc">
+<p>Called before processing of entities begins.</p>
+<pre class="source">
+void begin() {}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="changed">
+<button class="show-code">Code</button>
+void <strong>changed</strong>(<a href="../dartemis/Entity.html">Entity</a> e) <a class="anchor-link" href="#changed"
+              title="Permalink to System_Audio.changed">#</a></h4>
+<div class="inherited-from">inherited from <a href="../dartemis/EntitySystem.html">EntitySystem</a> </div><div class="doc">
+<pre class="source">
+void changed(Entity e) =&gt; _check(e);
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="checkProcessing">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>checkProcessing</strong>() <a class="anchor-link" href="#checkProcessing"
+              title="Permalink to System_Audio.checkProcessing">#</a></h4>
+<div class="inherited-from">inherited from <a href="../dartemis/EntityProcessingSystem.html">EntityProcessingSystem</a> </div><div class="doc">
+<div class="inherited">
+<p>Returns true if the system should be processed, false if not.</p>
+<div class="docs-inherited-from">docs inherited from <a href="../dartemis/EntitySystem.html">EntitySystem</a> </div></div>
+<pre class="source">
+bool checkProcessing() =&gt; true;
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="clipProvider0">
+<button class="show-code">Code</button>
+<a href="../simple_audio/AudioClip.html">AudioClip</a> <strong>clipProvider0</strong>(x) <a class="anchor-link" href="#clipProvider0"
+              title="Permalink to System_Audio.clipProvider0">#</a></h4>
+<div class="doc">
+<p>a default implementation for clipProvider, that retreive clip from <code>AudioManager</code>
+  (x) = > _audioManager.findClip(x);</p>
+<pre class="source">
+AudioClip clipProvider0(x) =&gt; _audioManager.findClip(x);
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="deleted">
+<button class="show-code">Code</button>
+void <strong>deleted</strong>(<a href="../dartemis/Entity.html">Entity</a> e) <a class="anchor-link" href="#deleted"
+              title="Permalink to System_Audio.deleted">#</a></h4>
+<div class="inherited-from">inherited from <a href="../dartemis/EntitySystem.html">EntitySystem</a> </div><div class="doc">
+<pre class="source">
+void deleted(Entity e) {
+ if (_contains(e)) {
+   _removeFromSystem(e);
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="disabled">
+<button class="show-code">Code</button>
+void <strong>disabled</strong>(<a href="../dartemis/Entity.html">Entity</a> e) <a class="anchor-link" href="#disabled"
+              title="Permalink to System_Audio.disabled">#</a></h4>
+<div class="inherited-from">inherited from <a href="../dartemis/EntitySystem.html">EntitySystem</a> </div><div class="doc">
+<pre class="source">
+void disabled(Entity e) {
+ if (_contains(e)) {
+   _removeFromSystem(e);
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="enabled">
+<button class="show-code">Code</button>
+void <strong>enabled</strong>(<a href="../dartemis/Entity.html">Entity</a> e) <a class="anchor-link" href="#enabled"
+              title="Permalink to System_Audio.enabled">#</a></h4>
+<div class="inherited-from">inherited from <a href="../dartemis/EntitySystem.html">EntitySystem</a> </div><div class="doc">
+<pre class="source">
+void enabled(Entity e) =&gt; _check(e);
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="end">
+<button class="show-code">Code</button>
+void <strong>end</strong>() <a class="anchor-link" href="#end"
+              title="Permalink to System_Audio.end">#</a></h4>
+<div class="inherited-from">inherited from <a href="../dartemis/EntitySystem.html">EntitySystem</a> </div><div class="doc">
+<p>Called after the processing of entities ends.</p>
+<pre class="source">
+void end() {}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="initialize">
+<button class="show-code">Code</button>
+void <strong>initialize</strong>() <a class="anchor-link" href="#initialize"
+              title="Permalink to System_Audio.initialize">#</a></h4>
+<div class="doc">
+<div class="inherited">
+<p>Override to implement code that gets executed when systems are initialized.</p>
+<div class="docs-inherited-from">docs inherited from <a href="../dartemis/EntitySystem.html">EntitySystem</a> </div></div>
+<pre class="source">
+void initialize(){
+ _transformMapper = new ComponentMapper&lt;Transform&gt;(Transform, world);
+ _objDefMapper = new ComponentMapper&lt;AudioDef&gt;(AudioDef, world);
+ _objCacheMapper = new ComponentMapper&lt;_AudioCache&gt;(_AudioCache, world);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="inserted">
+<button class="show-code">Code</button>
+void <strong>inserted</strong>(<a href="../dartemis/Entity.html">Entity</a> entity) <a class="anchor-link" href="#inserted"
+              title="Permalink to System_Audio.inserted">#</a></h4>
+<div class="doc">
+<div class="inherited">
+<p>Called if the system has received an 
+<span class="param">entity</span> it is interested in, e.g. created or a component was added to it.</p>
+<div class="docs-inherited-from">docs inherited from <a href="../dartemis/EntitySystem.html">EntitySystem</a> </div></div>
+<pre class="source">
+void inserted(Entity entity){
+ var objDef = _objDefMapper.get(entity);
+ var obj = _audioManager.makeSource(entity.id.toString());
+ entity.addComponent(new _AudioCache(obj));
+ entity.changedInWorld();
+ _applyTransform(obj, entity);
+ if (objDef.isAudioListener) {
+   //log("set audiolistener");
+   _listener = obj;
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="process">
+<button class="show-code">Code</button>
+void <strong>process</strong>() <a class="anchor-link" href="#process"
+              title="Permalink to System_Audio.process">#</a></h4>
+<div class="inherited-from">inherited from <a href="../dartemis/EntitySystem.html">EntitySystem</a> </div><div class="doc">
+<p>This is the only method that is supposed to be called from outside the library,</p>
+<pre class="source">
+void process() {
+ if(checkProcessing()) {
+   begin();
+   processEntities(_actives.readOnly);
+   end();
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="processEntities">
+<button class="show-code">Code</button>
+void <strong>processEntities</strong>(<a href="../dartemis/ReadOnlyBag.html">ReadOnlyBag</a>&lt;<a href="../dartemis/Entity.html">Entity</a>&gt; entities) <a class="anchor-link" href="#processEntities"
+              title="Permalink to System_Audio.processEntities">#</a></h4>
+<div class="inherited-from">inherited from <a href="../dartemis/EntityProcessingSystem.html">EntityProcessingSystem</a> </div><div class="doc">
+<div class="inherited">
+<p>Any implementing entity system must implement this method and the logic
+to process the given 
+<span class="param">entities</span> of the system.</p>
+<div class="docs-inherited-from">docs inherited from <a href="../dartemis/EntitySystem.html">EntitySystem</a> </div></div>
+<pre class="source">
+void processEntities(ReadOnlyBag&lt;Entity&gt; entities) =&gt; entities.forEach((entity) =&gt; processEntity(entity));
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="processEntity">
+<button class="show-code">Code</button>
+void <strong>processEntity</strong>(entity) <a class="anchor-link" href="#processEntity"
+              title="Permalink to System_Audio.processEntity">#</a></h4>
+<div class="doc">
+<div class="inherited">
+<p>Process a 
+<span class="param">entity</span> this system is interested in.</p>
+<div class="docs-inherited-from">docs inherited from <a href="../dartemis/EntityProcessingSystem.html">EntityProcessingSystem</a> </div></div>
+<pre class="source">
+void processEntity(entity) {
+ var cache = _objCacheMapper.getSafe(entity);
+ if (cache != null) {
+   var obj = cache.source;
+   _applyTransform(obj, entity);
+   var def = _objDefMapper.get(entity);
+   def.l.iterateAndUpdate((x) {
+     var clip = _clipProvider(x);
+     if (clip == null) {
+       //TODO log("can't play sound '${x}' : notfound in audioManager nor assetManager");
+     } else {
+       //TODO log("play ${x} : ${_assetManager.getAssetAtPath(x).url} : ${clip}");
+       if (obj != _listener) {
+         obj.playOnce(clip);
+       } else {
+         _audioManager.music.stop();
+         _audioManager.music.clip = clip;
+         _audioManager.music.play(loop : false);
+       }
+     }
+     return null;
+   });
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="removed">
+<button class="show-code">Code</button>
+void <strong>removed</strong>(<a href="../dartemis/Entity.html">Entity</a> entity) <a class="anchor-link" href="#removed"
+              title="Permalink to System_Audio.removed">#</a></h4>
+<div class="doc">
+<div class="inherited">
+<p>Called if an 
+<span class="param">entity</span> was removed from this system, e.g. deleted or had one of it's components removed.</p>
+<div class="docs-inherited-from">docs inherited from <a href="../dartemis/EntitySystem.html">EntitySystem</a> </div></div>
+<pre class="source">
+void removed(Entity entity){
+ var cache = _objCacheMapper.getSafe(entity);
+ if (cache != null) {
+   cache.source.stop();
+   if (cache.source == _listener) _listener = null;
+ }
+ entity.removeComponent(_AudioCache);
+ //log("removed audio ${entity}");
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-05 23:19:56.300</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

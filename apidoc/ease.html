@@ -1,0 +1,694 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>ease Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="favicon.ico">
+        
+        </head>
+        <body data-library="ease">
+        <div class="page">
+        <div class="header">
+          <a href="index.html"><div class="logo"></div></a>
+          <a href="index.html">Dart Documentation</a>
+         &rsaquo; <a href="ease.html">ease</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+<h2><strong>ease</strong> library</h2>
+<div class="doc"><p>A set of common "easing" function to compute intermediate value of a variable,
+generally from <code>baseValue</code> to <code>baseValue</code> + <code>change</code>,
+used for transition, interpolation.</p>
+<p>Every function follow the same signature :
+<em> <code>ratio</code> is the progression (0.0 .. 1.0).
+</em> <code>change</code> is the "amplitute" of the variation for the final variable,
+or the difference between <code>baseValue</code> and the final value.
+<em> <code>baseValue</code> the initiale value of the variable
+</em> return the intermediate value.</p>
+<p>Functions can be used without dartemis or dartemis_addons (there are fully standalone)</p>
+<p><a href="http://davidb.github.io/dartemis_addons/ease_graphics.html">graphical representation</a></p></div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="all">
+<button class="show-code">Code</button>
+final         <strong>all</strong> <a class="anchor-link"
+            href="#all"
+            title="Permalink to all">#</a>
+        </h4>
+        <div class="doc">
+<p>a list/map of all functions, use for test, demo, editor</p>
+<pre class="source">
+final all = new LinkedHashMap&lt;String, Function&gt;()
+ ..['linear'] = linear
+ ..['random'] = random
+ ..['inQuad'] = inQuad
+ ..['outQuad'] = outQuad
+ ..['inOutQuad'] = inOutQuad
+ ..['outInQuad'] = outInQuad
+ ..['inCubic'] = inCubic
+ ..['outCubic'] = outCubic
+ ..['inOutCubic'] = inOutCubic
+ ..['outInCubic'] = outInCubic
+ ..['inQuartic'] = inQuartic
+ ..['outQuartic'] = outQuartic
+ ..['inOutQuartic'] = inOutQuartic
+ ..['outInQuartic'] = outInQuartic
+ ..['inQuintic'] = inQuintic
+ ..['outQuintic'] = outQuintic
+ ..['inOutQuintic'] = inOutQuintic
+ ..['outInQuintic'] = outInQuintic
+ ..['inSine'] = inSine
+ ..['outSine'] = outSine
+ ..['inOutSine'] = inOutSine
+ ..['outInSine'] = outInSine
+ ..['inExponential'] = inExponential
+ ..['outExponential'] = outExponential
+ ..['inOutExponential'] = inOutExponential
+ ..['outInExponential'] = outInExponential
+ ..['inCircular'] = inCircular
+ ..['outCircular'] = outCircular
+ ..['inOutCircular'] = inOutCircular
+ ..['outInCircular'] = outInCircular
+ ..['inBack'] = inBack
+ ..['outBack'] = outBack
+ ..['inOutBack'] = inOutBack
+ ..['outInBack'] = outInBack
+ ..['inElastic'] = inElastic
+ ..['outElastic'] = outElastic
+ ..['inOutElastic'] = inOutElastic
+ ..['outInElastic'] = outInElastic
+ ..['inBounce'] = inBounce
+ ..['outBounce'] = outBounce
+ ..['inOutBounce'] = inOutBounce
+ ..['outInBounce'] = outInBounce
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="inOutBack">
+<button class="show-code">Code</button>
+final         <strong>inOutBack</strong> <a class="anchor-link"
+            href="#inOutBack"
+            title="Permalink to inOutBack">#</a>
+        </h4>
+        <div class="doc">
+<p>num f(double ratio, num change, num baseValue)</p>
+<pre class="source">
+final inOutBack = chain(inBack, outBack)
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="inOutBounce">
+<button class="show-code">Code</button>
+final         <strong>inOutBounce</strong> <a class="anchor-link"
+            href="#inOutBounce"
+            title="Permalink to inOutBounce">#</a>
+        </h4>
+        <div class="doc">
+<p>num f(double ratio, num change, num baseValue)</p>
+<pre class="source">
+final inOutBounce = chain(inBounce, outBounce)
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="inOutCircular">
+<button class="show-code">Code</button>
+final         <strong>inOutCircular</strong> <a class="anchor-link"
+            href="#inOutCircular"
+            title="Permalink to inOutCircular">#</a>
+        </h4>
+        <div class="doc">
+<p>num f(double ratio, num change, num baseValue)</p>
+<pre class="source">
+final inOutCircular = chain(inCircular, outCircular)
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="inOutCubic">
+<button class="show-code">Code</button>
+final         <strong>inOutCubic</strong> <a class="anchor-link"
+            href="#inOutCubic"
+            title="Permalink to inOutCubic">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final inOutCubic = chain(inCubic, outCubic)
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="inOutElastic">
+<button class="show-code">Code</button>
+final         <strong>inOutElastic</strong> <a class="anchor-link"
+            href="#inOutElastic"
+            title="Permalink to inOutElastic">#</a>
+        </h4>
+        <div class="doc">
+<p>num f(double ratio, num change, num baseValue)</p>
+<pre class="source">
+final inOutElastic = chain(inElastic, outElastic)
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="inOutExponential">
+<button class="show-code">Code</button>
+final         <strong>inOutExponential</strong> <a class="anchor-link"
+            href="#inOutExponential"
+            title="Permalink to inOutExponential">#</a>
+        </h4>
+        <div class="doc">
+<p>num f(double ratio, num change, num baseValue)</p>
+<pre class="source">
+final inOutExponential = chain(inExponential, outExponential)
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="inOutQuad">
+<button class="show-code">Code</button>
+final         <strong>inOutQuad</strong> <a class="anchor-link"
+            href="#inOutQuad"
+            title="Permalink to inOutQuad">#</a>
+        </h4>
+        <div class="doc">
+<p>num f(double ratio, num change, num baseValue)</p>
+<pre class="source">
+final inOutQuad = chain(inQuad, outQuad)
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="inOutQuartic">
+<button class="show-code">Code</button>
+final         <strong>inOutQuartic</strong> <a class="anchor-link"
+            href="#inOutQuartic"
+            title="Permalink to inOutQuartic">#</a>
+        </h4>
+        <div class="doc">
+<p>num f(double ratio, num change, num baseValue)</p>
+<pre class="source">
+final inOutQuartic = chain(inQuartic, outQuartic)
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="inOutQuintic">
+<button class="show-code">Code</button>
+final         <strong>inOutQuintic</strong> <a class="anchor-link"
+            href="#inOutQuintic"
+            title="Permalink to inOutQuintic">#</a>
+        </h4>
+        <div class="doc">
+<p>num f(double ratio, num change, num baseValue)</p>
+<pre class="source">
+final inOutQuintic = chain(inQuintic, outQuintic)
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="inOutSine">
+<button class="show-code">Code</button>
+final         <strong>inOutSine</strong> <a class="anchor-link"
+            href="#inOutSine"
+            title="Permalink to inOutSine">#</a>
+        </h4>
+        <div class="doc">
+<p>num f(double ratio, num change, num baseValue)</p>
+<pre class="source">
+final inOutSine = chain(inSine, outSine)
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="outInBack">
+<button class="show-code">Code</button>
+final         <strong>outInBack</strong> <a class="anchor-link"
+            href="#outInBack"
+            title="Permalink to outInBack">#</a>
+        </h4>
+        <div class="doc">
+<p>num f(double ratio, num change, num baseValue)</p>
+<pre class="source">
+final outInBack = chain(outBack, inBack)
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="outInBounce">
+<button class="show-code">Code</button>
+final         <strong>outInBounce</strong> <a class="anchor-link"
+            href="#outInBounce"
+            title="Permalink to outInBounce">#</a>
+        </h4>
+        <div class="doc">
+<p>num f(double ratio, num change, num baseValue)</p>
+<pre class="source">
+final outInBounce = chain(outBounce, inBounce)
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="outInCircular">
+<button class="show-code">Code</button>
+final         <strong>outInCircular</strong> <a class="anchor-link"
+            href="#outInCircular"
+            title="Permalink to outInCircular">#</a>
+        </h4>
+        <div class="doc">
+<p>num f(double ratio, num change, num baseValue)</p>
+<pre class="source">
+final outInCircular = chain(outCircular, inCircular)
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="outInCubic">
+<button class="show-code">Code</button>
+final         <strong>outInCubic</strong> <a class="anchor-link"
+            href="#outInCubic"
+            title="Permalink to outInCubic">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final outInCubic = chain(outCubic, inCubic)
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="outInElastic">
+<button class="show-code">Code</button>
+final         <strong>outInElastic</strong> <a class="anchor-link"
+            href="#outInElastic"
+            title="Permalink to outInElastic">#</a>
+        </h4>
+        <div class="doc">
+<p>num f(double ratio, num change, num baseValue)</p>
+<pre class="source">
+final outInElastic = chain(outElastic, inElastic)
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="outInExponential">
+<button class="show-code">Code</button>
+final         <strong>outInExponential</strong> <a class="anchor-link"
+            href="#outInExponential"
+            title="Permalink to outInExponential">#</a>
+        </h4>
+        <div class="doc">
+<p>num f(double ratio, num change, num baseValue)</p>
+<pre class="source">
+final outInExponential = chain(outExponential, inExponential)
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="outInQuad">
+<button class="show-code">Code</button>
+final         <strong>outInQuad</strong> <a class="anchor-link"
+            href="#outInQuad"
+            title="Permalink to outInQuad">#</a>
+        </h4>
+        <div class="doc">
+<p>num f(double ratio, num change, num baseValue)</p>
+<pre class="source">
+final outInQuad = chain(outQuad, inQuad)
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="outInQuartic">
+<button class="show-code">Code</button>
+final         <strong>outInQuartic</strong> <a class="anchor-link"
+            href="#outInQuartic"
+            title="Permalink to outInQuartic">#</a>
+        </h4>
+        <div class="doc">
+<p>num f(double ratio, num change, num baseValue)</p>
+<pre class="source">
+final outInQuartic = chain(outQuartic, inQuartic)
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="outInQuintic">
+<button class="show-code">Code</button>
+final         <strong>outInQuintic</strong> <a class="anchor-link"
+            href="#outInQuintic"
+            title="Permalink to outInQuintic">#</a>
+        </h4>
+        <div class="doc">
+<p>num f(double ratio, num change, num baseValue)</p>
+<pre class="source">
+final outInQuintic = chain(outQuintic, inQuintic)
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="outInSine">
+<button class="show-code">Code</button>
+final         <strong>outInSine</strong> <a class="anchor-link"
+            href="#outInSine"
+            title="Permalink to outInSine">#</a>
+        </h4>
+        <div class="doc">
+<p>num f(double ratio, num change, num baseValue)</p>
+<pre class="source">
+final outInSine = chain(outSine, inSine)
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Functions</h3>
+<div class="method"><h4 id="outBounce">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>outBounce</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> ratio, <a href="http://api.dartlang.org/dart_core/num.html">num</a> change, <a href="http://api.dartlang.org/dart_core/num.html">num</a> baseValue) <a class="anchor-link" href="#outBounce"
+              title="Permalink to outBounce">#</a></h4>
+<div class="doc">
+<pre class="source">
+num outBounce(double ratio, num change, num baseValue) {
+ if (ratio &lt; 1 / 2.75) {
+   ratio =  7.5625 * ratio * ratio;
+ } else if (ratio &lt; 2 / 2.75) {
+   ratio = ratio - 1.5 / 2.75;
+   ratio = 7.5625 * ratio * ratio + 0.75;
+ } else if (ratio &lt; 2.5 / 2.75) {
+   ratio = ratio - 2.25 / 2.75;
+   ratio = 7.5625 * ratio * ratio + 0.9375;
+ } else {
+   ratio = ratio - 2.625 / 2.75;
+   ratio = 7.5625 * ratio * ratio + 0.984375;
+ }
+ return ratio * change + baseValue;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="inBounce">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>inBounce</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> ratio, <a href="http://api.dartlang.org/dart_core/num.html">num</a> change, <a href="http://api.dartlang.org/dart_core/num.html">num</a> baseValue) <a class="anchor-link" href="#inBounce"
+              title="Permalink to inBounce">#</a></h4>
+<div class="doc">
+<pre class="source">
+num inBounce(double ratio, num change, num baseValue) {
+ var r = 1.0 - outBounce(1.0 - ratio, 1.0, 0.0);
+ return r * change + baseValue;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="outElastic">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>outElastic</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> ratio, <a href="http://api.dartlang.org/dart_core/num.html">num</a> change, <a href="http://api.dartlang.org/dart_core/num.html">num</a> baseValue) <a class="anchor-link" href="#outElastic"
+              title="Permalink to outElastic">#</a></h4>
+<div class="doc">
+<pre class="source">
+num outElastic(double ratio, num change, num baseValue) {
+ var r =  (ratio == 0.0 || ratio == 1.0) ? ratio
+   : pow(2.0, - 10.0 * ratio) * sin((ratio - 0.3 / 4.0) * (2.0 * PI) / 0.3) + 1;
+ return r * change + baseValue;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="inElastic">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>inElastic</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> ratio, <a href="http://api.dartlang.org/dart_core/num.html">num</a> change, <a href="http://api.dartlang.org/dart_core/num.html">num</a> baseValue) <a class="anchor-link" href="#inElastic"
+              title="Permalink to inElastic">#</a></h4>
+<div class="doc">
+<pre class="source">
+num inElastic(double ratio, num change, num baseValue) {
+ var r = ratio;
+ if (!(ratio == 0.0 || ratio == 1.0)) {
+   ratio = ratio - 1.0;
+   r = - pow(2.0, 10.0 * ratio) * sin((ratio - 0.3 / 4.0) * (2.0 * PI) / 0.3);
+ }
+ return r * change + baseValue;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="outBack">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>outBack</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> ratio, <a href="http://api.dartlang.org/dart_core/num.html">num</a> change, <a href="http://api.dartlang.org/dart_core/num.html">num</a> baseValue) <a class="anchor-link" href="#outBack"
+              title="Permalink to outBack">#</a></h4>
+<div class="doc">
+<pre class="source">
+num outBack(double ratio, num change, num baseValue) {
+ num s = 1.70158;
+ ratio = ratio - 1.0;
+ return ratio * ratio * ((s + change) * ratio + s) + change  + baseValue;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="inBack">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>inBack</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> ratio, <a href="http://api.dartlang.org/dart_core/num.html">num</a> change, <a href="http://api.dartlang.org/dart_core/num.html">num</a> baseValue) <a class="anchor-link" href="#inBack"
+              title="Permalink to inBack">#</a></h4>
+<div class="doc">
+<pre class="source">
+num inBack(double ratio, num change, num baseValue) {
+ num s = 1.70158;
+ return ratio * ratio * ((s + change) * ratio - s) + baseValue;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="outCircular">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>outCircular</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> ratio, <a href="http://api.dartlang.org/dart_core/num.html">num</a> change, <a href="http://api.dartlang.org/dart_core/num.html">num</a> baseValue) <a class="anchor-link" href="#outCircular"
+              title="Permalink to outCircular">#</a></h4>
+<div class="doc">
+<pre class="source">
+num outCircular(double ratio, num change, num baseValue) {
+ ratio--;
+
+ return change * sqrt(1 - ratio * ratio) + baseValue;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="inCircular">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>inCircular</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> ratio, <a href="http://api.dartlang.org/dart_core/num.html">num</a> change, <a href="http://api.dartlang.org/dart_core/num.html">num</a> baseValue) <a class="anchor-link" href="#inCircular"
+              title="Permalink to inCircular">#</a></h4>
+<div class="doc">
+<pre class="source">
+num inCircular(double ratio, num change, num baseValue) {
+ return -change * (sqrt(1 - ratio * ratio) - 1) + baseValue;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="outExponential">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>outExponential</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> ratio, <a href="http://api.dartlang.org/dart_core/num.html">num</a> change, <a href="http://api.dartlang.org/dart_core/num.html">num</a> baseValue) <a class="anchor-link" href="#outExponential"
+              title="Permalink to outExponential">#</a></h4>
+<div class="doc">
+<pre class="source">
+num outExponential(double ratio, num change, num baseValue) {
+ return change * (-pow(2, -10 * ratio) + 1) + baseValue;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="inExponential">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>inExponential</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> ratio, <a href="http://api.dartlang.org/dart_core/num.html">num</a> change, <a href="http://api.dartlang.org/dart_core/num.html">num</a> baseValue) <a class="anchor-link" href="#inExponential"
+              title="Permalink to inExponential">#</a></h4>
+<div class="doc">
+<pre class="source">
+num inExponential(double ratio, num change, num baseValue) {
+ return change * pow(2, 10 * (ratio - 1)) + baseValue;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="outSine">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>outSine</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> ratio, <a href="http://api.dartlang.org/dart_core/num.html">num</a> change, <a href="http://api.dartlang.org/dart_core/num.html">num</a> baseValue) <a class="anchor-link" href="#outSine"
+              title="Permalink to outSine">#</a></h4>
+<div class="doc">
+<pre class="source">
+num outSine(double ratio, num change, num baseValue) {
+ return change * sin(ratio * (PI / 2)) + baseValue;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="inSine">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>inSine</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> ratio, <a href="http://api.dartlang.org/dart_core/num.html">num</a> change, <a href="http://api.dartlang.org/dart_core/num.html">num</a> baseValue) <a class="anchor-link" href="#inSine"
+              title="Permalink to inSine">#</a></h4>
+<div class="doc">
+<pre class="source">
+num inSine(double ratio, num change, num baseValue) {
+ return -change * cos(ratio * (PI / 2)) + change + baseValue;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="outQuintic">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>outQuintic</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> ratio, <a href="http://api.dartlang.org/dart_core/num.html">num</a> change, <a href="http://api.dartlang.org/dart_core/num.html">num</a> baseValue) <a class="anchor-link" href="#outQuintic"
+              title="Permalink to outQuintic">#</a></h4>
+<div class="doc">
+<pre class="source">
+num outQuintic(double ratio, num change, num baseValue) {
+ ratio--;
+ return change * (ratio * ratio * ratio * ratio * ratio + 1) + baseValue;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="inQuintic">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>inQuintic</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> ratio, <a href="http://api.dartlang.org/dart_core/num.html">num</a> change, <a href="http://api.dartlang.org/dart_core/num.html">num</a> baseValue) <a class="anchor-link" href="#inQuintic"
+              title="Permalink to inQuintic">#</a></h4>
+<div class="doc">
+<p>Performs a quintic easy-in.</p>
+<pre class="source">
+num inQuintic(double ratio, num change, num baseValue) {
+ return change * ratio * ratio * ratio * ratio * ratio + baseValue;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="outQuartic">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>outQuartic</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> ratio, <a href="http://api.dartlang.org/dart_core/num.html">num</a> change, <a href="http://api.dartlang.org/dart_core/num.html">num</a> baseValue) <a class="anchor-link" href="#outQuartic"
+              title="Permalink to outQuartic">#</a></h4>
+<div class="doc">
+<pre class="source">
+num outQuartic(double ratio, num change, num baseValue) {
+ ratio--;
+ return -change * (ratio * ratio * ratio * ratio - 1) + baseValue;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="inQuartic">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>inQuartic</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> ratio, <a href="http://api.dartlang.org/dart_core/num.html">num</a> change, <a href="http://api.dartlang.org/dart_core/num.html">num</a> baseValue) <a class="anchor-link" href="#inQuartic"
+              title="Permalink to inQuartic">#</a></h4>
+<div class="doc">
+<pre class="source">
+num inQuartic(double ratio, num change, num baseValue) {
+ return change * ratio * ratio * ratio * ratio + baseValue;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="outCubic">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>outCubic</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> ratio, <a href="http://api.dartlang.org/dart_core/num.html">num</a> change, <a href="http://api.dartlang.org/dart_core/num.html">num</a> baseValue) <a class="anchor-link" href="#outCubic"
+              title="Permalink to outCubic">#</a></h4>
+<div class="doc">
+<pre class="source">
+num outCubic(double ratio, num change, num baseValue) {
+ ratio--;
+ return change * (ratio * ratio * ratio + 1) + baseValue;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="inCubic">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>inCubic</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> ratio, <a href="http://api.dartlang.org/dart_core/num.html">num</a> change, <a href="http://api.dartlang.org/dart_core/num.html">num</a> baseValue) <a class="anchor-link" href="#inCubic"
+              title="Permalink to inCubic">#</a></h4>
+<div class="doc">
+<pre class="source">
+num inCubic(double ratio, num change, num baseValue) {
+ return change * ratio * ratio * ratio + baseValue;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="outQuad">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>outQuad</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> ratio, <a href="http://api.dartlang.org/dart_core/num.html">num</a> change, <a href="http://api.dartlang.org/dart_core/num.html">num</a> baseValue) <a class="anchor-link" href="#outQuad"
+              title="Permalink to outQuad">#</a></h4>
+<div class="doc">
+<pre class="source">
+num outQuad(double ratio, num change, num baseValue) {
+ return -change * ratio * (ratio - 2) + baseValue;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="inQuad">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>inQuad</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> ratio, <a href="http://api.dartlang.org/dart_core/num.html">num</a> change, <a href="http://api.dartlang.org/dart_core/num.html">num</a> baseValue) <a class="anchor-link" href="#inQuad"
+              title="Permalink to inQuad">#</a></h4>
+<div class="doc">
+<pre class="source">
+num inQuad(double ratio, num change, num baseValue) {
+ return change * ratio * ratio + baseValue;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="random">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>random</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> ratio, <a href="http://api.dartlang.org/dart_core/num.html">num</a> change, <a href="http://api.dartlang.org/dart_core/num.html">num</a> baseValue) <a class="anchor-link" href="#random"
+              title="Permalink to random">#</a></h4>
+<div class="doc">
+<p>Performs a random value (except for ratio == 0 or ratio == 1).</p>
+<pre class="source">
+num random(double ratio, num change, num baseValue) {
+ var r = (ratio &gt; 0.0 &amp;&amp; ratio &lt; 1.0) ? _randomRatio.nextDouble() : ratio;
+ return change * r + baseValue;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="linear">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>linear</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> ratio, <a href="http://api.dartlang.org/dart_core/num.html">num</a> change, <a href="http://api.dartlang.org/dart_core/num.html">num</a> baseValue) <a class="anchor-link" href="#linear"
+              title="Permalink to linear">#</a></h4>
+<div class="doc">
+<p>Performs a linear.</p>
+<pre class="source">
+num linear(double ratio, num change, num baseValue) {
+ return change * ratio + baseValue;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="goback">
+<button class="show-code">Code</button>
+dynamic <strong>goback</strong>(f0) <a class="anchor-link" href="#goback"
+              title="Permalink to goback">#</a></h4>
+<div class="doc">
+<p>create a new ease function by chaining 2 ease function</p>
+<pre class="source">
+goback(f0) =&gt; (double ratio, num change, num baseValue) {
+ ratio = ratio * 2.0;
+ var c = change;
+ return (ratio &lt; 1.0) ? f0(ratio, c, baseValue) : f0(ratio - 1.0, -c, baseValue + c);
+};
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="chain">
+<button class="show-code">Code</button>
+dynamic <strong>chain</strong>(f0, f1) <a class="anchor-link" href="#chain"
+              title="Permalink to chain">#</a></h4>
+<div class="doc">
+<p>create a new ease function by chaining 2 ease function</p>
+<pre class="source">
+chain(f0, f1) =&gt; (double ratio, num change, num baseValue) {
+ ratio = ratio * 2.0;
+ var c = change / 2;
+ return (ratio &lt; 1.0) ? f0(ratio, c, baseValue) : f1(ratio - 1.0, c, baseValue) + c;
+};
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-05 23:19:56.180</div>
+        </div>
+        <script async src="client-live-nav.js"></script>
+        </body></html>
+        

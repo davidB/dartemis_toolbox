@@ -1,0 +1,119 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>Poolable abstract class / dartemis Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="dartemis" data-type="Poolable">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../dartemis.html">dartemis</a> &rsaquo; <a href="../dartemis/Poolable.html">Poolable</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>Poolable</strong>
+          abstract class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p>Objects of this class can be pooled in the <a class="crossref" href="../dartemis/ObjectPool.html">ObjectPool</a> for later reuse.</p>
+<p>Should be added as a mixin.</p>
+<pre class="source">
+abstract class Poolable {
+
+ /**
+  * Creates a new [Poolable] of [Type] [type].
+  *
+  * The instance created with [createPoolable] should be created with
+  * a zero-argument contructor because it will only be called once. All fields
+  * of the created object should be set in the calling factory constructor.
+  */
+ factory Poolable.of(Type type, CreatePoolable createPoolable) {
+   return ObjectPool.get(type, createPoolable);
+ }
+ /**
+  * If you need to do some cleanup before this object moves into the Pool of
+  * reusable objects.
+  */
+ void cleanUp();
+
+ /**
+  * Calls the cleanup function and moves this object to the [ObjectPool].
+  */
+ void moveToPool() {
+   cleanUp();
+   ObjectPool.add(this);
+ }
+}
+</pre>
+</div>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="Poolable.of">
+<button class="show-code">Code</button>
+factory <strong>Poolable.of</strong>(<a href="http://api.dartlang.org/dart_core/Type.html">Type</a> type, <a href="../dartemis/CreatePoolable.html">CreatePoolable</a> createPoolable) <a class="anchor-link" href="#Poolable.of"
+              title="Permalink to Poolable.Poolable.of">#</a></h4>
+<div class="doc">
+<p>Creates a new <a class="crossref" href="../dartemis/Poolable.html">Poolable</a> of [Type] [type].</p>
+<p>The instance created with 
+<span class="param">createPoolable</span> should be created with
+a zero-argument contructor because it will only be called once. All fields
+of the created object should be set in the calling factory constructor.</p>
+<pre class="source">
+factory Poolable.of(Type type, CreatePoolable createPoolable) {
+ return ObjectPool.get(type, createPoolable);
+}
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="cleanUp">
+abstract void <strong>cleanUp</strong>() <a class="anchor-link" href="#cleanUp"
+              title="Permalink to Poolable.cleanUp">#</a></h4>
+<div class="doc">
+<p>If you need to do some cleanup before this object moves into the Pool of
+reusable objects.</p>
+</div>
+</div>
+<div class="method"><h4 id="moveToPool">
+<button class="show-code">Code</button>
+void <strong>moveToPool</strong>() <a class="anchor-link" href="#moveToPool"
+              title="Permalink to Poolable.moveToPool">#</a></h4>
+<div class="doc">
+<p>Calls the cleanup function and moves this object to the <a class="crossref" href="../dartemis/ObjectPool.html">ObjectPool</a>.</p>
+<pre class="source">
+void moveToPool() {
+ cleanUp();
+ ObjectPool.add(this);
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-05 23:19:56.119</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

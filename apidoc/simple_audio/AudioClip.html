@@ -1,0 +1,501 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>AudioClip class / simple_audio Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="simple_audio" data-type="AudioClip">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../simple_audio.html">simple_audio</a> &rsaquo; <a href="../simple_audio/AudioClip.html">AudioClip</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>AudioClip</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p>An <a class="crossref" href="../simple_audio/AudioClip.html">AudioClip</a> stores sound data. To play an <a class="crossref" href="../simple_audio/AudioClip.html">AudioClip</a>,
+see <a class="crossref" href="../simple_audio/AudioSource.html">AudioSource</a>, <a class="crossref" href="../simple_audio/AudioMusic.html">AudioMusic</a>, and <a class="crossref" href="../simple_audio/AudioManager.html">AudioManager</a>.</p>
+<pre class="source">
+class AudioClip {
+ static const SFXR_PREFIX = "sfxr:";
+
+ final AudioManager _manager;
+ String _name;
+ String _url;
+ set url(String u) =&gt; _url = u;
+ String get url =&gt; _url;
+ AudioBuffer _buffer;
+ bool _hasError = false;
+ String _errorString = '';
+ bool _isReadyToPlay = false;
+ bool _urlAbsolute = false;
+
+ AudioClip._internal(this._manager, this._name, this._url);
+ AudioClip.external(this._manager, this._name, this._url) {
+   _urlAbsolute = true;
+ }
+
+ void _empty() {
+   _isReadyToPlay = false;
+   _buffer = null;
+ }
+
+ Map toJson() {
+   // Serialize buffer contents as well.
+   return {
+     "_url":_url,
+     "_name": _name,
+   };
+ }
+
+ AudioClip fromMap(Map map) {
+   _url = map['_url'];
+   _name = map['_name'];
+   return this;
+ }
+
+ /** Does the clip have an error? */
+ bool get hasError =&gt; _hasError;
+ /** Human readable error */
+ String get errorString =&gt; _errorString;
+
+ /** Clear any error. */
+ void clearError() {
+   _hasError = false;
+   _errorString = 'OK';
+ }
+
+ void _setError(String error) {
+   _hasError = true;
+   _errorString = error;
+ }
+
+ void _onDecode(AudioBuffer buffer, Completer&lt;AudioClip&gt; completer) {
+   if (buffer == null) {
+     _setError('Error decoding buffer.');
+     completer.complete(this);
+     return;
+   }
+   clearError();
+   _buffer = buffer;
+   _isReadyToPlay = true;
+   completer.complete(this);
+ }
+
+ void _onRequestSuccess(HttpRequest request, Completer&lt;AudioClip&gt; completer) {
+   var response = request.response;
+   _manager._context.decodeAudioData(response,
+                                     (b) =&gt; _onDecode(b, completer),
+                                     (b) =&gt; _onDecode(b, completer));
+ }
+
+ void _onRequestError(HttpRequest request, Completer&lt;AudioClip&gt; completer) {
+   _setError('Error fetching data');
+   completer.complete(this);
+ }
+
+ /** Fetch and decode the clip's [url] into the clip buffer.
+  * Returns a [Future&lt;AudioClip&gt;] which completes to *this*.
+  * [hasError] and [errorString] will indicate and explain respetively
+  * any load errors.
+  */
+ Future&lt;AudioClip&gt; load() {
+   if (url == null) {
+     _setError('No URL set.');
+     return new Future&lt;AudioClip&gt;.value(this);
+   }
+   _empty();
+   if (url.startsWith(SFXR_PREFIX)) {
+     return new Future&lt;AudioClip&gt;.delayed(new Duration(milliseconds: 1), (){
+       _buffer = SfxrSynth.toAudioBuffer(_manager._context, url.substring(SFXR_PREFIX.length));
+       _isReadyToPlay = true;
+       return this;
+     });
+   }
+   var request = new HttpRequest();
+   var completer = new Completer&lt;AudioClip&gt;();
+   if (_urlAbsolute) {
+     request.open('GET', url);
+   } else {
+     request.open('GET', '${_manager.baseURL}/$url');
+   }
+   request.responseType = 'arraybuffer';
+   request.onLoad.listen((e) =&gt; _onRequestSuccess(request, completer));
+   request.onError.listen((e) =&gt; _onRequestError(request, completer));
+   request.onAbort.listen((e) =&gt; _onRequestError(request, completer));
+   request.send();
+   return completer.future;
+ }
+
+ /** Make an empty clip buffer with [numberOfSampleFrames] in
+  * each [numberOfChannels]. The buffer plays at a rate of [sampleRate].
+  * The duration (in seconds) of the buffer is equal to:
+  * numberOfSampleFrames / sampleRate
+  */
+ void makeBuffer(num numberOfSampleFrames, num numberOfChannels, num sampleRate) {
+   _buffer = _manager._context.createBuffer(numberOfChannels,
+                                            numberOfChannels,
+                                            sampleRate);
+   _isReadyToPlay = true;
+ }
+
+ /** Return the sample frames array for [channel]. Assuming a stereo setup,
+  * the left and right speakers are mapped to channel 0 and 1 respectively. */
+ Float32List getSampleFramesForChannel(num channel) {
+   if (_buffer == null) {
+     return null;
+   }
+   return _buffer.getChannelData(channel);
+ }
+
+ /** Number of clip channels. */
+ num get numberOfChannels {
+   if (_buffer == null) {
+     return 0;
+   }
+   return _buffer.numberOfChannels;
+ }
+
+ /** Length of clip in seconds. */
+ num get length {
+   if (_buffer == null) {
+     return 0;
+   }
+   return _buffer.duration;
+ }
+
+ /** Length of clip in samples. */
+ num get samples {
+   if (_buffer == null) {
+     return 0;
+   }
+   return _buffer.length;
+ }
+
+ /** Samples per second. */
+ num get frequency {
+   if (_buffer == null) {
+     return 0;
+   }
+   return _buffer.sampleRate;
+ }
+
+ /** Is the clip ready to be played? */
+ bool get isReadyToPlay =&gt; _isReadyToPlay;
+}
+</pre>
+</div>
+<div>
+<h3>Static Properties</h3>
+<div class="field"><h4 id="SFXR_PREFIX">
+<button class="show-code">Code</button>
+const         <strong>SFXR_PREFIX</strong> <a class="anchor-link"
+            href="#SFXR_PREFIX"
+            title="Permalink to AudioClip.SFXR_PREFIX">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+static const SFXR_PREFIX = "sfxr:"
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="AudioClip.external">
+<button class="show-code">Code</button>
+new <strong>AudioClip.external</strong>(<a href="../simple_audio/AudioManager.html">AudioManager</a> _manager, <a href="http://api.dartlang.org/dart_core/String.html">String</a> _name, <a href="http://api.dartlang.org/dart_core/String.html">String</a> _url) <a class="anchor-link" href="#AudioClip.external"
+              title="Permalink to AudioClip.AudioClip.external">#</a></h4>
+<div class="doc">
+<pre class="source">
+AudioClip.external(this._manager, this._name, this._url) {
+ _urlAbsolute = true;
+}
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="errorString">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/String.html">String</a>         <strong>errorString</strong> <a class="anchor-link"
+            href="#errorString"
+            title="Permalink to AudioClip.errorString">#</a>
+        </h4>
+        <div class="doc">
+<p>Human readable error </p>
+<pre class="source">
+String get errorString =&gt; _errorString;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="frequency">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/num.html">num</a>         <strong>frequency</strong> <a class="anchor-link"
+            href="#frequency"
+            title="Permalink to AudioClip.frequency">#</a>
+        </h4>
+        <div class="doc">
+<p>Samples per second. </p>
+<pre class="source">
+num get frequency {
+ if (_buffer == null) {
+   return 0;
+ }
+ return _buffer.sampleRate;
+}
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="hasError">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/bool.html">bool</a>         <strong>hasError</strong> <a class="anchor-link"
+            href="#hasError"
+            title="Permalink to AudioClip.hasError">#</a>
+        </h4>
+        <div class="doc">
+<p>Does the clip have an error? </p>
+<pre class="source">
+bool get hasError =&gt; _hasError;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="isReadyToPlay">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/bool.html">bool</a>         <strong>isReadyToPlay</strong> <a class="anchor-link"
+            href="#isReadyToPlay"
+            title="Permalink to AudioClip.isReadyToPlay">#</a>
+        </h4>
+        <div class="doc">
+<p>Is the clip ready to be played? </p>
+<pre class="source">
+bool get isReadyToPlay =&gt; _isReadyToPlay;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="length">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/num.html">num</a>         <strong>length</strong> <a class="anchor-link"
+            href="#length"
+            title="Permalink to AudioClip.length">#</a>
+        </h4>
+        <div class="doc">
+<p>Length of clip in seconds. </p>
+<pre class="source">
+num get length {
+ if (_buffer == null) {
+   return 0;
+ }
+ return _buffer.duration;
+}
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="numberOfChannels">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/num.html">num</a>         <strong>numberOfChannels</strong> <a class="anchor-link"
+            href="#numberOfChannels"
+            title="Permalink to AudioClip.numberOfChannels">#</a>
+        </h4>
+        <div class="doc">
+<p>Number of clip channels. </p>
+<pre class="source">
+num get numberOfChannels {
+ if (_buffer == null) {
+   return 0;
+ }
+ return _buffer.numberOfChannels;
+}
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="samples">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/num.html">num</a>         <strong>samples</strong> <a class="anchor-link"
+            href="#samples"
+            title="Permalink to AudioClip.samples">#</a>
+        </h4>
+        <div class="doc">
+<p>Length of clip in samples. </p>
+<pre class="source">
+num get samples {
+ if (_buffer == null) {
+   return 0;
+ }
+ return _buffer.length;
+}
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="url">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/String.html">String</a>         <strong>url</strong> <a class="anchor-link"
+            href="#url"
+            title="Permalink to AudioClip.url">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+String get url =&gt; _url;
+</pre>
+<pre class="source">
+set url(String u) =&gt; _url = u;
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="clearError">
+<button class="show-code">Code</button>
+void <strong>clearError</strong>() <a class="anchor-link" href="#clearError"
+              title="Permalink to AudioClip.clearError">#</a></h4>
+<div class="doc">
+<p>Clear any error. </p>
+<pre class="source">
+void clearError() {
+ _hasError = false;
+ _errorString = 'OK';
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="fromMap">
+<button class="show-code">Code</button>
+<a href="../simple_audio/AudioClip.html">AudioClip</a> <strong>fromMap</strong>(<a href="http://api.dartlang.org/dart_core/Map.html">Map</a> map) <a class="anchor-link" href="#fromMap"
+              title="Permalink to AudioClip.fromMap">#</a></h4>
+<div class="doc">
+<pre class="source">
+AudioClip fromMap(Map map) {
+ _url = map['_url'];
+ _name = map['_name'];
+ return this;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="getSampleFramesForChannel">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_typed_data/Float32List.html">Float32List</a> <strong>getSampleFramesForChannel</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> channel) <a class="anchor-link" href="#getSampleFramesForChannel"
+              title="Permalink to AudioClip.getSampleFramesForChannel">#</a></h4>
+<div class="doc">
+<p>Return the sample frames array for 
+<span class="param">channel</span>. Assuming a stereo setup,
+the left and right speakers are mapped to channel 0 and 1 respectively. </p>
+<pre class="source">
+Float32List getSampleFramesForChannel(num channel) {
+ if (_buffer == null) {
+   return null;
+ }
+ return _buffer.getChannelData(channel);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="load">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../simple_audio/AudioClip.html">AudioClip</a>&gt; <strong>load</strong>() <a class="anchor-link" href="#load"
+              title="Permalink to AudioClip.load">#</a></h4>
+<div class="doc">
+<p>Fetch and decode the clip's <a class="crossref" href="../simple_audio/AudioClip.html#url">url</a> into the clip buffer.
+Returns a [Future<AudioClip>] which completes to <em>this</em>.
+<a class="crossref" href="../simple_audio/AudioClip.html#hasError">hasError</a> and <a class="crossref" href="../simple_audio/AudioClip.html#errorString">errorString</a> will indicate and explain respetively
+any load errors.</p>
+<pre class="source">
+Future&lt;AudioClip&gt; load() {
+ if (url == null) {
+   _setError('No URL set.');
+   return new Future&lt;AudioClip&gt;.value(this);
+ }
+ _empty();
+ if (url.startsWith(SFXR_PREFIX)) {
+   return new Future&lt;AudioClip&gt;.delayed(new Duration(milliseconds: 1), (){
+     _buffer = SfxrSynth.toAudioBuffer(_manager._context, url.substring(SFXR_PREFIX.length));
+     _isReadyToPlay = true;
+     return this;
+   });
+ }
+ var request = new HttpRequest();
+ var completer = new Completer&lt;AudioClip&gt;();
+ if (_urlAbsolute) {
+   request.open('GET', url);
+ } else {
+   request.open('GET', '${_manager.baseURL}/$url');
+ }
+ request.responseType = 'arraybuffer';
+ request.onLoad.listen((e) =&gt; _onRequestSuccess(request, completer));
+ request.onError.listen((e) =&gt; _onRequestError(request, completer));
+ request.onAbort.listen((e) =&gt; _onRequestError(request, completer));
+ request.send();
+ return completer.future;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="makeBuffer">
+<button class="show-code">Code</button>
+void <strong>makeBuffer</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> numberOfSampleFrames, <a href="http://api.dartlang.org/dart_core/num.html">num</a> numberOfChannels, <a href="http://api.dartlang.org/dart_core/num.html">num</a> sampleRate) <a class="anchor-link" href="#makeBuffer"
+              title="Permalink to AudioClip.makeBuffer">#</a></h4>
+<div class="doc">
+<p>Make an empty clip buffer with 
+<span class="param">numberOfSampleFrames</span> in
+each 
+<span class="param">numberOfChannels</span>. The buffer plays at a rate of 
+<span class="param">sampleRate</span>.
+The duration (in seconds) of the buffer is equal to:
+numberOfSampleFrames / sampleRate</p>
+<pre class="source">
+void makeBuffer(num numberOfSampleFrames, num numberOfChannels, num sampleRate) {
+ _buffer = _manager._context.createBuffer(numberOfChannels,
+                                          numberOfChannels,
+                                          sampleRate);
+ _isReadyToPlay = true;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="toJson">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/Map.html">Map</a> <strong>toJson</strong>() <a class="anchor-link" href="#toJson"
+              title="Permalink to AudioClip.toJson">#</a></h4>
+<div class="doc">
+<pre class="source">
+Map toJson() {
+ // Serialize buffer contents as well.
+ return {
+   "_url":_url,
+   "_name": _name,
+ };
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-05 23:19:56.286</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

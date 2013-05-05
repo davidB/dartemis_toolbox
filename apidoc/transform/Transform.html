@@ -1,0 +1,260 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>Transform class / transform Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="transform" data-type="Transform">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../transform.html">transform</a> &rsaquo; <a href="../transform/Transform.html">Transform</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>Transform</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<pre class="source">
+class Transform extends ComponentPoolable {
+ vec3 position3d;
+ vec3 rotation3d;
+ vec3 scale3d;
+
+ // 2d view
+ vec2 _position2d = new vec2.zero();
+ double get angle =&gt; rotation3d.z;
+ set angle(double v) =&gt; rotation3d.z = v;
+ vec2 get position {
+   _position2d.x = position3d.x;
+   _position2d.y = position3d.y;
+   return _position2d;
+ }
+ set position(vec2 v) {
+   position3d.x = v.x;
+   position3d.y = v.y;
+ }
+
+ Transform._();
+ static _ctor() =&gt; new Transform._();
+ factory Transform.w2d(double x, double y, double a) {
+   return new Transform.w3d(new vec3(x, y, 0.0), new vec3(0.0, 0.0, a));
+ }
+ factory Transform.w3d(vec3 position, [vec3 rotation, vec3 scale]) {
+   var c = new Poolable.of(Transform, _ctor) as Transform;
+   c.position3d = position;
+   c.rotation3d = (rotation == null) ? new vec3(0.0, 0.0, 0.0) : rotation;
+   c.scale3d = (scale == null) ? new vec3(1.0, 1.0, 1.0) : scale;
+   return c;
+ }
+ /// this method mofidy the Transform (usefull for creation)
+ /// return this
+ Transform lookAt(vec3 target, [vec3 up]) {
+   up = (up == null) ? new vec3(0.0, 1.0, 0.0) : up;
+   var m = makeViewMatrix(position3d, target, up).getRotation();
+   // code from (euler order XYZ)
+   // https://github.com/mrdoob/three.js/blob/master/src/math/Vector3.js
+   rotation3d.y = math.asin( clamp( m.row2.x, -1.0 ,1.0 ) );
+   if ( m.row2.x.abs() &lt; 0.99999 ) {
+     rotation3d.x = math.atan2( - m.row2.y, m.row2.z );
+     rotation3d.z = math.atan2( - m.row1.x, m.row0.x );
+   } else {
+     rotation3d.x = math.atan2( m.row1.z, m.row1.y );
+     rotation3d.z = 0.0;
+   }
+   return this;
+ }
+}
+</pre>
+</div>
+<h3>Extends</h3>
+<p>
+<span class="type-box"><span class="icon-class"></span><a href="../dartemis/Component.html">Component</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><a href="../dartemis/Component_Poolable.html">Component_Poolable</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><a href="../dartemis/ComponentPoolable.html">ComponentPoolable</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><strong>Transform</strong></span></p>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="Transform.w2d">
+<button class="show-code">Code</button>
+factory <strong>Transform.w2d</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> x, <a href="http://api.dartlang.org/dart_core/double.html">double</a> y, <a href="http://api.dartlang.org/dart_core/double.html">double</a> a) <a class="anchor-link" href="#Transform.w2d"
+              title="Permalink to Transform.Transform.w2d">#</a></h4>
+<div class="doc">
+<pre class="source">
+factory Transform.w2d(double x, double y, double a) {
+ return new Transform.w3d(new vec3(x, y, 0.0), new vec3(0.0, 0.0, a));
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="Transform.w3d">
+<button class="show-code">Code</button>
+factory <strong>Transform.w3d</strong>(<a href="../vector_math/vec3.html">vec3</a> position, [<a href="../vector_math/vec3.html">vec3</a> rotation, <a href="../vector_math/vec3.html">vec3</a> scale]) <a class="anchor-link" href="#Transform.w3d"
+              title="Permalink to Transform.Transform.w3d">#</a></h4>
+<div class="doc">
+<pre class="source">
+factory Transform.w3d(vec3 position, [vec3 rotation, vec3 scale]) {
+ var c = new Poolable.of(Transform, _ctor) as Transform;
+ c.position3d = position;
+ c.rotation3d = (rotation == null) ? new vec3(0.0, 0.0, 0.0) : rotation;
+ c.scale3d = (scale == null) ? new vec3(1.0, 1.0, 1.0) : scale;
+ return c;
+}
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="angle">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>angle</strong> <a class="anchor-link"
+            href="#angle"
+            title="Permalink to Transform.angle">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+double get angle =&gt; rotation3d.z;
+</pre>
+<pre class="source">
+set angle(double v) =&gt; rotation3d.z = v;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="position">
+<button class="show-code">Code</button>
+<a href="../vector_math/vec2.html">vec2</a>         <strong>position</strong> <a class="anchor-link"
+            href="#position"
+            title="Permalink to Transform.position">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+vec2 get position {
+ _position2d.x = position3d.x;
+ _position2d.y = position3d.y;
+ return _position2d;
+}
+</pre>
+<pre class="source">
+set position(vec2 v) {
+ position3d.x = v.x;
+ position3d.y = v.y;
+}
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="position3d">
+<button class="show-code">Code</button>
+<a href="../vector_math/vec3.html">vec3</a>         <strong>position3d</strong> <a class="anchor-link"
+            href="#position3d"
+            title="Permalink to Transform.position3d">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+vec3 position3d
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="rotation3d">
+<button class="show-code">Code</button>
+<a href="../vector_math/vec3.html">vec3</a>         <strong>rotation3d</strong> <a class="anchor-link"
+            href="#rotation3d"
+            title="Permalink to Transform.rotation3d">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+vec3 rotation3d
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="scale3d">
+<button class="show-code">Code</button>
+<a href="../vector_math/vec3.html">vec3</a>         <strong>scale3d</strong> <a class="anchor-link"
+            href="#scale3d"
+            title="Permalink to Transform.scale3d">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+vec3 scale3d
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method inherited"><h4 id="cleanUp">
+<button class="show-code">Code</button>
+void <strong>cleanUp</strong>() <a class="anchor-link" href="#cleanUp"
+              title="Permalink to Transform.cleanUp">#</a></h4>
+<div class="inherited-from">inherited from <a href="../dartemis/ComponentPoolable.html">ComponentPoolable</a> </div><div class="doc">
+<p>If you need to do some cleanup when removing this component override this
+method.</p>
+<pre class="source">
+void cleanUp() {}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="lookAt">
+<button class="show-code">Code</button>
+<a href="../transform/Transform.html">Transform</a> <strong>lookAt</strong>(<a href="../vector_math/vec3.html">vec3</a> target, [<a href="../vector_math/vec3.html">vec3</a> up]) <a class="anchor-link" href="#lookAt"
+              title="Permalink to Transform.lookAt">#</a></h4>
+<div class="doc">
+<p>this method mofidy the Transform (usefull for creation)
+return this</p>
+<pre class="source">
+Transform lookAt(vec3 target, [vec3 up]) {
+ up = (up == null) ? new vec3(0.0, 1.0, 0.0) : up;
+ var m = makeViewMatrix(position3d, target, up).getRotation();
+ // code from (euler order XYZ)
+ // https://github.com/mrdoob/three.js/blob/master/src/math/Vector3.js
+ rotation3d.y = math.asin( clamp( m.row2.x, -1.0 ,1.0 ) );
+ if ( m.row2.x.abs() &lt; 0.99999 ) {
+   rotation3d.x = math.atan2( - m.row2.y, m.row2.z );
+   rotation3d.z = math.atan2( - m.row1.x, m.row0.x );
+ } else {
+   rotation3d.x = math.atan2( m.row1.z, m.row1.y );
+   rotation3d.z = 0.0;
+ }
+ return this;
+}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="moveToPool">
+<button class="show-code">Code</button>
+void <strong>moveToPool</strong>() <a class="anchor-link" href="#moveToPool"
+              title="Permalink to Transform.moveToPool">#</a></h4>
+<div class="inherited-from">inherited from <a href="../dartemis/Component_Poolable.html">Component_Poolable</a> </div><div class="doc">
+<p>Calls the cleanup function and moves this object to the <code>ObjectPool</code>.</p>
+<pre class="source">
+void moveToPool() {
+ cleanUp();
+ ObjectPool.add(this);
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-05 23:19:56.317</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

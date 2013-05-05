@@ -1,0 +1,218 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>TagManager class / dartemis Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="dartemis" data-type="TagManager">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../dartemis.html">dartemis</a> &rsaquo; <a href="../dartemis/TagManager.html">TagManager</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>TagManager</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p>If you need to tag any entity, use this. A typical usage would be to tag
+entities such as "PLAYER", "BOSS" or something that is very unique.
+An <a class="crossref" href="../dartemis/Entity.html">Entity</a> can only belong to one tag (0,1) at a time.</p>
+<pre class="source">
+class TagManager extends Manager {
+ final Map&lt;String, Entity&gt; _entitiesByTag;
+ final Map&lt;Entity, String&gt; _tagsByEntity;
+
+ TagManager() : _entitiesByTag = new Map&lt;String, Entity&gt;(),
+                _tagsByEntity = new Map&lt;Entity, String&gt;();
+
+ void register(Entity e, String tag) {
+   _entitiesByTag[tag] = e;
+   _tagsByEntity[e] = tag;
+ }
+
+ void unregister(String tag) {
+   _tagsByEntity.remove(_entitiesByTag.remove(tag));
+ }
+
+ bool isRegistered(String tag) =&gt; _entitiesByTag.containsKey(tag);
+ Entity getEntity(String tag) =&gt; _entitiesByTag[tag];
+ Iterable&lt;String&gt; getRegisteredTags() =&gt; _tagsByEntity.values;
+
+ void deleted(Entity e) {
+   String removedTag = _tagsByEntity.remove(e);
+   if(removedTag != null) {
+     _entitiesByTag.remove(removedTag);
+   }
+ }
+
+ void initialize() {}
+}
+</pre>
+</div>
+<h3>Extends</h3>
+<p>
+<span class="type-box"><span class="icon-class"></span><a href="../dartemis/Manager.html">Manager</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><strong>TagManager</strong></span></p>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="TagManager">
+<button class="show-code">Code</button>
+new <strong>TagManager</strong>() <a class="anchor-link" href="#TagManager"
+              title="Permalink to TagManager.TagManager">#</a></h4>
+<div class="doc">
+<pre class="source">
+TagManager() : _entitiesByTag = new Map&lt;String, Entity&gt;(),
+              _tagsByEntity = new Map&lt;Entity, String&gt;();
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method inherited"><h4 id="added">
+<button class="show-code">Code</button>
+void <strong>added</strong>(<a href="../dartemis/Entity.html">Entity</a> e) <a class="anchor-link" href="#added"
+              title="Permalink to TagManager.added">#</a></h4>
+<div class="inherited-from">inherited from <a href="../dartemis/Manager.html">Manager</a> </div><div class="doc">
+<pre class="source">
+void added(Entity e) {}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="changed">
+<button class="show-code">Code</button>
+void <strong>changed</strong>(<a href="../dartemis/Entity.html">Entity</a> e) <a class="anchor-link" href="#changed"
+              title="Permalink to TagManager.changed">#</a></h4>
+<div class="inherited-from">inherited from <a href="../dartemis/Manager.html">Manager</a> </div><div class="doc">
+<pre class="source">
+void changed(Entity e) {}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="deleted">
+<button class="show-code">Code</button>
+void <strong>deleted</strong>(<a href="../dartemis/Entity.html">Entity</a> e) <a class="anchor-link" href="#deleted"
+              title="Permalink to TagManager.deleted">#</a></h4>
+<div class="doc">
+<pre class="source">
+void deleted(Entity e) {
+ String removedTag = _tagsByEntity.remove(e);
+ if(removedTag != null) {
+   _entitiesByTag.remove(removedTag);
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="disabled">
+<button class="show-code">Code</button>
+void <strong>disabled</strong>(<a href="../dartemis/Entity.html">Entity</a> e) <a class="anchor-link" href="#disabled"
+              title="Permalink to TagManager.disabled">#</a></h4>
+<div class="inherited-from">inherited from <a href="../dartemis/Manager.html">Manager</a> </div><div class="doc">
+<pre class="source">
+void disabled(Entity e) {}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="enabled">
+<button class="show-code">Code</button>
+void <strong>enabled</strong>(<a href="../dartemis/Entity.html">Entity</a> e) <a class="anchor-link" href="#enabled"
+              title="Permalink to TagManager.enabled">#</a></h4>
+<div class="inherited-from">inherited from <a href="../dartemis/Manager.html">Manager</a> </div><div class="doc">
+<pre class="source">
+void enabled(Entity e) {}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="getEntity">
+<button class="show-code">Code</button>
+<a href="../dartemis/Entity.html">Entity</a> <strong>getEntity</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> tag) <a class="anchor-link" href="#getEntity"
+              title="Permalink to TagManager.getEntity">#</a></h4>
+<div class="doc">
+<pre class="source">
+Entity getEntity(String tag) =&gt; _entitiesByTag[tag];
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="getRegisteredTags">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt; <strong>getRegisteredTags</strong>() <a class="anchor-link" href="#getRegisteredTags"
+              title="Permalink to TagManager.getRegisteredTags">#</a></h4>
+<div class="doc">
+<pre class="source">
+Iterable&lt;String&gt; getRegisteredTags() =&gt; _tagsByEntity.values;
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="initialize">
+<button class="show-code">Code</button>
+void <strong>initialize</strong>() <a class="anchor-link" href="#initialize"
+              title="Permalink to TagManager.initialize">#</a></h4>
+<div class="doc">
+<pre class="source">
+void initialize() {}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="isRegistered">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>isRegistered</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> tag) <a class="anchor-link" href="#isRegistered"
+              title="Permalink to TagManager.isRegistered">#</a></h4>
+<div class="doc">
+<pre class="source">
+bool isRegistered(String tag) =&gt; _entitiesByTag.containsKey(tag);
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="register">
+<button class="show-code">Code</button>
+void <strong>register</strong>(<a href="../dartemis/Entity.html">Entity</a> e, <a href="http://api.dartlang.org/dart_core/String.html">String</a> tag) <a class="anchor-link" href="#register"
+              title="Permalink to TagManager.register">#</a></h4>
+<div class="doc">
+<pre class="source">
+void register(Entity e, String tag) {
+ _entitiesByTag[tag] = e;
+ _tagsByEntity[e] = tag;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="unregister">
+<button class="show-code">Code</button>
+void <strong>unregister</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> tag) <a class="anchor-link" href="#unregister"
+              title="Permalink to TagManager.unregister">#</a></h4>
+<div class="doc">
+<pre class="source">
+void unregister(String tag) {
+ _tagsByEntity.remove(_entitiesByTag.remove(tag));
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-05 23:19:55.954</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

@@ -1,0 +1,182 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>AudioDef class / simple_audio Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="simple_audio" data-type="AudioDef">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../simple_audio.html">simple_audio</a> &rsaquo; <a href="../simple_audio/AudioDef.html">AudioDef</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>AudioDef</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p>Component use to store a bag of name of <code>AudioClip</code> to play.
+When the <a class="crossref" href="../simple_audio/System_Audio.html">System_Audio</a> start to play, name is removed from the bag.
+<a class="crossref" href="../simple_audio/System_Audio.html">System_Audio</a> start to play ASAP.</p>
+<pre class="source">
+class AudioDef extends ComponentPoolable {
+ final l = new LinkedBag&lt;String&gt;();
+
+ /// only one entity can be the audioListener at time t.
+ var isAudioListener = false;
+
+ AudioDef._();
+ static _ctor() =&gt; new AudioDef._();
+ factory AudioDef() {
+   var c = new Poolable.of(AudioDef, _ctor);
+   c.cleanUp();
+   return c;
+ }
+
+ void cleanUp() {
+   l.clear();
+   isAudioListener = false;
+ }
+
+ /// this is a sugar method for [l].add([a])
+ /// sugar because you can write
+ ///
+ ///    new AudioDef()
+ ///      ..add("boost")
+ ///      ..add("alarm")
+ ///
+ AudioDef add(String a) {
+   l.add(a);
+   return this;
+ }
+}
+</pre>
+</div>
+<h3>Extends</h3>
+<p>
+<span class="type-box"><span class="icon-class"></span><a href="../dartemis/Component.html">Component</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><a href="../dartemis/Component_Poolable.html">Component_Poolable</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><a href="../dartemis/ComponentPoolable.html">ComponentPoolable</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><strong>AudioDef</strong></span></p>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="AudioDef">
+<button class="show-code">Code</button>
+factory <strong>AudioDef</strong>() <a class="anchor-link" href="#AudioDef"
+              title="Permalink to AudioDef.AudioDef">#</a></h4>
+<div class="doc">
+<pre class="source">
+factory AudioDef() {
+ var c = new Poolable.of(AudioDef, _ctor);
+ c.cleanUp();
+ return c;
+}
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="isAudioListener">
+<button class="show-code">Code</button>
+var         <strong>isAudioListener</strong> <a class="anchor-link"
+            href="#isAudioListener"
+            title="Permalink to AudioDef.isAudioListener">#</a>
+        </h4>
+        <div class="doc">
+<p>only one entity can be the audioListener at time t.</p>
+<pre class="source">
+var isAudioListener = false
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="l">
+<button class="show-code">Code</button>
+final         <strong>l</strong> <a class="anchor-link"
+            href="#l"
+            title="Permalink to AudioDef.l">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final l = new LinkedBag&lt;String&gt;()
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="add">
+<button class="show-code">Code</button>
+<a href="../simple_audio/AudioDef.html">AudioDef</a> <strong>add</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> a) <a class="anchor-link" href="#add"
+              title="Permalink to AudioDef.add">#</a></h4>
+<div class="doc">
+<p>this is a sugar method for <a class="crossref" href="../simple_audio/AudioDef.html#l">l</a>.add(
+<span class="param">a</span>)
+sugar because you can write</p>
+<p>   new AudioDef()</p>
+<pre><code> ..add("boost")
+ ..add("alarm")
+</code></pre>
+<pre class="source">
+AudioDef add(String a) {
+ l.add(a);
+ return this;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="cleanUp">
+<button class="show-code">Code</button>
+void <strong>cleanUp</strong>() <a class="anchor-link" href="#cleanUp"
+              title="Permalink to AudioDef.cleanUp">#</a></h4>
+<div class="doc">
+<div class="inherited">
+<p>If you need to do some cleanup when removing this component override this
+method.</p>
+<div class="docs-inherited-from">docs inherited from <a href="../dartemis/ComponentPoolable.html">ComponentPoolable</a> </div></div>
+<pre class="source">
+void cleanUp() {
+ l.clear();
+ isAudioListener = false;
+}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="moveToPool">
+<button class="show-code">Code</button>
+void <strong>moveToPool</strong>() <a class="anchor-link" href="#moveToPool"
+              title="Permalink to AudioDef.moveToPool">#</a></h4>
+<div class="inherited-from">inherited from <a href="../dartemis/Component_Poolable.html">Component_Poolable</a> </div><div class="doc">
+<p>Calls the cleanup function and moves this object to the <code>ObjectPool</code>.</p>
+<pre class="source">
+void moveToPool() {
+ cleanUp();
+ ObjectPool.add(this);
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-05 23:19:56.307</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

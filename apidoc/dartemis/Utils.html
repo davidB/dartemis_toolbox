@@ -1,0 +1,446 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>Utils class / dartemis Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="dartemis" data-type="Utils">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../dartemis.html">dartemis</a> &rsaquo; <a href="../dartemis/Utils.html">Utils</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>Utils</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<pre class="source">
+class Utils {
+
+ static num cubicInterpolation(num v0, num v1, num v2, num v3, num t) {
+   num t2 = t * t;
+   num a0 = v3 - v2 - v0 + v1;
+   num a1 = v0 - v1 - a0;
+   num a2 = v2 - v0;
+   num a3 = v1;
+
+   return (a0 * (t * t2)) + (a1 * t2) + (a2 * t) + a3;
+ }
+
+ static num quadraticBezierInterpolation(num a, num b, num c, num t) {
+   return (((1.0 - t) * (1.0 - t)) * a) + (((2.0 * t) * (1.0 - t)) * b) + ((t * t) * c);
+ }
+
+ static num lengthOfQuadraticBezierCurve(num x0, num y0, num x1, num y1, num x2, num y2) {
+   if ((x0 == x1 &amp;&amp; y0 == y1) || (x1 == x2 &amp;&amp; y1 == y2)) {
+     return distance(x0, y0, x2, y2);
+   }
+
+   num ax, ay, bx, by;
+   ax = x0 - 2 * x1 + x2;
+   ay = y0 - 2 * y1 + y2;
+   bx = 2 * x1 - 2 * x0;
+   by = 2 * y1 - 2 * y0;
+   num A = 4 * (ax * ax + ay * ay);
+   num B = 4 * (ax * bx + ay * by);
+   num C = bx * bx + by * by;
+
+   num Sabc = 2.0 * Math.sqrt(A + B + C);
+   num A_2 = Math.sqrt(A);
+   num A_32 = 2.0 * A * A_2;
+   num C_2 = 2.0 * Math.sqrt(C);
+   num BA = B / A_2;
+
+   return (A_32 * Sabc + A_2 * B * (Sabc - C_2) + (4.0 * C * A - B * B) * Math.log((2 * A_2 + BA + Sabc) / (BA + C_2))) / (4 * A_32);
+ }
+
+ static num lerp(num a, num b, num t) {
+   if (t &lt; 0) {
+     return a;
+   }
+   return a + t * (b - a);
+ }
+
+ static num distance(num x1, num y1, num x2, num y2) {
+   return euclideanDistance(x1, y1, x2, y2);
+ }
+
+ static bool doCirclesCollide(num x1, num y1, num radius1, num x2, num y2, num radius2) {
+   num dx = x2 - x1;
+   num dy = y2 - y1;
+   num d = radius1 + radius2;
+   return (dx * dx + dy * dy) &lt; (d * d);
+ }
+
+ static num euclideanDistanceSq2D(num x1, num y1, num x2, num y2) {
+   num dx = x1 - x2;
+   num dy = y1 - y2;
+   return dx * dx + dy * dy;
+ }
+
+ static num manhattanDistance(num x1, num y1, num x2, num y2) {
+   return (x1 - x2).abs() + (y1 - y2).abs();
+ }
+
+ static num euclideanDistance(num x1, num y1, num x2, num y2) {
+   num a = x1 - x2;
+   num b = y1 - y2;
+
+   return Math.sqrt(a * a + b * b);
+ }
+
+ static num angleInDegreesWithOwnerRotation(num ownerRotation, num x1, num y1, num x2, num y2) {
+   return (ownerRotation - angleInDegrees(x1, y1, x2, y2)).abs() % 360;
+ }
+
+ static num angleInDegrees(num originX, num originY, num targetX, num targetY) {
+   return toDegrees(Math.atan2(targetY - originY, targetX - originX));
+ }
+
+ static num toDegrees(num rad) =&gt; rad * 180.0 / Math.PI;
+
+ static num angleInRadians(num originX, num originY, num targetX, num targetY) {
+   return Math.atan2(targetY - originY, targetX - originX);
+ }
+
+ static bool shouldRotateCounterClockwise(num angleFrom, num angleTo) {
+   num diff = (angleFrom - angleTo) % 360;
+   return diff &gt; 0 ? diff &lt; 180 : diff &lt; -180;
+ }
+
+ static num getRotatedX(num currentX, num currentY, num pivotX, num pivotY, num angleDegrees) {
+   num x = currentX - pivotX;
+   num y = currentY - pivotY;
+   num xr = (x * _TrigUtil.cosDeg(angleDegrees)) - (y * _TrigUtil.sinDeg(angleDegrees));
+   return xr + pivotX;
+ }
+
+ static num getRotatedY(num currentX, num currentY, num pivotX, num pivotY, num angleDegrees) {
+   num x = currentX - pivotX;
+   num y = currentY - pivotY;
+   num yr = (x * _TrigUtil.sinDeg(angleDegrees)) + (y * _TrigUtil.cosDeg(angleDegrees));
+   return yr + pivotY;
+ }
+
+ static num getXAtEndOfRotatedLineByOrigin(num x, num lineLength, num angleDegrees) {
+   return x + _TrigUtil.cosDeg(angleDegrees) * lineLength;
+ }
+
+ static num getYAtEndOfRotatedLineByOrigin(num y, num lineLength, num angleDegrees) {
+   return y + _TrigUtil.sinDeg(angleDegrees) * lineLength;
+ }
+
+ static bool collides(num x1, num y1, num radius1, num x2, num y2, num radius2) {
+   num d = distance(x1, y1, x2, y2);
+
+   d -= radius1 + radius2;
+
+   return d &lt; 0;
+ }
+
+}
+</pre>
+</div>
+<div>
+<h3>Static Methods</h3>
+<div class="method"><h4 id="cubicInterpolation">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>cubicInterpolation</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> v0, <a href="http://api.dartlang.org/dart_core/num.html">num</a> v1, <a href="http://api.dartlang.org/dart_core/num.html">num</a> v2, <a href="http://api.dartlang.org/dart_core/num.html">num</a> v3, <a href="http://api.dartlang.org/dart_core/num.html">num</a> t) <a class="anchor-link" href="#cubicInterpolation"
+              title="Permalink to Utils.cubicInterpolation">#</a></h4>
+<div class="doc">
+<pre class="source">
+static num cubicInterpolation(num v0, num v1, num v2, num v3, num t) {
+ num t2 = t * t;
+ num a0 = v3 - v2 - v0 + v1;
+ num a1 = v0 - v1 - a0;
+ num a2 = v2 - v0;
+ num a3 = v1;
+
+ return (a0 * (t * t2)) + (a1 * t2) + (a2 * t) + a3;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="quadraticBezierInterpolation">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>quadraticBezierInterpolation</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> a, <a href="http://api.dartlang.org/dart_core/num.html">num</a> b, <a href="http://api.dartlang.org/dart_core/num.html">num</a> c, <a href="http://api.dartlang.org/dart_core/num.html">num</a> t) <a class="anchor-link" href="#quadraticBezierInterpolation"
+              title="Permalink to Utils.quadraticBezierInterpolation">#</a></h4>
+<div class="doc">
+<pre class="source">
+static num quadraticBezierInterpolation(num a, num b, num c, num t) {
+ return (((1.0 - t) * (1.0 - t)) * a) + (((2.0 * t) * (1.0 - t)) * b) + ((t * t) * c);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="lengthOfQuadraticBezierCurve">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>lengthOfQuadraticBezierCurve</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> x0, <a href="http://api.dartlang.org/dart_core/num.html">num</a> y0, <a href="http://api.dartlang.org/dart_core/num.html">num</a> x1, <a href="http://api.dartlang.org/dart_core/num.html">num</a> y1, <a href="http://api.dartlang.org/dart_core/num.html">num</a> x2, <a href="http://api.dartlang.org/dart_core/num.html">num</a> y2) <a class="anchor-link" href="#lengthOfQuadraticBezierCurve"
+              title="Permalink to Utils.lengthOfQuadraticBezierCurve">#</a></h4>
+<div class="doc">
+<pre class="source">
+static num lengthOfQuadraticBezierCurve(num x0, num y0, num x1, num y1, num x2, num y2) {
+ if ((x0 == x1 &amp;&amp; y0 == y1) || (x1 == x2 &amp;&amp; y1 == y2)) {
+   return distance(x0, y0, x2, y2);
+ }
+
+ num ax, ay, bx, by;
+ ax = x0 - 2 * x1 + x2;
+ ay = y0 - 2 * y1 + y2;
+ bx = 2 * x1 - 2 * x0;
+ by = 2 * y1 - 2 * y0;
+ num A = 4 * (ax * ax + ay * ay);
+ num B = 4 * (ax * bx + ay * by);
+ num C = bx * bx + by * by;
+
+ num Sabc = 2.0 * Math.sqrt(A + B + C);
+ num A_2 = Math.sqrt(A);
+ num A_32 = 2.0 * A * A_2;
+ num C_2 = 2.0 * Math.sqrt(C);
+ num BA = B / A_2;
+
+ return (A_32 * Sabc + A_2 * B * (Sabc - C_2) + (4.0 * C * A - B * B) * Math.log((2 * A_2 + BA + Sabc) / (BA + C_2))) / (4 * A_32);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="lerp">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>lerp</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> a, <a href="http://api.dartlang.org/dart_core/num.html">num</a> b, <a href="http://api.dartlang.org/dart_core/num.html">num</a> t) <a class="anchor-link" href="#lerp"
+              title="Permalink to Utils.lerp">#</a></h4>
+<div class="doc">
+<pre class="source">
+static num lerp(num a, num b, num t) {
+ if (t &lt; 0) {
+   return a;
+ }
+ return a + t * (b - a);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="distance">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>distance</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> x1, <a href="http://api.dartlang.org/dart_core/num.html">num</a> y1, <a href="http://api.dartlang.org/dart_core/num.html">num</a> x2, <a href="http://api.dartlang.org/dart_core/num.html">num</a> y2) <a class="anchor-link" href="#distance"
+              title="Permalink to Utils.distance">#</a></h4>
+<div class="doc">
+<pre class="source">
+static num distance(num x1, num y1, num x2, num y2) {
+ return euclideanDistance(x1, y1, x2, y2);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="doCirclesCollide">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>doCirclesCollide</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> x1, <a href="http://api.dartlang.org/dart_core/num.html">num</a> y1, <a href="http://api.dartlang.org/dart_core/num.html">num</a> radius1, <a href="http://api.dartlang.org/dart_core/num.html">num</a> x2, <a href="http://api.dartlang.org/dart_core/num.html">num</a> y2, <a href="http://api.dartlang.org/dart_core/num.html">num</a> radius2) <a class="anchor-link" href="#doCirclesCollide"
+              title="Permalink to Utils.doCirclesCollide">#</a></h4>
+<div class="doc">
+<pre class="source">
+static bool doCirclesCollide(num x1, num y1, num radius1, num x2, num y2, num radius2) {
+ num dx = x2 - x1;
+ num dy = y2 - y1;
+ num d = radius1 + radius2;
+ return (dx * dx + dy * dy) &lt; (d * d);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="euclideanDistanceSq2D">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>euclideanDistanceSq2D</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> x1, <a href="http://api.dartlang.org/dart_core/num.html">num</a> y1, <a href="http://api.dartlang.org/dart_core/num.html">num</a> x2, <a href="http://api.dartlang.org/dart_core/num.html">num</a> y2) <a class="anchor-link" href="#euclideanDistanceSq2D"
+              title="Permalink to Utils.euclideanDistanceSq2D">#</a></h4>
+<div class="doc">
+<pre class="source">
+static num euclideanDistanceSq2D(num x1, num y1, num x2, num y2) {
+ num dx = x1 - x2;
+ num dy = y1 - y2;
+ return dx * dx + dy * dy;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="manhattanDistance">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>manhattanDistance</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> x1, <a href="http://api.dartlang.org/dart_core/num.html">num</a> y1, <a href="http://api.dartlang.org/dart_core/num.html">num</a> x2, <a href="http://api.dartlang.org/dart_core/num.html">num</a> y2) <a class="anchor-link" href="#manhattanDistance"
+              title="Permalink to Utils.manhattanDistance">#</a></h4>
+<div class="doc">
+<pre class="source">
+static num manhattanDistance(num x1, num y1, num x2, num y2) {
+ return (x1 - x2).abs() + (y1 - y2).abs();
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="euclideanDistance">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>euclideanDistance</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> x1, <a href="http://api.dartlang.org/dart_core/num.html">num</a> y1, <a href="http://api.dartlang.org/dart_core/num.html">num</a> x2, <a href="http://api.dartlang.org/dart_core/num.html">num</a> y2) <a class="anchor-link" href="#euclideanDistance"
+              title="Permalink to Utils.euclideanDistance">#</a></h4>
+<div class="doc">
+<pre class="source">
+static num euclideanDistance(num x1, num y1, num x2, num y2) {
+ num a = x1 - x2;
+ num b = y1 - y2;
+
+ return Math.sqrt(a * a + b * b);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="angleInDegreesWithOwnerRotation">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>angleInDegreesWithOwnerRotation</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> ownerRotation, <a href="http://api.dartlang.org/dart_core/num.html">num</a> x1, <a href="http://api.dartlang.org/dart_core/num.html">num</a> y1, <a href="http://api.dartlang.org/dart_core/num.html">num</a> x2, <a href="http://api.dartlang.org/dart_core/num.html">num</a> y2) <a class="anchor-link" href="#angleInDegreesWithOwnerRotation"
+              title="Permalink to Utils.angleInDegreesWithOwnerRotation">#</a></h4>
+<div class="doc">
+<pre class="source">
+static num angleInDegreesWithOwnerRotation(num ownerRotation, num x1, num y1, num x2, num y2) {
+ return (ownerRotation - angleInDegrees(x1, y1, x2, y2)).abs() % 360;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="angleInDegrees">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>angleInDegrees</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> originX, <a href="http://api.dartlang.org/dart_core/num.html">num</a> originY, <a href="http://api.dartlang.org/dart_core/num.html">num</a> targetX, <a href="http://api.dartlang.org/dart_core/num.html">num</a> targetY) <a class="anchor-link" href="#angleInDegrees"
+              title="Permalink to Utils.angleInDegrees">#</a></h4>
+<div class="doc">
+<pre class="source">
+static num angleInDegrees(num originX, num originY, num targetX, num targetY) {
+ return toDegrees(Math.atan2(targetY - originY, targetX - originX));
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="toDegrees">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>toDegrees</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> rad) <a class="anchor-link" href="#toDegrees"
+              title="Permalink to Utils.toDegrees">#</a></h4>
+<div class="doc">
+<pre class="source">
+static num toDegrees(num rad) =&gt; rad * 180.0 / Math.PI;
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="angleInRadians">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>angleInRadians</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> originX, <a href="http://api.dartlang.org/dart_core/num.html">num</a> originY, <a href="http://api.dartlang.org/dart_core/num.html">num</a> targetX, <a href="http://api.dartlang.org/dart_core/num.html">num</a> targetY) <a class="anchor-link" href="#angleInRadians"
+              title="Permalink to Utils.angleInRadians">#</a></h4>
+<div class="doc">
+<pre class="source">
+static num angleInRadians(num originX, num originY, num targetX, num targetY) {
+ return Math.atan2(targetY - originY, targetX - originX);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="shouldRotateCounterClockwise">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>shouldRotateCounterClockwise</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> angleFrom, <a href="http://api.dartlang.org/dart_core/num.html">num</a> angleTo) <a class="anchor-link" href="#shouldRotateCounterClockwise"
+              title="Permalink to Utils.shouldRotateCounterClockwise">#</a></h4>
+<div class="doc">
+<pre class="source">
+static bool shouldRotateCounterClockwise(num angleFrom, num angleTo) {
+ num diff = (angleFrom - angleTo) % 360;
+ return diff &gt; 0 ? diff &lt; 180 : diff &lt; -180;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="getRotatedX">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>getRotatedX</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> currentX, <a href="http://api.dartlang.org/dart_core/num.html">num</a> currentY, <a href="http://api.dartlang.org/dart_core/num.html">num</a> pivotX, <a href="http://api.dartlang.org/dart_core/num.html">num</a> pivotY, <a href="http://api.dartlang.org/dart_core/num.html">num</a> angleDegrees) <a class="anchor-link" href="#getRotatedX"
+              title="Permalink to Utils.getRotatedX">#</a></h4>
+<div class="doc">
+<pre class="source">
+static num getRotatedX(num currentX, num currentY, num pivotX, num pivotY, num angleDegrees) {
+ num x = currentX - pivotX;
+ num y = currentY - pivotY;
+ num xr = (x * _TrigUtil.cosDeg(angleDegrees)) - (y * _TrigUtil.sinDeg(angleDegrees));
+ return xr + pivotX;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="getRotatedY">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>getRotatedY</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> currentX, <a href="http://api.dartlang.org/dart_core/num.html">num</a> currentY, <a href="http://api.dartlang.org/dart_core/num.html">num</a> pivotX, <a href="http://api.dartlang.org/dart_core/num.html">num</a> pivotY, <a href="http://api.dartlang.org/dart_core/num.html">num</a> angleDegrees) <a class="anchor-link" href="#getRotatedY"
+              title="Permalink to Utils.getRotatedY">#</a></h4>
+<div class="doc">
+<pre class="source">
+static num getRotatedY(num currentX, num currentY, num pivotX, num pivotY, num angleDegrees) {
+ num x = currentX - pivotX;
+ num y = currentY - pivotY;
+ num yr = (x * _TrigUtil.sinDeg(angleDegrees)) + (y * _TrigUtil.cosDeg(angleDegrees));
+ return yr + pivotY;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="getXAtEndOfRotatedLineByOrigin">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>getXAtEndOfRotatedLineByOrigin</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> x, <a href="http://api.dartlang.org/dart_core/num.html">num</a> lineLength, <a href="http://api.dartlang.org/dart_core/num.html">num</a> angleDegrees) <a class="anchor-link" href="#getXAtEndOfRotatedLineByOrigin"
+              title="Permalink to Utils.getXAtEndOfRotatedLineByOrigin">#</a></h4>
+<div class="doc">
+<pre class="source">
+static num getXAtEndOfRotatedLineByOrigin(num x, num lineLength, num angleDegrees) {
+ return x + _TrigUtil.cosDeg(angleDegrees) * lineLength;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="getYAtEndOfRotatedLineByOrigin">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>getYAtEndOfRotatedLineByOrigin</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> y, <a href="http://api.dartlang.org/dart_core/num.html">num</a> lineLength, <a href="http://api.dartlang.org/dart_core/num.html">num</a> angleDegrees) <a class="anchor-link" href="#getYAtEndOfRotatedLineByOrigin"
+              title="Permalink to Utils.getYAtEndOfRotatedLineByOrigin">#</a></h4>
+<div class="doc">
+<pre class="source">
+static num getYAtEndOfRotatedLineByOrigin(num y, num lineLength, num angleDegrees) {
+ return y + _TrigUtil.sinDeg(angleDegrees) * lineLength;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="collides">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>collides</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> x1, <a href="http://api.dartlang.org/dart_core/num.html">num</a> y1, <a href="http://api.dartlang.org/dart_core/num.html">num</a> radius1, <a href="http://api.dartlang.org/dart_core/num.html">num</a> x2, <a href="http://api.dartlang.org/dart_core/num.html">num</a> y2, <a href="http://api.dartlang.org/dart_core/num.html">num</a> radius2) <a class="anchor-link" href="#collides"
+              title="Permalink to Utils.collides">#</a></h4>
+<div class="doc">
+<pre class="source">
+static bool collides(num x1, num y1, num radius1, num x2, num y2, num radius2) {
+ num d = distance(x1, y1, x2, y2);
+
+ d -= radius1 + radius2;
+
+ return d &lt; 0;
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-05 23:19:56.134</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

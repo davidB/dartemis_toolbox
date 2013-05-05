@@ -1,0 +1,104 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>ComponentTypeManager class / dartemis Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="dartemis" data-type="ComponentTypeManager">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../dartemis.html">dartemis</a> &rsaquo; <a href="../dartemis/ComponentTypeManager.html">ComponentTypeManager</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>ComponentTypeManager</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<pre class="source">
+class ComponentTypeManager {
+
+ static var _componentTypes = new Map&lt;Type, ComponentType&gt;();
+
+ static ComponentType getTypeFor(Type componentType){
+   ComponentType type = _componentTypes[componentType];
+
+   if (type == null) {
+     type = new ComponentType();
+     _componentTypes[componentType] = type;
+   }
+   return type;
+ }
+
+ static int getBit(Type componentType) =&gt; getTypeFor(componentType).bit;
+ static int getId(Type componentType) =&gt; getTypeFor(componentType).id;
+}
+</pre>
+</div>
+<div>
+<h3>Static Methods</h3>
+<div class="method"><h4 id="getTypeFor">
+<button class="show-code">Code</button>
+<a href="../dartemis/ComponentType.html">ComponentType</a> <strong>getTypeFor</strong>(<a href="http://api.dartlang.org/dart_core/Type.html">Type</a> componentType) <a class="anchor-link" href="#getTypeFor"
+              title="Permalink to ComponentTypeManager.getTypeFor">#</a></h4>
+<div class="doc">
+<pre class="source">
+static ComponentType getTypeFor(Type componentType){
+ ComponentType type = _componentTypes[componentType];
+
+ if (type == null) {
+   type = new ComponentType();
+   _componentTypes[componentType] = type;
+ }
+ return type;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="getBit">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/int.html">int</a> <strong>getBit</strong>(<a href="http://api.dartlang.org/dart_core/Type.html">Type</a> componentType) <a class="anchor-link" href="#getBit"
+              title="Permalink to ComponentTypeManager.getBit">#</a></h4>
+<div class="doc">
+<pre class="source">
+static int getBit(Type componentType) =&gt; getTypeFor(componentType).bit;
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="getId">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/int.html">int</a> <strong>getId</strong>(<a href="http://api.dartlang.org/dart_core/Type.html">Type</a> componentType) <a class="anchor-link" href="#getId"
+              title="Permalink to ComponentTypeManager.getId">#</a></h4>
+<div class="doc">
+<pre class="source">
+static int getId(Type componentType) =&gt; getTypeFor(componentType).id;
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-05 23:19:56.091</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

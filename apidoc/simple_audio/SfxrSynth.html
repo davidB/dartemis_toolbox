@@ -1,0 +1,787 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>SfxrSynth class / simple_audio Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="simple_audio" data-type="SfxrSynth">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../simple_audio.html">simple_audio</a> &rsaquo; <a href="../simple_audio/SfxrSynth.html">SfxrSynth</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>SfxrSynth</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<pre class="source">
+class SfxrSynth {
+
+ final SfxrParams _params;
+
+ //--------------------------------------------------------------------------
+ //
+ //  Synth Variables
+ //
+ //--------------------------------------------------------------------------
+
+ double
+     _envelopeLength0, // Length of the attack stage
+     _envelopeLength1, // Length of the sustain stage
+     _envelopeLength2, // Length of the decay stage
+
+     _period,          // Period of the wave
+     _maxPeriod,       // Maximum period before sound stops (from minFrequency)
+
+     _slide,           // Note slide
+     _deltaSlide,      // Change in slide
+
+     _changeAmount,    // Amount to change the note by
+
+     _squareDuty,      // Offset of center switching point in the square wave
+     _dutySweep;       // Amount to change the duty by
+ int _changeTime,      // Counter for the note change
+     _changeLimit;     // Once the time reaches this limit, the note changes
+
+ //--------------------------------------------------------------------------
+ //
+ //  Synth Methods
+ //
+ //--------------------------------------------------------------------------
+ SfxrSynth(SfxrParams this._params);
+
+ /**
+  * Resets the runing variables from the params
+  * Used once at the start (total reset) and for the repeat effect (partial reset)
+  */
+ void reset() {
+   // Shorter reference
+   var p = this._params;
+
+   _period       = 100 / (p.startFrequency * p.startFrequency + .001);
+   _maxPeriod    = 100 / (p.minFrequency   * p.minFrequency   + .001);
+
+   _slide        = 1 - p.slide * p.slide * p.slide * .01;
+   _deltaSlide   = -p.deltaSlide * p.deltaSlide * p.deltaSlide * .000001;
+
+   if (p.waveType == 0) {
+     _squareDuty = .5 - p.squareDuty / 2;
+     _dutySweep  = -p.dutySweep * .00005;
+   }
+
+   _changeAmount = p.changeAmount &gt; 0 ? 1 - p.changeAmount * p.changeAmount * .9 : 1 + p.changeAmount * p.changeAmount * 10;
+   _changeTime   = 0;
+   _changeLimit  = (p.changeSpeed == 1 ? 0 : (1 - p.changeSpeed) * (1 - p.changeSpeed) * 20000 + 32).toInt();
+ }
+
+ // I split the reset() function into two functions for better readability
+ int totalReset() {
+   this.reset();
+
+   // Shorter reference
+   var p = this._params;
+
+   // Calculating the length is all that remained here, everything else moved somewhere
+   _envelopeLength0 = p.attackTime  * p.attackTime  * 100000;
+   _envelopeLength1 = p.sustainTime * p.sustainTime * 100000;
+   _envelopeLength2 = p.decayTime   * p.decayTime   * 100000 + 10;
+   // Full length of the volume envelop (and therefore sound)
+   return (_envelopeLength0 + _envelopeLength1 + _envelopeLength2).toInt(); // | 0;
+ }
+
+ /**
+  * Writes the wave to the supplied buffer ByteArray
+  * @param buffer A ByteArray to write the wave to
+  * @return If the wave is finished
+  */
+ bool synthWave(Float32List buffer, int length) {
+   // Shorter reference
+   var p = this._params;
+
+   // If the filters are active
+   var _filters = p.lpFilterCutoff != 1 || p.hpFilterCutoff != 0,
+       // Cutoff multiplier which adjusts the amount the wave position can move
+       _hpFilterCutoff = p.hpFilterCutoff * p.hpFilterCutoff * .1,
+       // Speed of the high-pass cutoff multiplier
+       _hpFilterDeltaCutoff = 1 + p.hpFilterCutoffSweep * .0003,
+       // Cutoff multiplier which adjusts the amount the wave position can move
+       _lpFilterCutoff = p.lpFilterCutoff * p.lpFilterCutoff * p.lpFilterCutoff * .1,
+       // Speed of the low-pass cutoff multiplier
+       _lpFilterDeltaCutoff = 1 + p.lpFilterCutoffSweep * .0001,
+       // If the low pass filter is active
+       _lpFilterOn = p.lpFilterCutoff != 1,
+       // masterVolume * masterVolume (for quick calculations)
+       _masterVolume = p.masterVolume * p.masterVolume,
+       // Minimum frequency before stopping
+       _minFreqency = p.minFrequency,
+       // If the phaser is active
+       _phaser = p.phaserOffset != 0 || p.phaserSweep != 0,
+       // Change in phase offset
+       _phaserDeltaOffset = p.phaserSweep * p.phaserSweep * p.phaserSweep * .2,
+       // Phase offset for phaser effect
+       _phaserOffset = p.phaserOffset * p.phaserOffset * (p.phaserOffset &lt; 0 ? -1020 : 1020),
+       // Once the time reaches this limit, some of the    iables are reset
+       _repeatLimit = (p.repeatSpeed != 0) ? (((1 - p.repeatSpeed) * (1 - p.repeatSpeed) * 20000).toInt()) + 32 : 0,
+       // The punch factor (louder at begining of sustain)
+       _sustainPunch = p.sustainPunch,
+       // Amount to change the period of the wave by at the peak of the vibrato wave
+       _vibratoAmplitude = p.vibratoDepth / 2,
+       // Speed at which the vibrato phase moves
+       _vibratoSpeed = p.vibratoSpeed * p.vibratoSpeed * .01,
+       // The type of wave to generate
+       _waveType = p.waveType;
+
+   var _envelopeLength      = _envelopeLength0,     // Length of the current envelope stage
+       _envelopeOverLength0 = 1 / _envelopeLength0, // (for quick calculations)
+       _envelopeOverLength1 = 1 / _envelopeLength1, // (for quick calculations)
+       _envelopeOverLength2 = 1 / _envelopeLength2; // (for quick calculations)
+
+   // Damping muliplier which restricts how fast the wave position can move
+   var _lpFilterDamping = 5 / (1 + p.lpFilterResonance * p.lpFilterResonance * 20) * (.01 + _lpFilterCutoff);
+   if (_lpFilterDamping &gt; .8) {
+     _lpFilterDamping = .8;
+   }
+   _lpFilterDamping = 1 - _lpFilterDamping;
+
+   var _finished = false;     // If the sound has finished
+
+   double
+       _envelopeTime = 0.0,    // Current time through current enelope stage
+       _envelopeVolume = 0.0,  // Current volume of the envelope
+       _hpFilterPos = 0.0,     // Adjusted wave position after high-pass filter
+       _lpFilterDeltaPos = 0.0,// Change in low-pass wave position, as allowed by the cutoff and damping
+       _lpFilterOldPos = 0.0,  // Previous low-pass wave position
+       _lpFilterPos = 0.0,     // Adjusted wave position after low-pass filter
+       _pos = 0.0,             // Phase expresed as a Number from 0-1, used for fast sin approx
+       _sample = 0.0,          // Sub-sample calculated 8 times per actual sample, averaged out to get the super sample
+       _superSample = 0.0,     // Actual sample writen to the wave
+       _periodTemp0 = 0.0,     // Period modified by vibrato
+       _vibratoPhase = 0.0;    // Phase through the vibrato sine wave
+   int
+       _periodTemp = 0,        // Period modified by vibrato (as int)
+       _phase = 0,             // Phase through the wave
+       _envelopeStage = 0,     // Current stage of the envelope (attack, sustain, decay, end)
+       _phaserPos = 0,         // Position through the phaser buffer
+       _phaserInt = 0,         // Integer phaser offset, for bit maths
+       _repeatTime = 0;        // Counter for the repeats
+
+   var random = new math.Random();
+
+   // Buffer of wave values used to create the out of phase second wave
+   var _phaserBuffer = new List&lt;double&gt;(1024),
+       // Buffer of random values used to generate noise
+       _noiseBuffer  = new List&lt;double&gt;(32);
+
+   for (var i = _phaserBuffer.length - 1 ; i &gt; -1; i--) {
+     _phaserBuffer[i] = 0.0;
+   }
+
+   for (var i = _noiseBuffer.length - 1 ; i &gt; -1; i--) {
+     _noiseBuffer[i] =  random.nextDouble() * 2 - 1;
+   }
+
+   for (var i = 0; i &lt; length; i++) {
+     if (_finished) {
+       return true;
+     }
+
+     // Repeats every _repeatLimit times, partially resetting the sound parameters
+     if (_repeatLimit != 0) {
+       if (++_repeatTime &gt;= _repeatLimit) {
+         _repeatTime = 0;
+         this.reset();
+       }
+     }
+
+     // If _changeLimit is reached, shifts the pitch
+     if (_changeLimit != 0) {
+       if (++_changeTime &gt;= _changeLimit) {
+         _changeLimit = 0;
+         _period *= _changeAmount;
+       }
+     }
+
+     // Acccelerate and apply slide
+     _slide += _deltaSlide;
+     _period *= _slide;
+
+     // Checks for frequency getting too low, and stops the sound if a minFrequency was set
+     if (_period &gt; _maxPeriod) {
+       _period = _maxPeriod;
+       if (_minFreqency &gt; 0) {
+         _finished = true;
+       }
+     }
+
+     _periodTemp0 = _period;
+
+     // Applies the vibrato effect
+     if (_vibratoAmplitude &gt; 0) {
+       _vibratoPhase += _vibratoSpeed;
+       _periodTemp0 *= 1 + math.sin(_vibratoPhase) * _vibratoAmplitude;
+     }
+
+     _periodTemp = _periodTemp0.toInt();
+     if (_periodTemp &lt; 8) {
+       _periodTemp = 8;
+     }
+
+     // Sweeps the square duty
+     if (_waveType == 0) {
+       _squareDuty += _dutySweep;
+       if (_squareDuty &lt; 0) {
+         _squareDuty = 0.0;
+       } else if (_squareDuty &gt; .5) {
+         _squareDuty = .5;
+       }
+     }
+
+     // Moves through the different stages of the volume envelope
+     if (++_envelopeTime &gt; _envelopeLength) {
+       _envelopeTime = 0.0;
+
+       switch (++_envelopeStage)  {
+         case 1:
+           _envelopeLength = _envelopeLength1;
+           break;
+         case 2:
+           _envelopeLength = _envelopeLength2;
+           break;
+       }
+     }
+
+     // Sets the volume based on the position in the envelope
+     switch (_envelopeStage) {
+       case 0:
+         _envelopeVolume = _envelopeTime * _envelopeOverLength0;
+         break;
+       case 1:
+         _envelopeVolume = 1 + (1 - _envelopeTime * _envelopeOverLength1) * 2 * _sustainPunch;
+         break;
+       case 2:
+         _envelopeVolume = 1 - _envelopeTime * _envelopeOverLength2;
+         break;
+       case 3:
+         _envelopeVolume = 0.0;
+         _finished = true;
+         break;
+     }
+
+     // Moves the phaser offset
+     if (_phaser) {
+       _phaserOffset += _phaserDeltaOffset;
+       _phaserInt = _phaserOffset.toInt();// | 0;
+       if (_phaserInt &lt; 0) {
+         _phaserInt = -_phaserInt;
+       } else if (_phaserInt &gt; 1023) {
+         _phaserInt = 1023;
+       }
+     }
+
+     // Moves the high-pass filter cutoff
+     if (_filters &amp;&amp; _hpFilterDeltaCutoff != 0.0) {
+       _hpFilterCutoff *= _hpFilterDeltaCutoff;
+       if (_hpFilterCutoff &lt; .00001) {
+         _hpFilterCutoff = .00001;
+       } else if (_hpFilterCutoff &gt; .1) {
+         _hpFilterCutoff = .1;
+       }
+     }
+
+     _superSample = 0.0;
+     for (var j = 0; j &lt; 8; j++) {
+       // Cycles through the period
+       _phase++;
+       if (_phase &gt;= _periodTemp) {
+         _phase %= _periodTemp;
+
+         // Generates new random noise for this period
+         if (_waveType == 3) {
+           for (var n = _noiseBuffer.length - 1; n &gt; -1; n-- ) {
+             _noiseBuffer[n] = random.nextDouble() * 2 - 1;
+           }
+         }
+       }
+
+       // Gets the sample from the oscillator
+       switch (_waveType) {
+         case 0: // Square wave
+           _sample = ((_phase / _periodTemp) &lt; _squareDuty) ? .5 : -.5;
+           break;
+         case 1: // Saw wave
+           _sample = 1 - (_phase / _periodTemp) * 2;
+           break;
+         case 2: // Sine wave (fast and accurate approx)
+           _pos = _phase / _periodTemp;
+           _pos = _pos &gt; .5 ? (_pos - 1) * 6.28318531 : _pos * 6.28318531;
+           _sample = _pos &lt; 0 ? 1.27323954 * _pos + .405284735 * _pos * _pos : 1.27323954 * _pos - .405284735 * _pos * _pos;
+           _sample = _sample &lt; 0 ? .225 * (_sample *-_sample - _sample) + _sample : .225 * (_sample * _sample - _sample) + _sample;
+           break;
+         case 3: // Noise
+           _sample = _noiseBuffer[(_phase * 32 / _periodTemp /*| 0*/).abs().toInt()];
+           break;
+       }
+
+       // Applies the low and high pass filters
+       if (_filters) {
+         _lpFilterOldPos = _lpFilterPos;
+         _lpFilterCutoff *= _lpFilterDeltaCutoff;
+         if (_lpFilterCutoff &lt; 0) {
+           _lpFilterCutoff = 0;
+         } else if (_lpFilterCutoff &gt; .1) {
+           _lpFilterCutoff = .1;
+         }
+
+         if (_lpFilterOn) {
+           _lpFilterDeltaPos += (_sample - _lpFilterPos) * _lpFilterCutoff;
+           _lpFilterDeltaPos *= _lpFilterDamping;
+         } else {
+           _lpFilterPos = _sample;
+           _lpFilterDeltaPos = 0.0;
+         }
+
+         _lpFilterPos += _lpFilterDeltaPos;
+
+         _hpFilterPos += _lpFilterPos - _lpFilterOldPos;
+         _hpFilterPos *= 1 - _hpFilterCutoff;
+         _sample = _hpFilterPos;
+       }
+
+       // Applies the phaser effect
+       if (_phaser) {
+         _phaserBuffer[_phaserPos % 1024] = _sample;
+         _sample += _phaserBuffer[(_phaserPos - _phaserInt + 1024) % 1024];
+         _phaserPos++;
+       }
+
+       _superSample += _sample;
+     }
+
+     // Averages out the super samples and applies volumes
+     _superSample *= .125 * _envelopeVolume * _masterVolume;
+
+     // Clipping if too loud [-1, 1]
+     _superSample =_superSample &gt;= 1 ? 1.0 : _superSample &lt;= -1 ? -1.0 : _superSample; //* 32767 /*| 0*/;
+     buffer[i] = _superSample;
+   }
+
+   return false;
+ }
+
+ static AudioBuffer toAudioBuffer(AudioContext audioContext, String data) {
+   var synth = new SfxrSynth(new SfxrParams.fromString(data));
+   var envelopeFullLength = synth.totalReset();
+   var buffer = audioContext.createBuffer(2, envelopeFullLength, 44100);
+   assert(envelopeFullLength &lt;= buffer.length);
+   synth.synthWave(buffer.getChannelData(0), envelopeFullLength);
+   //var b = new Float32List(envelopeFullLength);
+   //synth.synthWave(b, envelopeFullLength);
+   //var buffer = audioContext.createBuffer(b.buffer, true);
+   return buffer;
+ }
+}
+</pre>
+</div>
+<div>
+<h3>Static Methods</h3>
+<div class="method"><h4 id="toAudioBuffer">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_web_audio/AudioBuffer.html">AudioBuffer</a> <strong>toAudioBuffer</strong>(<a href="http://api.dartlang.org/dart_web_audio/AudioContext.html">AudioContext</a> audioContext, <a href="http://api.dartlang.org/dart_core/String.html">String</a> data) <a class="anchor-link" href="#toAudioBuffer"
+              title="Permalink to SfxrSynth.toAudioBuffer">#</a></h4>
+<div class="doc">
+<pre class="source">
+static AudioBuffer toAudioBuffer(AudioContext audioContext, String data) {
+ var synth = new SfxrSynth(new SfxrParams.fromString(data));
+ var envelopeFullLength = synth.totalReset();
+ var buffer = audioContext.createBuffer(2, envelopeFullLength, 44100);
+ assert(envelopeFullLength &lt;= buffer.length);
+ synth.synthWave(buffer.getChannelData(0), envelopeFullLength);
+ //var b = new Float32List(envelopeFullLength);
+ //synth.synthWave(b, envelopeFullLength);
+ //var buffer = audioContext.createBuffer(b.buffer, true);
+ return buffer;
+}
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="SfxrSynth">
+<button class="show-code">Code</button>
+new <strong>SfxrSynth</strong>(<a href="../simple_audio/SfxrParams.html">SfxrParams</a> _params) <a class="anchor-link" href="#SfxrSynth"
+              title="Permalink to SfxrSynth.SfxrSynth">#</a></h4>
+<div class="doc">
+<pre class="source">
+SfxrSynth(SfxrParams this._params);
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="reset">
+<button class="show-code">Code</button>
+void <strong>reset</strong>() <a class="anchor-link" href="#reset"
+              title="Permalink to SfxrSynth.reset">#</a></h4>
+<div class="doc">
+<p>Resets the runing variables from the params
+Used once at the start (total reset) and for the repeat effect (partial reset)</p>
+<pre class="source">
+void reset() {
+ // Shorter reference
+ var p = this._params;
+
+ _period       = 100 / (p.startFrequency * p.startFrequency + .001);
+ _maxPeriod    = 100 / (p.minFrequency   * p.minFrequency   + .001);
+
+ _slide        = 1 - p.slide * p.slide * p.slide * .01;
+ _deltaSlide   = -p.deltaSlide * p.deltaSlide * p.deltaSlide * .000001;
+
+ if (p.waveType == 0) {
+   _squareDuty = .5 - p.squareDuty / 2;
+   _dutySweep  = -p.dutySweep * .00005;
+ }
+
+ _changeAmount = p.changeAmount &gt; 0 ? 1 - p.changeAmount * p.changeAmount * .9 : 1 + p.changeAmount * p.changeAmount * 10;
+ _changeTime   = 0;
+ _changeLimit  = (p.changeSpeed == 1 ? 0 : (1 - p.changeSpeed) * (1 - p.changeSpeed) * 20000 + 32).toInt();
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="synthWave">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>synthWave</strong>(<a href="http://api.dartlang.org/dart_typed_data/Float32List.html">Float32List</a> buffer, <a href="http://api.dartlang.org/dart_core/int.html">int</a> length) <a class="anchor-link" href="#synthWave"
+              title="Permalink to SfxrSynth.synthWave">#</a></h4>
+<div class="doc">
+<p>Writes the wave to the supplied buffer ByteArray
+@param buffer A ByteArray to write the wave to
+@return If the wave is finished</p>
+<pre class="source">
+bool synthWave(Float32List buffer, int length) {
+ // Shorter reference
+ var p = this._params;
+
+ // If the filters are active
+ var _filters = p.lpFilterCutoff != 1 || p.hpFilterCutoff != 0,
+     // Cutoff multiplier which adjusts the amount the wave position can move
+     _hpFilterCutoff = p.hpFilterCutoff * p.hpFilterCutoff * .1,
+     // Speed of the high-pass cutoff multiplier
+     _hpFilterDeltaCutoff = 1 + p.hpFilterCutoffSweep * .0003,
+     // Cutoff multiplier which adjusts the amount the wave position can move
+     _lpFilterCutoff = p.lpFilterCutoff * p.lpFilterCutoff * p.lpFilterCutoff * .1,
+     // Speed of the low-pass cutoff multiplier
+     _lpFilterDeltaCutoff = 1 + p.lpFilterCutoffSweep * .0001,
+     // If the low pass filter is active
+     _lpFilterOn = p.lpFilterCutoff != 1,
+     // masterVolume * masterVolume (for quick calculations)
+     _masterVolume = p.masterVolume * p.masterVolume,
+     // Minimum frequency before stopping
+     _minFreqency = p.minFrequency,
+     // If the phaser is active
+     _phaser = p.phaserOffset != 0 || p.phaserSweep != 0,
+     // Change in phase offset
+     _phaserDeltaOffset = p.phaserSweep * p.phaserSweep * p.phaserSweep * .2,
+     // Phase offset for phaser effect
+     _phaserOffset = p.phaserOffset * p.phaserOffset * (p.phaserOffset &lt; 0 ? -1020 : 1020),
+     // Once the time reaches this limit, some of the    iables are reset
+     _repeatLimit = (p.repeatSpeed != 0) ? (((1 - p.repeatSpeed) * (1 - p.repeatSpeed) * 20000).toInt()) + 32 : 0,
+     // The punch factor (louder at begining of sustain)
+     _sustainPunch = p.sustainPunch,
+     // Amount to change the period of the wave by at the peak of the vibrato wave
+     _vibratoAmplitude = p.vibratoDepth / 2,
+     // Speed at which the vibrato phase moves
+     _vibratoSpeed = p.vibratoSpeed * p.vibratoSpeed * .01,
+     // The type of wave to generate
+     _waveType = p.waveType;
+
+ var _envelopeLength      = _envelopeLength0,     // Length of the current envelope stage
+     _envelopeOverLength0 = 1 / _envelopeLength0, // (for quick calculations)
+     _envelopeOverLength1 = 1 / _envelopeLength1, // (for quick calculations)
+     _envelopeOverLength2 = 1 / _envelopeLength2; // (for quick calculations)
+
+ // Damping muliplier which restricts how fast the wave position can move
+ var _lpFilterDamping = 5 / (1 + p.lpFilterResonance * p.lpFilterResonance * 20) * (.01 + _lpFilterCutoff);
+ if (_lpFilterDamping &gt; .8) {
+   _lpFilterDamping = .8;
+ }
+ _lpFilterDamping = 1 - _lpFilterDamping;
+
+ var _finished = false;     // If the sound has finished
+
+ double
+     _envelopeTime = 0.0,    // Current time through current enelope stage
+     _envelopeVolume = 0.0,  // Current volume of the envelope
+     _hpFilterPos = 0.0,     // Adjusted wave position after high-pass filter
+     _lpFilterDeltaPos = 0.0,// Change in low-pass wave position, as allowed by the cutoff and damping
+     _lpFilterOldPos = 0.0,  // Previous low-pass wave position
+     _lpFilterPos = 0.0,     // Adjusted wave position after low-pass filter
+     _pos = 0.0,             // Phase expresed as a Number from 0-1, used for fast sin approx
+     _sample = 0.0,          // Sub-sample calculated 8 times per actual sample, averaged out to get the super sample
+     _superSample = 0.0,     // Actual sample writen to the wave
+     _periodTemp0 = 0.0,     // Period modified by vibrato
+     _vibratoPhase = 0.0;    // Phase through the vibrato sine wave
+ int
+     _periodTemp = 0,        // Period modified by vibrato (as int)
+     _phase = 0,             // Phase through the wave
+     _envelopeStage = 0,     // Current stage of the envelope (attack, sustain, decay, end)
+     _phaserPos = 0,         // Position through the phaser buffer
+     _phaserInt = 0,         // Integer phaser offset, for bit maths
+     _repeatTime = 0;        // Counter for the repeats
+
+ var random = new math.Random();
+
+ // Buffer of wave values used to create the out of phase second wave
+ var _phaserBuffer = new List&lt;double&gt;(1024),
+     // Buffer of random values used to generate noise
+     _noiseBuffer  = new List&lt;double&gt;(32);
+
+ for (var i = _phaserBuffer.length - 1 ; i &gt; -1; i--) {
+   _phaserBuffer[i] = 0.0;
+ }
+
+ for (var i = _noiseBuffer.length - 1 ; i &gt; -1; i--) {
+   _noiseBuffer[i] =  random.nextDouble() * 2 - 1;
+ }
+
+ for (var i = 0; i &lt; length; i++) {
+   if (_finished) {
+     return true;
+   }
+
+   // Repeats every _repeatLimit times, partially resetting the sound parameters
+   if (_repeatLimit != 0) {
+     if (++_repeatTime &gt;= _repeatLimit) {
+       _repeatTime = 0;
+       this.reset();
+     }
+   }
+
+   // If _changeLimit is reached, shifts the pitch
+   if (_changeLimit != 0) {
+     if (++_changeTime &gt;= _changeLimit) {
+       _changeLimit = 0;
+       _period *= _changeAmount;
+     }
+   }
+
+   // Acccelerate and apply slide
+   _slide += _deltaSlide;
+   _period *= _slide;
+
+   // Checks for frequency getting too low, and stops the sound if a minFrequency was set
+   if (_period &gt; _maxPeriod) {
+     _period = _maxPeriod;
+     if (_minFreqency &gt; 0) {
+       _finished = true;
+     }
+   }
+
+   _periodTemp0 = _period;
+
+   // Applies the vibrato effect
+   if (_vibratoAmplitude &gt; 0) {
+     _vibratoPhase += _vibratoSpeed;
+     _periodTemp0 *= 1 + math.sin(_vibratoPhase) * _vibratoAmplitude;
+   }
+
+   _periodTemp = _periodTemp0.toInt();
+   if (_periodTemp &lt; 8) {
+     _periodTemp = 8;
+   }
+
+   // Sweeps the square duty
+   if (_waveType == 0) {
+     _squareDuty += _dutySweep;
+     if (_squareDuty &lt; 0) {
+       _squareDuty = 0.0;
+     } else if (_squareDuty &gt; .5) {
+       _squareDuty = .5;
+     }
+   }
+
+   // Moves through the different stages of the volume envelope
+   if (++_envelopeTime &gt; _envelopeLength) {
+     _envelopeTime = 0.0;
+
+     switch (++_envelopeStage)  {
+       case 1:
+         _envelopeLength = _envelopeLength1;
+         break;
+       case 2:
+         _envelopeLength = _envelopeLength2;
+         break;
+     }
+   }
+
+   // Sets the volume based on the position in the envelope
+   switch (_envelopeStage) {
+     case 0:
+       _envelopeVolume = _envelopeTime * _envelopeOverLength0;
+       break;
+     case 1:
+       _envelopeVolume = 1 + (1 - _envelopeTime * _envelopeOverLength1) * 2 * _sustainPunch;
+       break;
+     case 2:
+       _envelopeVolume = 1 - _envelopeTime * _envelopeOverLength2;
+       break;
+     case 3:
+       _envelopeVolume = 0.0;
+       _finished = true;
+       break;
+   }
+
+   // Moves the phaser offset
+   if (_phaser) {
+     _phaserOffset += _phaserDeltaOffset;
+     _phaserInt = _phaserOffset.toInt();// | 0;
+     if (_phaserInt &lt; 0) {
+       _phaserInt = -_phaserInt;
+     } else if (_phaserInt &gt; 1023) {
+       _phaserInt = 1023;
+     }
+   }
+
+   // Moves the high-pass filter cutoff
+   if (_filters &amp;&amp; _hpFilterDeltaCutoff != 0.0) {
+     _hpFilterCutoff *= _hpFilterDeltaCutoff;
+     if (_hpFilterCutoff &lt; .00001) {
+       _hpFilterCutoff = .00001;
+     } else if (_hpFilterCutoff &gt; .1) {
+       _hpFilterCutoff = .1;
+     }
+   }
+
+   _superSample = 0.0;
+   for (var j = 0; j &lt; 8; j++) {
+     // Cycles through the period
+     _phase++;
+     if (_phase &gt;= _periodTemp) {
+       _phase %= _periodTemp;
+
+       // Generates new random noise for this period
+       if (_waveType == 3) {
+         for (var n = _noiseBuffer.length - 1; n &gt; -1; n-- ) {
+           _noiseBuffer[n] = random.nextDouble() * 2 - 1;
+         }
+       }
+     }
+
+     // Gets the sample from the oscillator
+     switch (_waveType) {
+       case 0: // Square wave
+         _sample = ((_phase / _periodTemp) &lt; _squareDuty) ? .5 : -.5;
+         break;
+       case 1: // Saw wave
+         _sample = 1 - (_phase / _periodTemp) * 2;
+         break;
+       case 2: // Sine wave (fast and accurate approx)
+         _pos = _phase / _periodTemp;
+         _pos = _pos &gt; .5 ? (_pos - 1) * 6.28318531 : _pos * 6.28318531;
+         _sample = _pos &lt; 0 ? 1.27323954 * _pos + .405284735 * _pos * _pos : 1.27323954 * _pos - .405284735 * _pos * _pos;
+         _sample = _sample &lt; 0 ? .225 * (_sample *-_sample - _sample) + _sample : .225 * (_sample * _sample - _sample) + _sample;
+         break;
+       case 3: // Noise
+         _sample = _noiseBuffer[(_phase * 32 / _periodTemp /*| 0*/).abs().toInt()];
+         break;
+     }
+
+     // Applies the low and high pass filters
+     if (_filters) {
+       _lpFilterOldPos = _lpFilterPos;
+       _lpFilterCutoff *= _lpFilterDeltaCutoff;
+       if (_lpFilterCutoff &lt; 0) {
+         _lpFilterCutoff = 0;
+       } else if (_lpFilterCutoff &gt; .1) {
+         _lpFilterCutoff = .1;
+       }
+
+       if (_lpFilterOn) {
+         _lpFilterDeltaPos += (_sample - _lpFilterPos) * _lpFilterCutoff;
+         _lpFilterDeltaPos *= _lpFilterDamping;
+       } else {
+         _lpFilterPos = _sample;
+         _lpFilterDeltaPos = 0.0;
+       }
+
+       _lpFilterPos += _lpFilterDeltaPos;
+
+       _hpFilterPos += _lpFilterPos - _lpFilterOldPos;
+       _hpFilterPos *= 1 - _hpFilterCutoff;
+       _sample = _hpFilterPos;
+     }
+
+     // Applies the phaser effect
+     if (_phaser) {
+       _phaserBuffer[_phaserPos % 1024] = _sample;
+       _sample += _phaserBuffer[(_phaserPos - _phaserInt + 1024) % 1024];
+       _phaserPos++;
+     }
+
+     _superSample += _sample;
+   }
+
+   // Averages out the super samples and applies volumes
+   _superSample *= .125 * _envelopeVolume * _masterVolume;
+
+   // Clipping if too loud [-1, 1]
+   _superSample =_superSample &gt;= 1 ? 1.0 : _superSample &lt;= -1 ? -1.0 : _superSample; //* 32767 /*| 0*/;
+   buffer[i] = _superSample;
+ }
+
+ return false;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="totalReset">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/int.html">int</a> <strong>totalReset</strong>() <a class="anchor-link" href="#totalReset"
+              title="Permalink to SfxrSynth.totalReset">#</a></h4>
+<div class="doc">
+<pre class="source">
+int totalReset() {
+ this.reset();
+
+ // Shorter reference
+ var p = this._params;
+
+ // Calculating the length is all that remained here, everything else moved somewhere
+ _envelopeLength0 = p.attackTime  * p.attackTime  * 100000;
+ _envelopeLength1 = p.sustainTime * p.sustainTime * 100000;
+ _envelopeLength2 = p.decayTime   * p.decayTime   * 100000 + 10;
+ // Full length of the volume envelop (and therefore sound)
+ return (_envelopeLength0 + _envelopeLength1 + _envelopeLength2).toInt(); // | 0;
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-05 23:19:56.227</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

@@ -1,0 +1,106 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>ComponentType class / dartemis Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="dartemis" data-type="ComponentType">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../dartemis.html">dartemis</a> &rsaquo; <a href="../dartemis/ComponentType.html">ComponentType</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>ComponentType</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<pre class="source">
+class ComponentType {
+ static var _nextBit = 1;
+ static var _nextId = 0;
+
+ var _bit = 0;
+ var _id = 0;
+
+ ComponentType() {
+   _bit = _nextBit;
+   _nextBit = _nextBit &lt;&lt; 1;
+   _id = _nextId++;
+ }
+
+ int get bit =&gt; _bit;
+ int get id =&gt; _id;
+}
+</pre>
+</div>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="ComponentType">
+<button class="show-code">Code</button>
+new <strong>ComponentType</strong>() <a class="anchor-link" href="#ComponentType"
+              title="Permalink to ComponentType.ComponentType">#</a></h4>
+<div class="doc">
+<pre class="source">
+ComponentType() {
+ _bit = _nextBit;
+ _nextBit = _nextBit &lt;&lt; 1;
+ _id = _nextId++;
+}
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="bit">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>bit</strong> <a class="anchor-link"
+            href="#bit"
+            title="Permalink to ComponentType.bit">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+int get bit =&gt; _bit;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="id">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>id</strong> <a class="anchor-link"
+            href="#id"
+            title="Permalink to ComponentType.id">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+int get id =&gt; _id;
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-05 23:19:56.093</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

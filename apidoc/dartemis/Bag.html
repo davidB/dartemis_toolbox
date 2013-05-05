@@ -1,0 +1,597 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>Bag&lt;E&gt; class / dartemis Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="dartemis" data-type="Bag&amp;lt;E&amp;gt;">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../dartemis.html">dartemis</a> &rsaquo; <a href="../dartemis/Bag.html">Bag&lt;E&gt;</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>Bag&lt;E&gt;</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p>Collection type a bit like List but does not preserve the order of its
+entities, speedwise it is very good, especially suited for games.</p>
+<pre class="source">
+class Bag&lt;E&gt; {
+ List _data;
+ int _size = 0;
+ ReadOnlyBag&lt;E&gt; _readOnly;
+
+ Bag({int capacity: 16}) : _data = new List(capacity) {
+   _readOnly = new ReadOnlyBag._of(this);
+ }
+
+ /**
+  * Creates a new [Bag] with the elements of [iterable].
+  */
+ Bag.from(Iterable&lt;E&gt; iterable) : _data = iterable.toList(growable: false),
+                                  _size = iterable.length {
+   _readOnly = new ReadOnlyBag._of(this);
+ }
+
+ /**
+  * Returns the element at the specified [index] in the bag.
+  */
+ E operator [](int index) =&gt; _data[index];
+
+ /**
+  * Returns the number of elements in this bag.
+  */
+ int get size =&gt; _size;
+
+ /**
+  * Returns a read only view for this bag.
+  */
+ ReadOnlyBag get readOnly =&gt; _readOnly;
+
+ /**
+  * Returns [:true:] if this list contains no elements.
+  */
+ bool get isEmpty =&gt; _size == 0;
+
+ /**
+  * Applies the function [f] to each element of this collection.
+  *
+  * Do not pass functions that add or remove elements because the order of
+  * elements is not preserved and such a function could lead to unexpected
+  * results.
+  */
+ void forEach(void f(E element)) {
+   for (int i = 0; i &lt; _size; i++) {
+     f(_data[i]);
+   }
+ }
+
+ /**
+  * Removes the element at the specified [index] in this bag. Does this by
+  * overwriting with the last element and then removing the last element.
+  */
+ E removeAt(int index) {
+   // make copy of element to remove so it can be returned
+   var o = _data[index];
+   // overwrite item to remove with last element
+   _data[index] = _data[--_size];
+   // null last element, so gc can do its work
+   _data[_size] = null;
+
+   return o;
+ }
+
+ /**
+  * Remove and return the last object in the bag.
+  */
+ E removeLast() {
+   if (_size &gt; 0) {
+     E current = _data[--_size];
+     _data[_size] = null;
+     return current;
+   }
+   return null;
+ }
+
+ /**
+  * Removes the first occurrence of the specified element from this bag, if
+  * it is present. If the Bag does not contain the element, it is unchanged.
+  * Does this by overwriting with the last element and then removing the last
+  * element.
+  * Returns [:true:] if this list contained the specified [element].
+  */
+ bool remove(E element) {
+   for (int i = 0; i &lt; _size; i++) {
+     E current = _data[i];
+
+     if (element == current) {
+       // overwrite item to remove with last element
+       _data[i] = _data[--_size];
+       // null last element, so gc can do its work
+       _data[_size] = null;
+       return true;
+     }
+   }
+
+   return false;
+ }
+
+ /**
+  * Returns [:true:] if this bag contains the [element].
+  */
+ bool contains(E element) {
+   for(int i = 0; _size &gt; i; i++) {
+     if(element == _data[i]) {
+       return true;
+     }
+   }
+   return false;
+ }
+
+ /**
+  * Removes from this Bag all of its elements that are contained in the
+  * specified [bag].
+  *
+  * Returns [:true:] if this Bag changed as a result of the call
+  */
+ bool removeAll(Bag&lt;E&gt; bag) {
+   bool modified = false;
+
+   for (int i = 0; i &lt; bag.size; i++) {
+     E o1 = bag[i];
+
+     for (int j = 0; j &lt; size; j++) {
+       E o2 = _data[j];
+
+       if (o1 == o2) {
+         removeAt(j);
+         j--;
+         modified = true;
+         break;
+       }
+     }
+   }
+   return modified;
+ }
+
+ /**
+  * Returns the number of elements the bag can hold without growing.
+  */
+ int get capacity =&gt; _data.length;
+
+ /**
+  * Adds the specified [element] to the end of this bag. If needed also
+  * increases the capacity of the bag.
+  */
+ void add(E element) {
+   // is size greater than capacity increase capacity
+   if (_size == _data.length) {
+     _grow();
+   }
+   _data[_size++] = element;
+ }
+
+ /**
+  * Sets [element] at specified [index] in the bag.
+  */
+ void operator []=(int index, E element) {
+   if(index &gt;= _data.length) {
+     _growTo(index*2);
+   }
+   if (_size &lt;= index) {
+     _size = index+1;
+   }
+   _data[index] = element;
+ }
+
+ void _grow() {
+   int newCapacity = ((_data.length * 3) / 2 + 1).toInt();
+   _growTo(newCapacity);
+ }
+
+ void _growTo(int newCapacity) {
+   List&lt;E&gt; oldData = _data;
+   _data = new List&lt;E&gt;(newCapacity);
+   _data.setRange(0, oldData.length, oldData);
+ }
+
+ void _ensureCapacity(int index) {
+   if (index &gt;= _data.length) {
+     _growTo(index*2);
+   }
+ }
+
+ /**
+  * Removes all of the elements from this bag. The bag will be empty after
+  * this call returns.
+  */
+ void clear() {
+   // null all elements so gc can clean up
+   for (int i = 0; i &lt; _size; i++) {
+     _data[i] = null;
+   }
+   _size = 0;
+ }
+
+ /**
+  * Add all [items] into this bag.
+  */
+ void addAll(Bag&lt;E&gt; items) {
+   for(int i = 0; items.size &gt; i; i++) {
+     add(items[i]);
+   }
+ }
+
+ bool isIndexWithinBounds(int index) =&gt; index &lt; capacity;
+ String toString() =&gt; "[${_data.join(',')}]";
+}
+</pre>
+</div>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="Bag">
+<button class="show-code">Code</button>
+new <strong>Bag</strong>({<a href="http://api.dartlang.org/dart_core/int.html">int</a> capacity: 16}) <a class="anchor-link" href="#Bag"
+              title="Permalink to Bag&lt;E&gt;.Bag">#</a></h4>
+<div class="doc">
+<pre class="source">
+Bag({int capacity: 16}) : _data = new List(capacity) {
+ _readOnly = new ReadOnlyBag._of(this);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="Bag.from">
+<button class="show-code">Code</button>
+new <strong>Bag.from</strong>(<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;<a href="../dartemis/Bag.html">E</a>&gt; iterable) <a class="anchor-link" href="#Bag.from"
+              title="Permalink to Bag&lt;E&gt;.Bag.from">#</a></h4>
+<div class="doc">
+<p>Creates a new <a class="crossref" href="../dartemis/Bag.html#Bag">Bag</a> with the elements of 
+<span class="param">iterable</span>.</p>
+<pre class="source">
+Bag.from(Iterable&lt;E&gt; iterable) : _data = iterable.toList(growable: false),
+                                _size = iterable.length {
+ _readOnly = new ReadOnlyBag._of(this);
+}
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="capacity">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>capacity</strong> <a class="anchor-link"
+            href="#capacity"
+            title="Permalink to Bag&lt;E&gt;.capacity">#</a>
+        </h4>
+        <div class="doc">
+<p>Returns the number of elements the bag can hold without growing.</p>
+<pre class="source">
+int get capacity =&gt; _data.length;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="isEmpty">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/bool.html">bool</a>         <strong>isEmpty</strong> <a class="anchor-link"
+            href="#isEmpty"
+            title="Permalink to Bag&lt;E&gt;.isEmpty">#</a>
+        </h4>
+        <div class="doc">
+<p>Returns <code>true</code> if this list contains no elements.</p>
+<pre class="source">
+bool get isEmpty =&gt; _size == 0;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="readOnly">
+<button class="show-code">Code</button>
+final <a href="../dartemis/ReadOnlyBag.html">ReadOnlyBag</a>         <strong>readOnly</strong> <a class="anchor-link"
+            href="#readOnly"
+            title="Permalink to Bag&lt;E&gt;.readOnly">#</a>
+        </h4>
+        <div class="doc">
+<p>Returns a read only view for this bag.</p>
+<pre class="source">
+ReadOnlyBag get readOnly =&gt; _readOnly;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="size">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>size</strong> <a class="anchor-link"
+            href="#size"
+            title="Permalink to Bag&lt;E&gt;.size">#</a>
+        </h4>
+        <div class="doc">
+<p>Returns the number of elements in this bag.</p>
+<pre class="source">
+int get size =&gt; _size;
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Operators</h3>
+<div class="method"><h4 id="[]">
+<button class="show-code">Code</button>
+<a href="../dartemis/Bag.html">E</a> <strong>operator []</strong>(<a href="http://api.dartlang.org/dart_core/int.html">int</a> index) <a class="anchor-link" href="#[]"
+              title="Permalink to Bag&lt;E&gt;.operator []">#</a></h4>
+<div class="doc">
+<p>Returns the element at the specified 
+<span class="param">index</span> in the bag.</p>
+<pre class="source">
+E operator [](int index) =&gt; _data[index];
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="[]=">
+<button class="show-code">Code</button>
+void <strong>operator []=</strong>(<a href="http://api.dartlang.org/dart_core/int.html">int</a> index, <a href="../dartemis/Bag.html">E</a> element) <a class="anchor-link" href="#[]="
+              title="Permalink to Bag&lt;E&gt;.operator []=">#</a></h4>
+<div class="doc">
+<p>Sets 
+<span class="param">element</span> at specified 
+<span class="param">index</span> in the bag.</p>
+<pre class="source">
+void operator []=(int index, E element) {
+ if(index &gt;= _data.length) {
+   _growTo(index*2);
+ }
+ if (_size &lt;= index) {
+   _size = index+1;
+ }
+ _data[index] = element;
+}
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="add">
+<button class="show-code">Code</button>
+void <strong>add</strong>(<a href="../dartemis/Bag.html">E</a> element) <a class="anchor-link" href="#add"
+              title="Permalink to Bag&lt;E&gt;.add">#</a></h4>
+<div class="doc">
+<p>Adds the specified 
+<span class="param">element</span> to the end of this bag. If needed also
+increases the capacity of the bag.</p>
+<pre class="source">
+void add(E element) {
+ // is size greater than capacity increase capacity
+ if (_size == _data.length) {
+   _grow();
+ }
+ _data[_size++] = element;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="addAll">
+<button class="show-code">Code</button>
+void <strong>addAll</strong>(<a href="../dartemis/Bag.html">Bag</a>&lt;<a href="../dartemis/Bag.html">E</a>&gt; items) <a class="anchor-link" href="#addAll"
+              title="Permalink to Bag&lt;E&gt;.addAll">#</a></h4>
+<div class="doc">
+<p>Add all 
+<span class="param">items</span> into this bag.</p>
+<pre class="source">
+void addAll(Bag&lt;E&gt; items) {
+ for(int i = 0; items.size &gt; i; i++) {
+   add(items[i]);
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="clear">
+<button class="show-code">Code</button>
+void <strong>clear</strong>() <a class="anchor-link" href="#clear"
+              title="Permalink to Bag&lt;E&gt;.clear">#</a></h4>
+<div class="doc">
+<p>Removes all of the elements from this bag. The bag will be empty after
+this call returns.</p>
+<pre class="source">
+void clear() {
+ // null all elements so gc can clean up
+ for (int i = 0; i &lt; _size; i++) {
+   _data[i] = null;
+ }
+ _size = 0;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="contains">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>contains</strong>(<a href="../dartemis/Bag.html">E</a> element) <a class="anchor-link" href="#contains"
+              title="Permalink to Bag&lt;E&gt;.contains">#</a></h4>
+<div class="doc">
+<p>Returns <code>true</code> if this bag contains the 
+<span class="param">element</span>.</p>
+<pre class="source">
+bool contains(E element) {
+ for(int i = 0; _size &gt; i; i++) {
+   if(element == _data[i]) {
+     return true;
+   }
+ }
+ return false;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="forEach">
+<button class="show-code">Code</button>
+void <strong>forEach</strong>(void f(<a href="../dartemis/Bag.html">E</a> element)) <a class="anchor-link" href="#forEach"
+              title="Permalink to Bag&lt;E&gt;.forEach">#</a></h4>
+<div class="doc">
+<p>Applies the function 
+<span class="param">f</span> to each element of this collection.</p>
+<p>Do not pass functions that add or remove elements because the order of
+elements is not preserved and such a function could lead to unexpected
+results.</p>
+<pre class="source">
+void forEach(void f(E element)) {
+ for (int i = 0; i &lt; _size; i++) {
+   f(_data[i]);
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="isIndexWithinBounds">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>isIndexWithinBounds</strong>(<a href="http://api.dartlang.org/dart_core/int.html">int</a> index) <a class="anchor-link" href="#isIndexWithinBounds"
+              title="Permalink to Bag&lt;E&gt;.isIndexWithinBounds">#</a></h4>
+<div class="doc">
+<pre class="source">
+bool isIndexWithinBounds(int index) =&gt; index &lt; capacity;
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="remove">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>remove</strong>(<a href="../dartemis/Bag.html">E</a> element) <a class="anchor-link" href="#remove"
+              title="Permalink to Bag&lt;E&gt;.remove">#</a></h4>
+<div class="doc">
+<p>Removes the first occurrence of the specified element from this bag, if
+it is present. If the Bag does not contain the element, it is unchanged.
+Does this by overwriting with the last element and then removing the last
+element.
+Returns <code>true</code> if this list contained the specified 
+<span class="param">element</span>.</p>
+<pre class="source">
+bool remove(E element) {
+ for (int i = 0; i &lt; _size; i++) {
+   E current = _data[i];
+
+   if (element == current) {
+     // overwrite item to remove with last element
+     _data[i] = _data[--_size];
+     // null last element, so gc can do its work
+     _data[_size] = null;
+     return true;
+   }
+ }
+
+ return false;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="removeAll">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>removeAll</strong>(<a href="../dartemis/Bag.html">Bag</a>&lt;<a href="../dartemis/Bag.html">E</a>&gt; bag) <a class="anchor-link" href="#removeAll"
+              title="Permalink to Bag&lt;E&gt;.removeAll">#</a></h4>
+<div class="doc">
+<p>Removes from this Bag all of its elements that are contained in the
+specified 
+<span class="param">bag</span>.</p>
+<p>Returns <code>true</code> if this Bag changed as a result of the call</p>
+<pre class="source">
+bool removeAll(Bag&lt;E&gt; bag) {
+ bool modified = false;
+
+ for (int i = 0; i &lt; bag.size; i++) {
+   E o1 = bag[i];
+
+   for (int j = 0; j &lt; size; j++) {
+     E o2 = _data[j];
+
+     if (o1 == o2) {
+       removeAt(j);
+       j--;
+       modified = true;
+       break;
+     }
+   }
+ }
+ return modified;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="removeAt">
+<button class="show-code">Code</button>
+<a href="../dartemis/Bag.html">E</a> <strong>removeAt</strong>(<a href="http://api.dartlang.org/dart_core/int.html">int</a> index) <a class="anchor-link" href="#removeAt"
+              title="Permalink to Bag&lt;E&gt;.removeAt">#</a></h4>
+<div class="doc">
+<p>Removes the element at the specified 
+<span class="param">index</span> in this bag. Does this by
+overwriting with the last element and then removing the last element.</p>
+<pre class="source">
+E removeAt(int index) {
+ // make copy of element to remove so it can be returned
+ var o = _data[index];
+ // overwrite item to remove with last element
+ _data[index] = _data[--_size];
+ // null last element, so gc can do its work
+ _data[_size] = null;
+
+ return o;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="removeLast">
+<button class="show-code">Code</button>
+<a href="../dartemis/Bag.html">E</a> <strong>removeLast</strong>() <a class="anchor-link" href="#removeLast"
+              title="Permalink to Bag&lt;E&gt;.removeLast">#</a></h4>
+<div class="doc">
+<p>Remove and return the last object in the bag.</p>
+<pre class="source">
+E removeLast() {
+ if (_size &gt; 0) {
+   E current = _data[--_size];
+   _data[_size] = null;
+   return current;
+ }
+ return null;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="toString">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/String.html">String</a> <strong>toString</strong>() <a class="anchor-link" href="#toString"
+              title="Permalink to Bag&lt;E&gt;.toString">#</a></h4>
+<div class="doc">
+<div class="inherited">
+<p>Returns a string representation of this object.</p>
+<div class="docs-inherited-from">docs inherited from <a href="http://api.dartlang.org/dart_core/Object.html">Object</a> </div></div>
+<pre class="source">
+String toString() =&gt; "[${_data.join(',')}]";
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-05 23:19:56.164</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

@@ -1,0 +1,128 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>AudioSnapshot class / simple_audio Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="simple_audio" data-type="AudioSnapshot">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../simple_audio.html">simple_audio</a> &rsaquo; <a href="../simple_audio/AudioSnapshot.html">AudioSnapshot</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>AudioSnapshot</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<pre class="source">
+class AudioSnapshot {
+ final AudioManager manager;
+
+ AudioSnapshot(this.manager);
+
+ /** Take a snapshot of the manager. Snapshot includes:
+  * Loaded clips
+  * Sources
+  * Volume
+  */
+ String takeSnapshot() {
+   return JSON.stringify(manager);
+ }
+
+ /** Load a snapshot of the manager.
+  */
+ void loadSnapshot(String snapshot) {
+   Map map = JSON.parse(snapshot);
+   manager.fromMap(map);
+ }
+}
+</pre>
+</div>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="AudioSnapshot">
+<button class="show-code">Code</button>
+new <strong>AudioSnapshot</strong>(<a href="../simple_audio/AudioManager.html">AudioManager</a> manager) <a class="anchor-link" href="#AudioSnapshot"
+              title="Permalink to AudioSnapshot.AudioSnapshot">#</a></h4>
+<div class="doc">
+<pre class="source">
+AudioSnapshot(this.manager);
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="manager">
+<button class="show-code">Code</button>
+final <a href="../simple_audio/AudioManager.html">AudioManager</a>         <strong>manager</strong> <a class="anchor-link"
+            href="#manager"
+            title="Permalink to AudioSnapshot.manager">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final AudioManager manager
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="loadSnapshot">
+<button class="show-code">Code</button>
+void <strong>loadSnapshot</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> snapshot) <a class="anchor-link" href="#loadSnapshot"
+              title="Permalink to AudioSnapshot.loadSnapshot">#</a></h4>
+<div class="doc">
+<p>Load a snapshot of the manager.</p>
+<pre class="source">
+void loadSnapshot(String snapshot) {
+ Map map = JSON.parse(snapshot);
+ manager.fromMap(map);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="takeSnapshot">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/String.html">String</a> <strong>takeSnapshot</strong>() <a class="anchor-link" href="#takeSnapshot"
+              title="Permalink to AudioSnapshot.takeSnapshot">#</a></h4>
+<div class="doc">
+<p>Take a snapshot of the manager. Snapshot includes:
+Loaded clips
+Sources
+Volume</p>
+<pre class="source">
+String takeSnapshot() {
+ return JSON.stringify(manager);
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-05 23:19:56.243</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

@@ -1,0 +1,380 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>AudioSound class / simple_audio Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="simple_audio" data-type="AudioSound">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../simple_audio.html">simple_audio</a> &rsaquo; <a href="../simple_audio/AudioSound.html">AudioSound</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>AudioSound</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p><a class="crossref" href="../simple_audio/AudioSound.html">AudioSound</a> is an <a class="crossref" href="../simple_audio/AudioClip.html">AudioClip</a> scheduled to be played on an <a class="crossref" href="../simple_audio/AudioSource.html">AudioSource</a>.
+You cannot construct an instance of the <a class="crossref" href="../simple_audio/AudioSound.html">AudioSound</a> class directly, it can only be
+done by playing an <a class="crossref" href="../simple_audio/AudioClip.html">AudioClip</a> from an <a class="crossref" href="../simple_audio/AudioSource.html">AudioSource</a> (See <a class="crossref" href="../simple_audio/AudioSource.html">AudioSource</a>, <a class="crossref" href="../simple_audio/AudioMusic.html">AudioMusic</a>, and <a class="crossref" href="../simple_audio/AudioManager.html">AudioManager</a>).</p>
+<pre class="source">
+class AudioSound {
+ final AudioSource _source;
+ final AudioClip _clip;
+ final bool _loop;
+ AudioBufferSourceNode _sourceNode;
+ num _pausedTime;
+ num _startTime;
+ num _scheduledTime;
+ num _volume = 1.0;
+
+ /** Is the sound scheduled to be played? */
+ bool get isScheduled =&gt; _sourceNode == null ? false : _sourceNode.playbackState == AudioBufferSourceNode.SCHEDULED_STATE;
+ /** Is the sound playing right now? */
+ bool get isPlaying =&gt; _sourceNode == null ? false : _sourceNode.playbackState == AudioBufferSourceNode.PLAYING_STATE;
+ /** Is the sound finished being played? */
+ bool get isFinished =&gt; _sourceNode == null ? false : _sourceNode.playbackState == AudioBufferSourceNode.FINISHED_STATE;
+
+ AudioSound._internal(this._source, this._clip, this._loop) {
+   _setupSourceNodeForPlayback();
+ }
+
+ void _dumpSourceNode() {
+   if (_sourceNode != null) {
+     print('${_sourceNode.playbackState}');
+   }
+ }
+
+ void _setupSourceNodeForPlayback() {
+   _sourceNode = _source._manager._context.createBufferSource();
+   if (_clip != null &amp;&amp; _clip._buffer != null) {
+     _sourceNode.buffer = _clip._buffer;
+     _sourceNode.loopStart = 0.0;
+     _sourceNode.loopEnd = _clip._buffer.duration;
+   }
+   _sourceNode.gain.value = _volume;
+   _sourceNode.loop = _loop;
+   _sourceNode.connect(_source._gainNode, 0, 0);
+ }
+
+ void _stop() {
+   if (_sourceNode != null) {
+     _sourceNode.stop(0.0);
+   }
+   _sourceNode = null;
+ }
+
+ /** Is the sound paused? */
+ bool get pause =&gt; _pausedTime != null;
+
+ /** Pause or unpause the sound. */
+ void set pause(bool b) {
+   if (b) {
+     if (_pausedTime != null) {
+       // Double pause.
+       return;
+     }
+     _pause();
+   } else {
+     if (_pausedTime == null) {
+       // Double unpause.
+       return;
+     }
+     _resume();
+   }
+ }
+
+ /**
+  * Time cursor for sound. Will be negative is sound is scheduled
+  * to be played. Positive if playing.
+  */
+ num get time {
+   var now = _source._manager._context.currentTime;
+   if (_pausedTime != null) {
+     return _pausedTime;
+   }
+   return _computePausedTime();
+ }
+
+ num _computePausedTime() {
+   assert(_startTime != null);
+   var now = _source._manager._context.currentTime;
+   var delta = now - _startTime;
+   if (now &lt; _scheduledTime) {
+     // Haven't started yet.
+     return now-_scheduledTime;
+   }
+   // Playing sound.
+   if (_loop) {
+     return delta % _sourceNode.buffer.duration;
+   }
+   return delta;
+ }
+
+ void _pause() {
+   if (_startTime == null) {
+     // Not started.
+     return;
+   }
+   print('Sound.pause');
+   _dumpSourceNode();
+   if (_sourceNode != null) {
+     _pausedTime = _computePausedTime();
+     _stop();
+     print('paused at $_pausedTime');
+   }
+ }
+
+ void _resume() {
+   if (_pausedTime == null) {
+     // Not paused.
+     return;
+   }
+   print('Sound.resume');
+   _dumpSourceNode();
+   _setupSourceNodeForPlayback();
+   if (_pausedTime &lt; 0.0) {
+     // Schedule again.
+     _pausedTime = -_pausedTime;
+     print('Scheduling to play sound in $_pausedTime.');
+     _scheduledTime = _source._manager._context.currentTime+_pausedTime;
+     _sourceNode.start(_scheduledTime, 0.0, _sourceNode.buffer.duration);
+     _startTime = _source._manager._context.currentTime;
+   } else {
+     print('Starting to play at offset $_pausedTime');
+     _scheduledTime = _source._manager._context.currentTime;
+     _sourceNode.start(_scheduledTime, // Now.
+                       _pausedTime, // Offset.
+                       _sourceNode.buffer.duration-_pausedTime); // Length.
+     // Offset the time that start was called by the offset into clip.
+     _startTime = _source._manager._context.currentTime-_pausedTime;
+   }
+   // Clear paused time.
+   _pausedTime = null;
+ }
+
+ /** Start playing this sound in [when] seconds. */
+ void play([num when=0.0]) {
+   //print('Sound.play');
+   //_dumpSourceNode();
+   _stop();
+   _setupSourceNodeForPlayback();
+   _scheduledTime = _source._manager._context.currentTime+when;
+   _sourceNode.start(_scheduledTime);
+   // Called start now.
+   _startTime = _source._manager._context.currentTime;
+ }
+
+ /** Stop playing this sound */
+ void stop() {
+   _stop();
+   _startTime = null;
+   _scheduledTime = null;
+   _pausedTime = null;
+ }
+
+ /** Get the volume of the sound. 0.0 &lt;= volume &lt;= 1.0. */
+ num get volume =&gt; _volume;
+
+ /** Set the volume for the sound. */
+ void set volume(num v) {
+   if (_sourceNode != null) {
+     _sourceNode.gain.value = v;
+   }
+   _volume = v;
+ }
+}
+</pre>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="isFinished">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/bool.html">bool</a>         <strong>isFinished</strong> <a class="anchor-link"
+            href="#isFinished"
+            title="Permalink to AudioSound.isFinished">#</a>
+        </h4>
+        <div class="doc">
+<p>Is the sound finished being played? </p>
+<pre class="source">
+bool get isFinished =&gt; _sourceNode == null ? false : _sourceNode.playbackState == AudioBufferSourceNode.FINISHED_STATE;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="isPlaying">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/bool.html">bool</a>         <strong>isPlaying</strong> <a class="anchor-link"
+            href="#isPlaying"
+            title="Permalink to AudioSound.isPlaying">#</a>
+        </h4>
+        <div class="doc">
+<p>Is the sound playing right now? </p>
+<pre class="source">
+bool get isPlaying =&gt; _sourceNode == null ? false : _sourceNode.playbackState == AudioBufferSourceNode.PLAYING_STATE;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="isScheduled">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/bool.html">bool</a>         <strong>isScheduled</strong> <a class="anchor-link"
+            href="#isScheduled"
+            title="Permalink to AudioSound.isScheduled">#</a>
+        </h4>
+        <div class="doc">
+<p>Is the sound scheduled to be played? </p>
+<pre class="source">
+bool get isScheduled =&gt; _sourceNode == null ? false : _sourceNode.playbackState == AudioBufferSourceNode.SCHEDULED_STATE;
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="pause">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>get pause</strong> <a class="anchor-link" href="#pause"
+              title="Permalink to AudioSound.get pause">#</a></h4>
+<div class="doc">
+<p>Is the sound paused? </p>
+<pre class="source">
+bool get pause =&gt; _pausedTime != null;
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="pause=">
+<button class="show-code">Code</button>
+void <strong>set pause</strong>(<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> b) <a class="anchor-link" href="#pause="
+              title="Permalink to AudioSound.set pause">#</a></h4>
+<div class="doc">
+<p>Pause or unpause the sound. </p>
+<pre class="source">
+void set pause(bool b) {
+ if (b) {
+   if (_pausedTime != null) {
+     // Double pause.
+     return;
+   }
+   _pause();
+ } else {
+   if (_pausedTime == null) {
+     // Double unpause.
+     return;
+   }
+   _resume();
+ }
+}
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="time">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/num.html">num</a>         <strong>time</strong> <a class="anchor-link"
+            href="#time"
+            title="Permalink to AudioSound.time">#</a>
+        </h4>
+        <div class="doc">
+<p>Time cursor for sound. Will be negative is sound is scheduled
+to be played. Positive if playing.</p>
+<pre class="source">
+num get time {
+ var now = _source._manager._context.currentTime;
+ if (_pausedTime != null) {
+   return _pausedTime;
+ }
+ return _computePausedTime();
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="volume">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>get volume</strong> <a class="anchor-link" href="#volume"
+              title="Permalink to AudioSound.get volume">#</a></h4>
+<div class="doc">
+<p>Get the volume of the sound. 0.0 &lt;= volume &lt;= 1.0. </p>
+<pre class="source">
+num get volume =&gt; _volume;
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="volume=">
+<button class="show-code">Code</button>
+void <strong>set volume</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> v) <a class="anchor-link" href="#volume="
+              title="Permalink to AudioSound.set volume">#</a></h4>
+<div class="doc">
+<p>Set the volume for the sound. </p>
+<pre class="source">
+void set volume(num v) {
+ if (_sourceNode != null) {
+   _sourceNode.gain.value = v;
+ }
+ _volume = v;
+}
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="play">
+<button class="show-code">Code</button>
+void <strong>play</strong>([<a href="http://api.dartlang.org/dart_core/num.html">num</a> when = 0.0]) <a class="anchor-link" href="#play"
+              title="Permalink to AudioSound.play">#</a></h4>
+<div class="doc">
+<p>Start playing this sound in 
+<span class="param">when</span> seconds. </p>
+<pre class="source">
+void play([num when=0.0]) {
+ //print('Sound.play');
+ //_dumpSourceNode();
+ _stop();
+ _setupSourceNodeForPlayback();
+ _scheduledTime = _source._manager._context.currentTime+when;
+ _sourceNode.start(_scheduledTime);
+ // Called start now.
+ _startTime = _source._manager._context.currentTime;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="stop">
+<button class="show-code">Code</button>
+void <strong>stop</strong>() <a class="anchor-link" href="#stop"
+              title="Permalink to AudioSound.stop">#</a></h4>
+<div class="doc">
+<p>Stop playing this sound </p>
+<pre class="source">
+void stop() {
+ _stop();
+ _startTime = null;
+ _scheduledTime = null;
+ _pausedTime = null;
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-05 23:19:56.272</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

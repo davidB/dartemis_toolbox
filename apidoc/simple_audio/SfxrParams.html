@@ -1,0 +1,574 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>SfxrParams class / simple_audio Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="simple_audio" data-type="SfxrParams">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../simple_audio.html">simple_audio</a> &rsaquo; <a href="../simple_audio/SfxrParams.html">SfxrParams</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>SfxrParams</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<pre class="source">
+class SfxrParams {
+ /// Shape of the wave (0:square, 1:saw, 2:sin or 3:noise)
+ int waveType               = 0;
+ /// Length of the volume envelope attack (0 to 1)
+ double attackTime          = 0.0;
+ /// Length of the volume envelope sustain (0 to 1)
+ double sustainTime         = 0.0;
+ /// Tilts the sustain envelope for more 'pop' (0 to 1)
+ double sustainPunch        = 0.0;
+ /// Length of the volume envelope decay (yes, I know it's called release) (0 to 1)
+ double decayTime           = 0.0;
+ /// Base note of the sound (0 to 1)
+ double startFrequency      = 0.3;
+ /// If sliding, the sound will stop at this frequency, to prevent really low notes (0 to 1)
+ double minFrequency        = 0.0;
+ /// Slides the note up or down (-1 to 1)
+ double slide               = 0.0;
+ /// Accelerates the slide (-1 to 1)
+ double deltaSlide          = 0.0;
+ /// Strength of the vibrato effect (0 to 1)
+ double vibratoDepth        = 0.0;
+ /// Speed of the vibrato effect (i.e. frequency) (0 to 1)
+ double vibratoSpeed        = 0.0;
+ /// Shift in note, either up or down (-1 to 1)
+ double changeAmount        = 0.0;
+ /// How fast the note shift happens (only happens once) (0 to 1)
+ double changeSpeed         = 0.0;
+ /// Controls the ratio between the up and down states of the square wave, changing the tibre (0 to 1)
+ double squareDuty          = 0.0;
+ /// Sweeps the duty up or down (-1 to 1)
+ double dutySweep           = 0.0;
+ /// Speed of the note repeating - certain variables are reset each time (0 to 1)
+ double repeatSpeed         = 0.0;
+ /// Offsets a second copy of the wave by a small phase, changing the tibre (-1 to 1)
+ double phaserOffset        = 0.0;
+ /// Sweeps the phase up or down (-1 to 1)
+ double phaserSweep         = 0.0;
+ /// Frequency at which the low-pass filter starts attenuating higher frequencies (0 to 1)
+ double lpFilterCutoff      = 0.0;
+ /// Sweeps the low-pass cutoff up or down (-1 to 1)
+ double lpFilterCutoffSweep = 0.0;
+ /// Changes the attenuation rate for the low-pass filter, changing the timbre (0 to 1)
+ double lpFilterResonance   = 0.0;
+ /// Frequency at which the high-pass filter starts attenuating lower frequencies (0 to 1)
+ double hpFilterCutoff      = 0.0;
+ /// Sweeps the high-pass cutoff up or down (-1 to 1)
+ double hpFilterCutoffSweep = 0.0;
+ /// Overall volume of the sound (0 to 1)
+ double masterVolume        = 0.0;
+
+ //--------------------------------------------------------------------------
+ //
+ //  Settings String Methods
+ //
+ //--------------------------------------------------------------------------
+
+ /**
+  * Parses a settings string into the parameters
+  * @param string Settings string to parse
+  * @return If the string successfully parsed
+  */
+ SfxrParams.fromString(String string) {
+   var values = string.split(",");
+   this.waveType            = _toInt(values[ 0]);
+   this.attackTime          = _toDouble(values[ 1]);
+   this.sustainTime         = _toDouble(values[ 2]);
+   this.sustainPunch        = _toDouble(values[ 3]);
+   this.decayTime           = _toDouble(values[ 4]);
+   this.startFrequency      = _toDouble(values[ 5]);
+   this.minFrequency        = _toDouble(values[ 6]);
+   this.slide               = _toDouble(values[ 7]);
+   this.deltaSlide          = _toDouble(values[ 8]);
+   this.vibratoDepth        = _toDouble(values[ 9]);
+   this.vibratoSpeed        = _toDouble(values[10]);
+   this.changeAmount        = _toDouble(values[11]);
+   this.changeSpeed         = _toDouble(values[12]);
+   this.squareDuty          = _toDouble(values[13]);
+   this.dutySweep           = _toDouble(values[14]);
+   this.repeatSpeed         = _toDouble(values[15]);
+   this.phaserOffset        = _toDouble(values[16]);
+   this.phaserSweep         = _toDouble(values[17]);
+   this.lpFilterCutoff      = _toDouble(values[18]);
+   this.lpFilterCutoffSweep = _toDouble(values[19]);
+   this.lpFilterResonance   = _toDouble(values[20]);
+   this.hpFilterCutoff      = _toDouble(values[21]);
+   this.hpFilterCutoffSweep = _toDouble(values[22]);
+   this.masterVolume        = _toDouble(values[23]);
+
+   // I moved this here from the reset(true) function
+   if (this.sustainTime &lt; .01) {
+     this.sustainTime = .01;
+   }
+
+   var totalTime = this.attackTime + this.sustainTime + this.decayTime;
+   if (totalTime &lt; .18) {
+     var multiplier = .18 / totalTime;
+     this.attackTime  *= multiplier;
+     this.sustainTime *= multiplier;
+     this.decayTime   *= multiplier;
+   }
+ }
+
+ /**
+  * Sets the parameters to generate a pickup/coin sound
+  */
+ SfxrParams.generatePickupCoin() {
+   var random = new math.Random();
+
+   startFrequency = 0.4 + random.nextDouble() * 0.5;
+
+   sustainTime = random.nextDouble() * 0.1;
+   decayTime = 0.1 + random.nextDouble() * 0.4;
+   sustainPunch = 0.3 + random.nextDouble() * 0.3;
+
+   if(random.nextDouble() &lt; 0.5){
+     changeSpeed = 0.5 + random.nextDouble() * 0.2;
+     changeAmount = 0.2 + random.nextDouble() * 0.4;
+   }
+ }
+
+ static int _toInt(String v) {
+   if (v == null || v.length == 0) {
+     return 0;
+   }
+   return int.parse(v, radix: 10);
+ }
+
+ static double _toDouble(String v) {
+   if (v == null || v.length == 0) {
+     return 0.0;
+   }
+   return double.parse(v);
+ }
+}
+</pre>
+</div>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="SfxrParams.fromString">
+<button class="show-code">Code</button>
+new <strong>SfxrParams.fromString</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> string) <a class="anchor-link" href="#SfxrParams.fromString"
+              title="Permalink to SfxrParams.SfxrParams.fromString">#</a></h4>
+<div class="doc">
+<p>Parses a settings string into the parameters
+@param string Settings string to parse
+@return If the string successfully parsed</p>
+<pre class="source">
+SfxrParams.fromString(String string) {
+ var values = string.split(",");
+ this.waveType            = _toInt(values[ 0]);
+ this.attackTime          = _toDouble(values[ 1]);
+ this.sustainTime         = _toDouble(values[ 2]);
+ this.sustainPunch        = _toDouble(values[ 3]);
+ this.decayTime           = _toDouble(values[ 4]);
+ this.startFrequency      = _toDouble(values[ 5]);
+ this.minFrequency        = _toDouble(values[ 6]);
+ this.slide               = _toDouble(values[ 7]);
+ this.deltaSlide          = _toDouble(values[ 8]);
+ this.vibratoDepth        = _toDouble(values[ 9]);
+ this.vibratoSpeed        = _toDouble(values[10]);
+ this.changeAmount        = _toDouble(values[11]);
+ this.changeSpeed         = _toDouble(values[12]);
+ this.squareDuty          = _toDouble(values[13]);
+ this.dutySweep           = _toDouble(values[14]);
+ this.repeatSpeed         = _toDouble(values[15]);
+ this.phaserOffset        = _toDouble(values[16]);
+ this.phaserSweep         = _toDouble(values[17]);
+ this.lpFilterCutoff      = _toDouble(values[18]);
+ this.lpFilterCutoffSweep = _toDouble(values[19]);
+ this.lpFilterResonance   = _toDouble(values[20]);
+ this.hpFilterCutoff      = _toDouble(values[21]);
+ this.hpFilterCutoffSweep = _toDouble(values[22]);
+ this.masterVolume        = _toDouble(values[23]);
+
+ // I moved this here from the reset(true) function
+ if (this.sustainTime &lt; .01) {
+   this.sustainTime = .01;
+ }
+
+ var totalTime = this.attackTime + this.sustainTime + this.decayTime;
+ if (totalTime &lt; .18) {
+   var multiplier = .18 / totalTime;
+   this.attackTime  *= multiplier;
+   this.sustainTime *= multiplier;
+   this.decayTime   *= multiplier;
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="SfxrParams.generatePickupCoin">
+<button class="show-code">Code</button>
+new <strong>SfxrParams.generatePickupCoin</strong>() <a class="anchor-link" href="#SfxrParams.generatePickupCoin"
+              title="Permalink to SfxrParams.SfxrParams.generatePickupCoin">#</a></h4>
+<div class="doc">
+<p>Sets the parameters to generate a pickup/coin sound</p>
+<pre class="source">
+SfxrParams.generatePickupCoin() {
+ var random = new math.Random();
+
+ startFrequency = 0.4 + random.nextDouble() * 0.5;
+
+ sustainTime = random.nextDouble() * 0.1;
+ decayTime = 0.1 + random.nextDouble() * 0.4;
+ sustainPunch = 0.3 + random.nextDouble() * 0.3;
+
+ if(random.nextDouble() &lt; 0.5){
+   changeSpeed = 0.5 + random.nextDouble() * 0.2;
+   changeAmount = 0.2 + random.nextDouble() * 0.4;
+ }
+}
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="attackTime">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>attackTime</strong> <a class="anchor-link"
+            href="#attackTime"
+            title="Permalink to SfxrParams.attackTime">#</a>
+        </h4>
+        <div class="doc">
+<p>Length of the volume envelope attack (0 to 1)</p>
+<pre class="source">
+double attackTime          = 0.0
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="changeAmount">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>changeAmount</strong> <a class="anchor-link"
+            href="#changeAmount"
+            title="Permalink to SfxrParams.changeAmount">#</a>
+        </h4>
+        <div class="doc">
+<p>Shift in note, either up or down (-1 to 1)</p>
+<pre class="source">
+double changeAmount        = 0.0
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="changeSpeed">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>changeSpeed</strong> <a class="anchor-link"
+            href="#changeSpeed"
+            title="Permalink to SfxrParams.changeSpeed">#</a>
+        </h4>
+        <div class="doc">
+<p>How fast the note shift happens (only happens once) (0 to 1)</p>
+<pre class="source">
+double changeSpeed         = 0.0
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="decayTime">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>decayTime</strong> <a class="anchor-link"
+            href="#decayTime"
+            title="Permalink to SfxrParams.decayTime">#</a>
+        </h4>
+        <div class="doc">
+<p>Length of the volume envelope decay (yes, I know it's called release) (0 to 1)</p>
+<pre class="source">
+double decayTime           = 0.0
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="deltaSlide">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>deltaSlide</strong> <a class="anchor-link"
+            href="#deltaSlide"
+            title="Permalink to SfxrParams.deltaSlide">#</a>
+        </h4>
+        <div class="doc">
+<p>Accelerates the slide (-1 to 1)</p>
+<pre class="source">
+double deltaSlide          = 0.0
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="dutySweep">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>dutySweep</strong> <a class="anchor-link"
+            href="#dutySweep"
+            title="Permalink to SfxrParams.dutySweep">#</a>
+        </h4>
+        <div class="doc">
+<p>Sweeps the duty up or down (-1 to 1)</p>
+<pre class="source">
+double dutySweep           = 0.0
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="hpFilterCutoff">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>hpFilterCutoff</strong> <a class="anchor-link"
+            href="#hpFilterCutoff"
+            title="Permalink to SfxrParams.hpFilterCutoff">#</a>
+        </h4>
+        <div class="doc">
+<p>Frequency at which the high-pass filter starts attenuating lower frequencies (0 to 1)</p>
+<pre class="source">
+double hpFilterCutoff      = 0.0
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="hpFilterCutoffSweep">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>hpFilterCutoffSweep</strong> <a class="anchor-link"
+            href="#hpFilterCutoffSweep"
+            title="Permalink to SfxrParams.hpFilterCutoffSweep">#</a>
+        </h4>
+        <div class="doc">
+<p>Sweeps the high-pass cutoff up or down (-1 to 1)</p>
+<pre class="source">
+double hpFilterCutoffSweep = 0.0
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="lpFilterCutoff">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>lpFilterCutoff</strong> <a class="anchor-link"
+            href="#lpFilterCutoff"
+            title="Permalink to SfxrParams.lpFilterCutoff">#</a>
+        </h4>
+        <div class="doc">
+<p>Frequency at which the low-pass filter starts attenuating higher frequencies (0 to 1)</p>
+<pre class="source">
+double lpFilterCutoff      = 0.0
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="lpFilterCutoffSweep">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>lpFilterCutoffSweep</strong> <a class="anchor-link"
+            href="#lpFilterCutoffSweep"
+            title="Permalink to SfxrParams.lpFilterCutoffSweep">#</a>
+        </h4>
+        <div class="doc">
+<p>Sweeps the low-pass cutoff up or down (-1 to 1)</p>
+<pre class="source">
+double lpFilterCutoffSweep = 0.0
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="lpFilterResonance">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>lpFilterResonance</strong> <a class="anchor-link"
+            href="#lpFilterResonance"
+            title="Permalink to SfxrParams.lpFilterResonance">#</a>
+        </h4>
+        <div class="doc">
+<p>Changes the attenuation rate for the low-pass filter, changing the timbre (0 to 1)</p>
+<pre class="source">
+double lpFilterResonance   = 0.0
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="masterVolume">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>masterVolume</strong> <a class="anchor-link"
+            href="#masterVolume"
+            title="Permalink to SfxrParams.masterVolume">#</a>
+        </h4>
+        <div class="doc">
+<p>Overall volume of the sound (0 to 1)</p>
+<pre class="source">
+double masterVolume        = 0.0
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="minFrequency">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>minFrequency</strong> <a class="anchor-link"
+            href="#minFrequency"
+            title="Permalink to SfxrParams.minFrequency">#</a>
+        </h4>
+        <div class="doc">
+<p>If sliding, the sound will stop at this frequency, to prevent really low notes (0 to 1)</p>
+<pre class="source">
+double minFrequency        = 0.0
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="phaserOffset">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>phaserOffset</strong> <a class="anchor-link"
+            href="#phaserOffset"
+            title="Permalink to SfxrParams.phaserOffset">#</a>
+        </h4>
+        <div class="doc">
+<p>Offsets a second copy of the wave by a small phase, changing the tibre (-1 to 1)</p>
+<pre class="source">
+double phaserOffset        = 0.0
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="phaserSweep">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>phaserSweep</strong> <a class="anchor-link"
+            href="#phaserSweep"
+            title="Permalink to SfxrParams.phaserSweep">#</a>
+        </h4>
+        <div class="doc">
+<p>Sweeps the phase up or down (-1 to 1)</p>
+<pre class="source">
+double phaserSweep         = 0.0
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="repeatSpeed">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>repeatSpeed</strong> <a class="anchor-link"
+            href="#repeatSpeed"
+            title="Permalink to SfxrParams.repeatSpeed">#</a>
+        </h4>
+        <div class="doc">
+<p>Speed of the note repeating - certain variables are reset each time (0 to 1)</p>
+<pre class="source">
+double repeatSpeed         = 0.0
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="slide">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>slide</strong> <a class="anchor-link"
+            href="#slide"
+            title="Permalink to SfxrParams.slide">#</a>
+        </h4>
+        <div class="doc">
+<p>Slides the note up or down (-1 to 1)</p>
+<pre class="source">
+double slide               = 0.0
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="squareDuty">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>squareDuty</strong> <a class="anchor-link"
+            href="#squareDuty"
+            title="Permalink to SfxrParams.squareDuty">#</a>
+        </h4>
+        <div class="doc">
+<p>Controls the ratio between the up and down states of the square wave, changing the tibre (0 to 1)</p>
+<pre class="source">
+double squareDuty          = 0.0
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="startFrequency">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>startFrequency</strong> <a class="anchor-link"
+            href="#startFrequency"
+            title="Permalink to SfxrParams.startFrequency">#</a>
+        </h4>
+        <div class="doc">
+<p>Base note of the sound (0 to 1)</p>
+<pre class="source">
+double startFrequency      = 0.3
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="sustainPunch">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>sustainPunch</strong> <a class="anchor-link"
+            href="#sustainPunch"
+            title="Permalink to SfxrParams.sustainPunch">#</a>
+        </h4>
+        <div class="doc">
+<p>Tilts the sustain envelope for more 'pop' (0 to 1)</p>
+<pre class="source">
+double sustainPunch        = 0.0
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="sustainTime">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>sustainTime</strong> <a class="anchor-link"
+            href="#sustainTime"
+            title="Permalink to SfxrParams.sustainTime">#</a>
+        </h4>
+        <div class="doc">
+<p>Length of the volume envelope sustain (0 to 1)</p>
+<pre class="source">
+double sustainTime         = 0.0
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="vibratoDepth">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>vibratoDepth</strong> <a class="anchor-link"
+            href="#vibratoDepth"
+            title="Permalink to SfxrParams.vibratoDepth">#</a>
+        </h4>
+        <div class="doc">
+<p>Strength of the vibrato effect (0 to 1)</p>
+<pre class="source">
+double vibratoDepth        = 0.0
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="vibratoSpeed">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>vibratoSpeed</strong> <a class="anchor-link"
+            href="#vibratoSpeed"
+            title="Permalink to SfxrParams.vibratoSpeed">#</a>
+        </h4>
+        <div class="doc">
+<p>Speed of the vibrato effect (i.e. frequency) (0 to 1)</p>
+<pre class="source">
+double vibratoSpeed        = 0.0
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="waveType">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>waveType</strong> <a class="anchor-link"
+            href="#waveType"
+            title="Permalink to SfxrParams.waveType">#</a>
+        </h4>
+        <div class="doc">
+<p>Shape of the wave (0:square, 1:saw, 2:sin or 3:noise)</p>
+<pre class="source">
+int waveType               = 0
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-05 23:19:56.238</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        
