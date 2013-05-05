@@ -16,6 +16,7 @@
   <property name="dartdoc" value="${dart.sdk.dir}/bin/dartdoc" />
   <property name="dart_analyzer" value="${dart.sdk.dir}/bin/dart_analyzer" />
   <property name="pub" value="${dart.sdk.dir}/bin/pub" />
+  <property name="target" location="${basedir}/target"/>
 
   <macrodef name="dart_check">
     <attribute name="file"/>
@@ -27,6 +28,30 @@
       <exec executable="${dart}" failonerror="true">
         <arg line="--enable-checked-mode test/@{file}_test.dart"/>
       </exec>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="dart_dwc">
+    <attribute name="file"/>
+    <sequential>
+      <exec executable="${dart}" dir="${target}/web">
+        <arg line="--package-root=packages/ packages/web_ui/dwc.dart @{file}.html"/>
+      </exec>
+      <move file="${target}/web/_@{file}.html.html" tofile="${target}/web/@{file}.html"/>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="dart_optjs">
+    <attribute name="file"/>
+    <sequential>
+      <exec executable="${dart2js}" dir="${target}/web">
+        <arg line="--package-root=packages/ _@{file}.html_bootstrap.dart -o_@{file}.html_bootstrap.dart.js"/>
+      </exec>
+      <!--copy file="${target}/web/index0.html" tofile="${target}/web/index.html"/-->
+      <replace file="${target}/web/@{file}.html">
+        <replacefilter token='type="application/dart"' value='type="application/javascript"'/>
+        <replacefilter token='.dart' value='.dart.js'/>
+      </replace>
     </sequential>
   </macrodef>
 
@@ -83,26 +108,16 @@
 
   <target name="web" depends="-init">
     <exec executable="rsync">
-        <arg line="-av --delete --links web target"/>
-      </exec>
-      <fmpp sourceFile="src/index.css.ftl" outputFile="${target}/web/index.css" />
-      <exec executable="${dart}" dir="${target}/web">
-        <arg line="--package-root=packages/ packages/web_ui/dwc.dart ease_graphics.html xtchart_demo.html"/>
-      </exec>
-    <delete file="${target}/web/index0.html"/>
-    <move file="${target}/web/_ease_graphics.html.html" tofile="${target}/web/ease_graphics.html"/>
-    <move file="${target}/web/_xtchart_demo.html.html" tofile="${target}/web/xtchart_demo.html"/>
+      <arg line="-av --delete --links web target"/>
+    </exec>
+    <!--fmpp sourceFile="src/index.css.ftl" outputFile="${target}/web/index.css" /-->
+    <dart_dwc file="ease_graphics"/>
+    <dart_dwc file="xtchart_demo"/>
   </target>
 
-  <target name="js" depends="check, web">
-    <exec executable="${dart2js}" dir="${target}/web">
-      <arg line="--package-root=packages/ _index0.html_bootstrap.dart -o_index0.html_bootstrap.dart.js"/>
-    </exec>
-    <copy file="${target}/web/index0.html" tofile="${target}/web/index.html"/>
-    <replace file="${target}/web/index.html">
-      <replacefilter token='type="application/dart"' value='type="application/javascript"'/>
-      <replacefilter token='.dart' value='.dart.js'/>
-    </replace>
+  <target name="js" depends="web">
+    <dart_optjs file="ease_graphics"/>
+    <dart_optjs file="xtchart_demo"/>
    </target>
 
    <target name="remove_packages" depends="js">
@@ -123,11 +138,27 @@
     </copy>
   </target>
 
-  <target name="deploy0" depends="js, remove_packages"/>
+  <target name="apidoc">
+    <mkdir dir="${target}/web/apidoc"/>
+    <apply executable="${dartdoc}" failonerror="true" parallel="true">
+      <arg line="--out ${target}/web/apidoc --package-root=packages/ --link-api --exclude-lib vector_math"/>
+      <fileset dir="lib" includes="*.dart"/>
+      <mapper type="glob" from="*.dart" to="--include-lib *"/>
+      <fileset dir="${basedir}/lib">
+        <patternset>
+          <include name="*.dart"/>
+          <include name="widget/*.dart"/>
+          <exclude name="packages/**/*.*"/>
+        </patternset>
+      </fileset>
+    </apply>
+  </target>
+
+  <target name="deploy0" depends="js, remove_packages, apidoc"/>
   <target name="deploy" depends="deploy0">
     <echo file="target/publish-site.sh">
         #!/bin/sh
-        cd ${basedir}/../${name}.gh-pages
+        cd ${basedir}.gh-pages
         git checkout gh-pages
         git pull
         mkdir compo
@@ -137,7 +168,7 @@
         git push -u origin gh-pages
     </echo>
     <chmod perm="+x" file="target/publish-site.sh"/>
-    <!--exec executable="target/publish-site.sh" failonerror="true" failifexecutionfails="true"/-->
+    <exec executable="target/publish-site.sh" failonerror="true" failifexecutionfails="true"/>
   </target>
 
 </project>

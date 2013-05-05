@@ -37,9 +37,7 @@
  *
  * Functions can be used without dartemis or dartemis_addons (there are fully standalone)
  *
- * for graphical representation :
- * * StageXL's [Transition Functions](http://www.stagexl.org/docs/transitions.html)
- * * tween.js '[Graph](http://sole.github.io/tween.js/examples/03_graphs.html)
+ * [graphical representation](http://davidb.github.io/dartemis_addons/ease_graphics.html)
  */
 library ease;
 
@@ -132,8 +130,10 @@ num outQuad(double ratio, num change, num baseValue) {
   return -change * ratio * (ratio - 2) + baseValue;
 }
 
+///num f(double ratio, num change, num baseValue)
 final inOutQuad = chain(inQuad, outQuad);
 
+///num f(double ratio, num change, num baseValue)
 final outInQuad = chain(outQuad, inQuad);
 
 // CUBIC
@@ -162,8 +162,10 @@ num outQuartic(double ratio, num change, num baseValue) {
   return -change * (ratio * ratio * ratio * ratio - 1) + baseValue;
 }
 
+///num f(double ratio, num change, num baseValue)
 final inOutQuartic = chain(inQuartic, outQuartic);
 
+///num f(double ratio, num change, num baseValue)
 final outInQuartic = chain(outQuartic, inQuartic);
 
 // QUINTIC
@@ -180,8 +182,10 @@ num outQuintic(double ratio, num change, num baseValue) {
   return change * (ratio * ratio * ratio * ratio * ratio + 1) + baseValue;
 }
 
+///num f(double ratio, num change, num baseValue)
 final inOutQuintic = chain(inQuintic, outQuintic);
 
+///num f(double ratio, num change, num baseValue)
 final outInQuintic = chain(outQuintic, inQuintic);
 
 // SINUSOIDAL
@@ -198,8 +202,10 @@ num outSine(double ratio, num change, num baseValue) {
 //  return -change / 2 * (cos(ratio * PI) - 1) + baseValue;
 //}
 
+///num f(double ratio, num change, num baseValue)
 final inOutSine = chain(inSine, outSine);
 
+///num f(double ratio, num change, num baseValue)
 final outInSine = chain(outSine, inSine);
 
 // EXPONENTIAL
@@ -213,8 +219,10 @@ num outExponential(double ratio, num change, num baseValue) {
 }
 
 
+///num f(double ratio, num change, num baseValue)
 final inOutExponential = chain(inExponential, outExponential);
 
+///num f(double ratio, num change, num baseValue)
 final outInExponential = chain(outExponential, inExponential);
 
 // CIRCULAR
@@ -229,8 +237,10 @@ num outCircular(double ratio, num change, num baseValue) {
   return change * sqrt(1 - ratio * ratio) + baseValue;
 }
 
+///num f(double ratio, num change, num baseValue)
 final inOutCircular = chain(inCircular, outCircular);
 
+///num f(double ratio, num change, num baseValue)
 final outInCircular = chain(outCircular, inCircular);
 
 // Back
@@ -246,8 +256,10 @@ num outBack(double ratio, num change, num baseValue) {
   return ratio * ratio * ((s + change) * ratio + s) + change  + baseValue;
 }
 
+///num f(double ratio, num change, num baseValue)
 final inOutBack = chain(inBack, outBack);
 
+///num f(double ratio, num change, num baseValue)
 final outInBack = chain(outBack, inBack);
 
 // Elastic
@@ -267,8 +279,10 @@ num outElastic(double ratio, num change, num baseValue) {
   return r * change + baseValue;
 }
 
+///num f(double ratio, num change, num baseValue)
 final inOutElastic = chain(inElastic, outElastic);
 
+///num f(double ratio, num change, num baseValue)
 final outInElastic = chain(outElastic, inElastic);
 
 // Bounce
@@ -294,7 +308,9 @@ num outBounce(double ratio, num change, num baseValue) {
   return ratio * change + baseValue;
 }
 
+///num f(double ratio, num change, num baseValue)
 final inOutBounce = chain(inBounce, outBounce);
 
+///num f(double ratio, num change, num baseValue)
 final outInBounce = chain(outBounce, inBounce);
 
