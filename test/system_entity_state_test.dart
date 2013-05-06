@@ -2,7 +2,7 @@ import "package:dartemis/dartemis.dart";
 import "package:unittest/mock.dart";
 import "package:unittest/unittest.dart";
 import "dart:math" as Math;
-import "package:dartemis_addons/entity_state.dart";
+import "package:dartemis_addons/system_entity_state.dart";
 
 main() {
 

@@ -22,7 +22,7 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 //
 // For more information, please refer to <http://unlicense.org/>
-library entity_state;
+library system_entity_state;
 import "package:dartemis/dartemis.dart";
 
 /**

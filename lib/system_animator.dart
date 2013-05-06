@@ -22,7 +22,7 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 //
 // For more information, please refer to <http://unlicense.org/>
-library animator;
+library system_animator;
 
 import 'dart:math' as math;
 import 'package:dartemis/dartemis.dart';

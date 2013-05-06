@@ -68,31 +68,31 @@
   </target>
 
 
-  <target name="entity_state">
-    <dart_check file="entity_state"/>
+  <target name="system_entity_state">
+    <dart_check file="system_entity_state"/>
   </target>
 
   <target name="utils">
     <dart_check file="utils"/>
   </target>
 
-  <target name="animator">
-    <dart_check file="animator"/>
+  <target name="system_animator">
+    <dart_check file="system_animator"/>
   </target>
 
   <target name="ease">
     <dart_check file="ease"/>
   </target>
 
-  <target name="simple_audio" depends="transform">
-    <dart_check file="simple_audio"/>
+  <target name="system_simple_audio" depends="transform">
+    <dart_check file="system_simple_audio"/>
   </target>
 
   <target name="transform">
     <dart_check file="transform"/>
   </target>
 
-  <target name="check" depends="entity_state, utils, animator, simple_audio, transform, ease">
+  <target name="check" depends="system_entity_state, utils, system_animator, system_simple_audio, transform, ease">
   </target>
 <!--
   <path id="tools.path">
@@ -142,7 +142,6 @@
     <mkdir dir="${target}/web/apidoc"/>
     <apply executable="${dartdoc}" failonerror="true" parallel="true">
       <arg line="--out ${target}/web/apidoc --package-root=packages/ --link-api --exclude-lib vector_math"/>
-      <fileset dir="lib" includes="*.dart"/>
       <mapper type="glob" from="*.dart" to="--include-lib *"/>
       <fileset dir="${basedir}/lib">
         <patternset>
@@ -151,6 +150,7 @@
           <exclude name="packages/**/*.*"/>
         </patternset>
       </fileset>
+      <fileset dir="lib" includes="*.dart"/>
     </apply>
   </target>
 

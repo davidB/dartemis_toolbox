@@ -22,7 +22,7 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 //
 // For more information, please refer to <http://unlicense.org/>
-library simple_audio;
+library system_simple_audio;
 
 import 'package:dartemis/dartemis.dart';
 import 'package:dartemis_addons/utils.dart';
