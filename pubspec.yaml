@@ -1,5 +1,5 @@
 name: dartemis_addons
-version: 0.2.0
+version: 0.3.0-dev
 author: david bernard <david.bernard.31@gmail.com>
 description: A set of addons (Component, System, helper, functions, ...) usable w/o dartemis
 homepage: https://github.com/davidB/dartemis_addons
