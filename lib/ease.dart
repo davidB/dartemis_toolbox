@@ -97,11 +97,26 @@ chain(f0, f1) => (double ratio, num change, num baseValue) {
   return (ratio < 1.0) ? f0(ratio, c, baseValue) : f1(ratio - 1.0, c, baseValue) + c;
 };
 
+reverse(f0) => (double ratio, num change, num baseValue) {
+  return f0(ratio, -change, baseValue + change);
+};
+
 /// create a new ease function by chaining 2 ease function
 goback(f0) => (double ratio, num change, num baseValue) {
   ratio = ratio * 2.0;
   var c = change;
-  return (ratio < 1.0) ? f0(ratio, c, baseValue) : f0(ratio - 1.0, -c, baseValue + c);
+  return (ratio < 1.0) ? f0(ratio, c, baseValue) : reverse(f0)(ratio - 1.0, c, baseValue);
+};
+
+easeRatio(f0, ease4ratio) => (double ratio, num change, num baseValue) {
+  ratio = ease4ratio(ratio, 1.0, 0.0);
+  return f0(ratio, change, baseValue);
+};
+
+periodicRatio(f0, period) => (double ratio, num change, num baseValue) {
+  ratio = (ratio / period);
+  ratio = ratio - ratio.toInt();
+  return f0(ratio, change, baseValue);
 };
 
 /**
