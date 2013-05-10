@@ -29,6 +29,8 @@ import 'package:dartemis/dartemis.dart';
 import 'package:vector_math/vector_math.dart';
 
 class Transform extends ComponentPoolable {
+  static final CT = ComponentTypeManager.getTypeFor(Transform);
+
   vec3 position3d;
   vec3 rotation3d;
   vec3 scale3d;
@@ -77,3 +79,46 @@ class Transform extends ComponentPoolable {
     return this;
   }
 }
+
+//class TransformLink extends Component {
+//  /// like parent in a scene tree;
+//  Entity target;
+//  /// use to cache which previous target we should remove from followers
+//  Entity _previousTarget;
+//
+//  /// like children in a scene tree;
+//  List<Entity> _followers;
+//
+//  /// should delete the host entity when target entity is deleted ?
+//  var deleteOnTargetDeleted = true;
+//
+//  mat4 localTransform;
+//}
+
+//class System_TransformLink extends EntitySystem {
+//  ComponentMapper<Transform> _transformMapper;
+//  ComponentMapper<TransformLink> _transformLinkMapper;
+//
+//  System_TransformLink() : super(Aspect.getAspectForAllOf([Transform, TransformLink]));
+//
+//  void initialize(){
+//    _transformMapper = new ComponentMapper<Transform>(Transform, world);
+//    _transformLinkMapper = new ComponentMapper<TransformLink>(TransformLink, world);
+//  }
+//
+//  bool checkProcessing() => true;
+//
+//  void processEntities(ReadOnlyBag<Entity> entities) {
+//    entities.forEach(e));
+//    var t = _transformMapper.get(entity);
+//    t.position3d.copyFrom(_targetPosition).add(follower.targetTranslation);
+//    t.lookAt(_targetPosition);
+//  }
+//
+//  void changeInFollowers(ReadOnlyBag<Entity> entities) {
+//    var roots = List<Entity>();
+//    entities.forEach((e) {
+//      var tfl =
+//    });
+//  }
+//}
