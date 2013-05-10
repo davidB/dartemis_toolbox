@@ -58,7 +58,7 @@ class EntityStateComponent extends Component {
  * without the EntityStateMachine, because :
  *
  * * [EntityState] changes are applying only on existing [Entity]
- *   via [EntityProcessingSystem] behavior of [EntityStateSystem].
+ *   via [EntityProcessingSystem] behavior of [System_EntityState].
  * * If a [EntitySystem] change [EntityStateComponent.state],
  *   the [Component] of [Entity] aren't added/modify/removed, so internal
  *   [ComponentMapper] of the System aren't impacted, and Aspect constraints
