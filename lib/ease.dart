@@ -24,20 +24,14 @@
 // For more information, please refer to <http://unlicense.org/>
 
 /**
- * A set of common "easing" function to compute intermediate value of a variable,
- * generally from [baseValue] to [baseValue] + [change],
- * used for transition, interpolation.
- *
- * Every function follow the same signature :
- * * [ratio] is the progression (0.0 .. 1.0).
- * * [change] is the "amplitute" of the variation for the final variable,
- * or the difference between [baseValue] and the final value.
- * * [baseValue] the initiale value of the variable
- * * return the intermediate value.
- *
+ * A set of [Ease] function to compute intermediate value of a variable.
  * Functions can be used without dartemis or dartemis_addons (there are fully standalone)
  *
  * [graphical representation](http://davidb.github.io/dartemis_addons/ease_graphics.html)
+ * links :
+ * * [Robert Penner's Easing Functions](http://www.robertpenner.com/easing/)
+ * * [Interpolation Tricks](http://sol.gfxile.net/interpolation/)
+ * * [Tween.js](https://github.com/sole/tween.js/)
  */
 library ease;
 
@@ -45,7 +39,7 @@ import 'dart:math';
 import 'dart:collection';
 
 /// a list/map of all functions, use for test, demo, editor
-final all = new LinkedHashMap<String, Function>()
+final all = new LinkedHashMap<String, Ease>()
   ..['linear'] = linear
   ..['random'] = random
   ..['inQuad'] = inQuad
@@ -91,33 +85,49 @@ final all = new LinkedHashMap<String, Function>()
   ;
 
 /// create a new ease function by chaining 2 ease function
-chain(f0, f1) => (double ratio, num change, num baseValue) {
+chain(Ease f0, Ease f1) => (double ratio, num change, num baseValue) {
   ratio = ratio * 2.0;
   var c = change / 2;
   return (ratio < 1.0) ? f0(ratio, c, baseValue) : f1(ratio - 1.0, c, baseValue) + c;
 };
 
-reverse(f0) => (double ratio, num change, num baseValue) {
+reverse(Ease f0) => (double ratio, num change, num baseValue) {
   return f0(ratio, -change, baseValue + change);
 };
 
 /// create a new ease function by chaining 2 ease function
-goback(f0) => (double ratio, num change, num baseValue) {
+goback(Ease f0) => (double ratio, num change, num baseValue) {
   ratio = ratio * 2.0;
   var c = change;
   return (ratio < 1.0) ? f0(ratio, c, baseValue) : reverse(f0)(ratio - 1.0, c, baseValue);
 };
 
-easeRatio(f0, ease4ratio) => (double ratio, num change, num baseValue) {
+easeRatio(Ease f0, Ease ease4ratio) => (double ratio, num change, num baseValue) {
   ratio = ease4ratio(ratio, 1.0, 0.0);
   return f0(ratio, change, baseValue);
 };
 
-periodicRatio(f0, period) => (double ratio, num change, num baseValue) {
-  ratio = (ratio / period);
+periodicRatio(Ease f0, num duration) => (double ratio, num change, num baseValue) {
+  ratio = (ratio / duration);
   ratio = ratio - ratio.toInt();
   return f0(ratio, change, baseValue);
 };
+
+onceRatio(Ease f0, num duration) => (double ratio, num change, num baseValue) {
+  ratio = (ratio < duration) ? (ratio / duration) : 1.0;
+  return f0(ratio, change, baseValue);
+};
+
+/// generally from [baseValue] to [baseValue] + [change],
+/// used for transition, interpolation.
+///
+/// Every function follow the same signature :
+/// * [ratio] is the progression (0.0 .. 1.0).
+/// * [change] is the "amplitute" of the variation for the final variable,
+/// or the difference between [baseValue] and the final value.
+/// * [baseValue] the initiale value of the variable
+/// * return the intermediate value.
+typedef num Ease(double ratio, num change, num baseValue);
 
 /**
  * Performs a linear.
