@@ -170,7 +170,7 @@ final initDemo = {
         ..counter = steady(10)
         ..initializers.add(particlesStartPosition(
             //constant(new vec3.zero())
-            line(new vec3(0.0, 0.0, 0.0), new vec3(800.0, 100.0, 0.0), ease.periodicRatio(ease.linear, 3000))
+            line(new vec3(0.0, 0.0, 0.0), new vec3(800.0, 100.0, 0.0), ease.periodicRatio(ease.random, 3000))
           , true
         ))
         ..initializers.add(addComponents([

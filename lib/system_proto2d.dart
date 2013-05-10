@@ -194,17 +194,16 @@ DrawCanvas particles(num radius, {fillStyle, strokeStyle, strokeLineWidth : 1, s
     var particles = entity.getComponent(Particles.CT) as Particles;
     if (particles == null || particles.l.isEmpty) return;
     if (strokeStyle == null && fillStyle == null) return;
-    //print("emitter.particles : ${emitter.particles.length}");
-    g.beginPath();
     particles.l.forEach((p) {
       var pos = p.position3d;
       if (pos != null) {
+        g.beginPath();
         //g.moveTo(pos.x, pos.y);
         //print('${pos.x} // ${pos.y}');
         g.arc(pos.x, pos.y, radius, 0, math.PI*2,true);
+        g.closePath();
       }
     });
-    g.closePath();
     if (fillStyle != null) {
       g.fillStyle = fillStyle;
       g.fill();

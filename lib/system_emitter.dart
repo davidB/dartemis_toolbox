@@ -57,6 +57,7 @@ class Emitter extends Component {
   /// true => generate one Entity with Particles
   /// false => genere several empty Entity (no Particles,...)
   bool genParticles = true;
+  bool once = false;
 }
 
 class System_Emitters extends EntityProcessingSystem {
@@ -83,6 +84,7 @@ class System_Emitters extends EntityProcessingSystem {
 //    em.particles.addAll(np);
 //    em.activities.forEach((ue) => ue(_dt));
 //    em.actions.forEach((up) => up(_dt, em.particles));
+    if (em.once) entity.deleteFromWorld();
   }
 
   List<Entity> _genEntities( int nb) {
@@ -100,14 +102,12 @@ class System_Emitters extends EntityProcessingSystem {
 Initializer particlesStartPosition(Vec3Gen gen, bool fromEmitter) => (dt, Entity emitter, List<Entity> es) {
   var tf = emitter.getComponent(Transform.CT) as Transform;
   var pos = tf.position3d;
-  //print("init on ${es.length} entities");
   es.forEach((e) {
     var ps = e.getComponent(Particles.CT) as Particles;
     if (ps != null) {
       //print("init on ${ps.l.length} particles");
       ps.l.forEach((p) {
         p.position3d = gen(dt);
-        //print(p.position3d);
         if (fromEmitter) p.position3d.add(pos);
       });
     }
@@ -126,10 +126,19 @@ Initializer addComponents(List<Function> fs) => (dt, Entity emitter, List<Entity
 IntGen zero() => (dt) => 0;
 
 /// [rate] The number of particles to emit per second.
-IntGen steady(int rate) => (dt) => (rate * dt) ~/ 1000;
-
-IntGen easingOverTime(ease.Ease easing, num change, num baseValue){
+///TODO manage case where rate * dt < 1000
+IntGen steady(int rate) {
   num _acc = 0;
+  num _rateInv = 1000/rate;
+  return (dt){
+    _acc += dt;
+    var b = (rate * _acc) ~/ 1000;
+    _acc -= b * _rateInv;
+    return b;
+  };
+}
+IntGen easingOverTime(ease.Ease easing, num change, num baseValue){
+  num _acc = 0.0;
   return (dt){
     _acc += dt;
     return easing(_acc, change, baseValue).toInt();
@@ -144,7 +153,6 @@ Vec3Gen constant(vec3 x) => (dt) => x.clone();
 Vec3Gen line(vec3 start, vec3 end, ease.Ease easing){
   var length = end - start;
   var acc = 0.0;
-  print(length);
   return (dt){
     var b = length.scaled(easing(acc, 1.0, 0)).add(start);
     acc += dt;
