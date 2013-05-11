@@ -40,6 +40,7 @@ import 'dart:html';
 import 'dart:math' as math;
 import 'package:dartemis_addons/transform.dart';
 import 'package:dartemis_addons/system_particles.dart';
+import 'package:dartemis_addons/system_verlet.dart';
 import 'package:vector_math/vector_math.dart';
 
 typedef void DrawCanvas(CanvasRenderingContext2D g, Entity e, vec2 area);
@@ -171,7 +172,7 @@ DrawCanvas disc(num radius, {fillStyle, strokeStyle, strokeLineWidth : 1, stroke
   area.y = radius.toDouble();
 };
 
-DrawCanvas text(String txt, {fillStyle, strokeStyle, strokeLineWidth : 1, strokeLineDashOffset : 0, textAlign : null})  => (CanvasRenderingContext2D g, Entity e,area) {
+DrawCanvas text(String txt, {fillStyle, strokeStyle, strokeLineWidth : 1, strokeLineDashOffset : 0, textAlign : null, font: null})  => (CanvasRenderingContext2D g, Entity e,area) {
   if (strokeStyle == null && fillStyle == null) return;
   //if (textAlign != null) g.textAlign = textAlign;
   if (fillStyle != null) {
@@ -182,6 +183,7 @@ DrawCanvas text(String txt, {fillStyle, strokeStyle, strokeLineWidth : 1, stroke
     g.strokeStyle = strokeStyle;
     g.lineWidth = strokeLineWidth;
     g.lineDashOffset = strokeLineDashOffset;
+    if (font != null) g.font = font;
     g.strokeText(txt, 0, 0);
   }
   //TODO var m = g.measureText(txt);
@@ -194,16 +196,16 @@ DrawCanvas particles(num radius, {fillStyle, strokeStyle, strokeLineWidth : 1, s
     var particles = entity.getComponent(Particles.CT) as Particles;
     if (particles == null || particles.l.isEmpty) return;
     if (strokeStyle == null && fillStyle == null) return;
+    g.beginPath();
     particles.l.forEach((p) {
       var pos = p.position3d;
       if (pos != null) {
-        g.beginPath();
-        //g.moveTo(pos.x, pos.y);
+        g.moveTo(pos.x, pos.y);
         //print('${pos.x} // ${pos.y}');
         g.arc(pos.x, pos.y, radius, 0, math.PI*2,true);
-        g.closePath();
       }
     });
+    g.closePath();
     if (fillStyle != null) {
       g.fillStyle = fillStyle;
       g.fill();
@@ -219,3 +221,57 @@ DrawCanvas particles(num radius, {fillStyle, strokeStyle, strokeLineWidth : 1, s
 //    area.y = radius.toDouble();
   };
 }
+
+drawCDistance(g, Constraint_Distance x, strokeStyle) {
+  g.beginPath();
+  g.moveTo(x.a.x, x.a.y);
+  g.lineTo(x.b.x, x.b.y);
+  g.strokeStyle = strokeStyle; //
+  g.stroke();
+}
+
+drawCPin(g, Constraint_Pin x, fillStyle) {
+  g.beginPath();
+  g.arc(x.pin.x, x.pin.y, 6, 0, 2*math.PI);
+  g.fillStyle = fillStyle;//;
+  g.fill();
+}
+
+//TODO write arc in the angle
+drawCAngle(g, Constraint_AngleXY x, strokeStyle) {
+  g.beginPath();
+  g.moveTo(x.a.x, x.a.y);
+  g.lineTo(x.b.x, x.b.y);
+  g.lineTo(x.c.x, x.c.y);
+  var tmp = g.lineWidth;
+  g.lineWidth = 5;
+  g.strokeStyle = strokeStyle;//;
+  g.stroke();
+  g.lineWidth = tmp;
+}
+
+DrawCanvas drawConstraints({pinStyle : "rgba(0,153,255,0.1)", distanceStyle : "#d8dde2", angleStyle:"rgba(255,255,0,0.2)"}) => (CanvasRenderingContext2D g, Entity e, area) {
+  var cs = e.getComponent(Constraints.CT) as Constraints;
+  cs.l.forEach((x) {
+    if (distanceStyle != null && x is Constraint_Distance)
+      drawCDistance(g, x, distanceStyle);
+    else if (pinStyle != null && x is Constraint_Pin)
+      drawCPin(g, x, pinStyle);
+    else if (angleStyle != null && x is Constraint_AngleXY)
+      drawCAngle(g, x, angleStyle);
+  });
+};
+
+class DrawComponentType {
+  final ComponentType ct;
+  final DrawCanvas draw;
+  DrawComponentType(this.ct, this.draw);
+}
+
+DrawCanvas drawComponentType(List<DrawComponentType> l) => (CanvasRenderingContext2D g, Entity e, area) {
+  l.forEach((i) {
+    if (e.getComponent(i.ct) != null) {
+      i.draw(g, e, area);
+    }
+  });
+};

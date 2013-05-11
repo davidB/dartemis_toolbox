@@ -31,17 +31,19 @@ void _route(String hash) {
   var k = (hash != null && hash.length < 2)? null : hash.substring(2);
   print("k :: ${k}");
   if (k == null) {
-    window.location.hash = '/demo0';
+    window.location.hash = '/${initDemo.keys.first}';
     return;
   }
   var initEntities = initDemo[k];
   if (initEntities == null) {
-    window.location.hash = '/demo0';
+    window.location.hash = '/${initDemo.keys.first}';
     return;
   }
   activeDemo = k;
   init(initEntities).then(start);
 }
+
+var sim = new System_Simulator(step:16);
 
 Future init(initEntities) => handleError((){
   var world = new World();
@@ -51,7 +53,7 @@ Future init(initEntities) => handleError((){
   //world.addSystem(new System_Physics(false), passive : false);
   world.addSystem(new System_Animator());
   world.addSystem(new System_Emitters());
-  world.addSystem(new System_Simulator(step:16));
+  world.addSystem(sim);
   // Dart is single Threaded, and System doesn't run in // => component aren't
   // modified concurrently => Render3D.process like other System
   //world.addSystem(new System_Render3D(container), passive : false);
@@ -123,18 +125,18 @@ const STYLE0_M0 = '#4040f7'; //monochromatique
 const STYLE0_M1 = '#9295f7';
 @observable
 final initDemo = {
-  'demo0' : (world) {
+  'proto2d' : (world) {
     addNewEntity(world, [
       new Transform.w2d(50.0, 50.0, 0.0),
       new proto.Drawable(proto.rect(10.0,10.0, fillStyle : STYLE0_M1, strokeStyle : STYLE0))
     ]);
     addNewEntity(world, [
       new Transform.w2d(0.0, 20.0, 0.0),
-      new proto.Drawable(proto.text("Hello World", strokeStyle : STYLE0))
+      new proto.Drawable(proto.text("Hello World, choose an other demo in the list", strokeStyle : STYLE0, font: '16px sans-serif'))
     ]);
     return new Future.value(world);
   },
-  'demo1' : (world) {
+  'proto2d + animatable' : (world) {
     addNewEntity(world, [
       new Transform.w2d(50.0, 50.0, 0.0),
       new proto.Drawable(proto.rect(10.0, 20.0, fillStyle : STYLE0_M1, strokeStyle : STYLE0)),
@@ -152,7 +154,7 @@ final initDemo = {
     ]);
     return new Future.value(world);
   },
-  'demo2' : (world) {
+  'proto2d + animatable + emitter (particles)' : (world) {
 //    var e0 = addNewEntity(world, [
 //      new Transform.w2d(50.0, 50.0, 0.0),
 //      new proto.Drawable(proto.rect(10.0,10.0, fillStyle : 'blue', strokeStyle : 'red')),
@@ -201,18 +203,34 @@ final initDemo = {
     ]);
     return new Future.value(world);
   },
-//  'demo3' : (world) {
-//    sim.friction = 1;
-//
-//    // entities
-//    var segment = sim.lineSegments([new Vec2(20,10), new Vec2(40,10), new Vec2(60,10), new Vec2(80,10), new Vec2(100,10)], 0.02);
-//    var pin = segment.pin(0);
-//    var pin = segment.pin(4);
-//
-//    var tire1 = sim.tire(new Vec2(200,50), 50, 30, 0.3, 0.9);
-//    var tire2 = sim.tire(new Vec2(400,50), 70, 7, 0.1, 0.2);
-//    var tire3 = sim.tire(new Vec2(600,50), 70, 3, 1, 1);
-//
-//  }
+  'verlet shapes' : (world) {
+    sim.friction = 1.0;
+    var defaultDraw = proto.drawComponentType([
+      new proto.DrawComponentType(Particles.CT, proto.particles(3.0, fillStyle : STYLE0, strokeStyle : STYLE1)),
+      new proto.DrawComponentType(Constraints.CT, proto.drawConstraints())
+    ]);
+
+    // entities
+    var segment = addNewEntity(world,
+      makeLineSegments(
+        [
+          new vec3(20.0, 10.0, 0.0),
+          new vec3(40.0, 10.0, 0.0),
+          new vec3(60.0, 10.0, 0.0),
+          new vec3(80.0, 10.0, 0.0),
+          new vec3(100.0,10.0, 0.0)
+        ],
+        0.02,
+        false
+      ).toList()..add(new proto.Drawable(defaultDraw))
+    );
+    pinParticle(segment, 0);
+    pinParticle(segment, 4);
+
+    addNewEntity(world, makeTireXY(new vec3(200.0, 50.0, 0.0), 50.0, 30, 0.3, 0.9).toList()..add(new proto.Drawable(defaultDraw)));
+    addNewEntity(world, makeTireXY(new vec3(400.0, 50.0, 0.0), 70.0, 7, 0.1, 0.2).toList()..add(new proto.Drawable(defaultDraw)));
+    addNewEntity(world, makeTireXY(new vec3(600.0, 50.0, 0.0), 70.0, 3, 1.0, 1.0).toList()..add(new proto.Drawable(defaultDraw)));
+    return new Future.value(world);
+  }
 };
 
