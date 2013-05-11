@@ -31,7 +31,7 @@ import 'package:dartemis/dartemis.dart';
 import 'package:vector_math/vector_math.dart';
 
 class Particle {
-  vec3 position3d = null;
+  final vec3 position3d;
 
   vec3 position3dPrevious = null;
 
@@ -58,11 +58,12 @@ class Particle {
 
   /// Whether the particle is dead and should be removed from the stage.
 //  var isDead = false;
+  Particle([pos]): position3d = (pos==null)? new vec3.zero() : pos;
 }
 
 class Particles extends Component {
   static final CT = ComponentTypeManager.getTypeFor(Particles);
-  final l;
+  final List<Particle> l;
 
   Particles([nb = 0]) :
     l = (nb == 0)

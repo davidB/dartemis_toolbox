@@ -46,7 +46,7 @@ typedef int IntGen(dt);
 /// generate a [vec3]
 /// (eg. used by [Emitter]'s [Initializer] to found the relative start position or initial velocity,...)).
 /// [dt] is delta time since last call (the duration of the frame - used for time based updates).
-typedef vec3 Vec3Gen(dt);
+typedef vec3 Vec3GenInto(vec3 v, dt);
 
 class Emitter extends Component {
   static final CT = ComponentTypeManager.getTypeFor(Emitter);
@@ -99,7 +99,7 @@ class System_Emitters extends EntityProcessingSystem {
 }
 
 //--- Initializer --------------------------------------------------------------
-Initializer particlesStartPosition(Vec3Gen gen, bool fromEmitter) => (dt, Entity emitter, List<Entity> es) {
+Initializer particlesStartPosition(Vec3GenInto gen, bool fromEmitter) => (dt, Entity emitter, List<Entity> es) {
   var tf = emitter.getComponent(Transform.CT) as Transform;
   var pos = tf.position3d;
   es.forEach((e) {
@@ -107,9 +107,11 @@ Initializer particlesStartPosition(Vec3Gen gen, bool fromEmitter) => (dt, Entity
     if (ps != null) {
       //print("init on ${ps.l.length} particles");
       ps.l.forEach((p) {
-        p.position3d = gen(dt);
+        gen(p.position3d, dt);
+        //print(p.position3d);
         if (fromEmitter) p.position3d.add(pos);
       });
+      //print("----");
     }
   });
 };
@@ -132,7 +134,8 @@ IntGen steady(int rate) {
   num _rateInv = 1000/rate;
   return (dt){
     _acc += dt;
-    var b = (rate * _acc) ~/ 1000;
+    var b = ((rate * _acc) / 1000).round();
+    //print("${b * 1000/_acc} ---- ${b} --- ${_acc}");
     _acc -= b * _rateInv;
     return b;
   };
@@ -148,15 +151,15 @@ IntGen easingOverTime(ease.Ease easing, num change, num baseValue){
 //--- Vec3Gen ------------------------------------------------------------------
 
 /// always return 0.
-Vec3Gen constant(vec3 x) => (dt) => x.clone();
+Vec3GenInto constant(vec3 x) => (v, dt) => v.setFrom(x);
 
-Vec3Gen line(vec3 start, vec3 end, ease.Ease easing){
+Vec3GenInto line(vec3 start, vec3 end, ease.Ease easing){
   var length = end - start;
   var acc = 0.0;
-  return (dt){
-    var b = length.scaled(easing(acc, 1.0, 0)).add(start);
+  return (v, dt){
+    v.setFrom(length).scale(easing(acc, 1.0, 0)).add(start);
     acc += dt;
-    return b;
+    return v;
   };
 }
 
@@ -172,13 +175,13 @@ vec3 perpendicular(vec3 v) {
   }
 }
 
-Vec3Gen cone({vec3 apex, vec3 axis, double angle : 0.0, double height : 10.0, double truncatedHeight : 0.0} ){
+Vec3GenInto cone({vec3 apex, vec3 axis, double angle : 0.0, double height : 10.0, double truncatedHeight : 0.0} ){
   apex = (apex == null) ? new vec3() : apex;
   axis = (axis  == null)?  VY_AXIS : axis;
   var _perp1 = perpendicular(axis);
   var _perp2 = axis.cross( _perp1 ).normalize();
   var random = new math.Random();
-  return (dt){
+  return (v, dt){
     var h = random.nextDouble();
     h = truncatedHeight + ( 1 - h * h ) * ( height - truncatedHeight );
 
@@ -191,11 +194,12 @@ Vec3Gen cone({vec3 apex, vec3 axis, double angle : 0.0, double height : 10.0, do
     p1.scale( r * math.cos( a ) );
     var p2  = _perp2.clone();
     p2.scale( r * math.sin( a ) );
-    var ax  = axis.clone();
-    ax.scale( h );
-    p1.add( p2 );
-    p1.add( ax );
-    return p1.add(apex);
+    return v.setFrom(axis)
+      .scale( h )
+      .add(p1)
+      .add(p2)
+      .add(apex)
+      ;
   };
 }
 
