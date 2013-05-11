@@ -115,24 +115,29 @@ Future initDemo0(world) {
 
 @observable
 var activeDemo = null;
-
+const STYLE0 = '#e3e3f8';
+const STYLE1 = '#f7e4ed'; //tetrad
+const STYLE2 = '#f7f7e4';
+const STYLE3 = '#e4f7ed';
+const STYLE0_M0 = '#4040f7'; //monochromatique
+const STYLE0_M1 = '#9295f7';
 @observable
 final initDemo = {
   'demo0' : (world) {
     addNewEntity(world, [
       new Transform.w2d(50.0, 50.0, 0.0),
-      new proto.Drawable(proto.rect(10.0,10.0, fillStyle : 'blue', strokeStyle : 'red'))
+      new proto.Drawable(proto.rect(10.0,10.0, fillStyle : STYLE0_M1, strokeStyle : STYLE0))
     ]);
     addNewEntity(world, [
       new Transform.w2d(0.0, 20.0, 0.0),
-      new proto.Drawable(proto.text("Hello World", fillStyle : 'green', strokeStyle : 'yellow'))
+      new proto.Drawable(proto.text("Hello World", strokeStyle : STYLE0))
     ]);
     return new Future.value(world);
   },
   'demo1' : (world) {
     addNewEntity(world, [
       new Transform.w2d(50.0, 50.0, 0.0),
-      new proto.Drawable(proto.rect(10.0,10.0, fillStyle : 'blue', strokeStyle : 'red')),
+      new proto.Drawable(proto.rect(10.0, 20.0, fillStyle : STYLE0_M1, strokeStyle : STYLE0)),
       new Animatable()
         ..add(new Animation()
           ..onTick = (e, t, t0) {
@@ -167,14 +172,14 @@ final initDemo = {
       new Transform.w2d(50.0, 50.0, 0.0),
       new Emitter()
         ..genParticles = true
-        ..counter = steady(10)
+        ..counter = steady(100)
         ..initializers.add(particlesStartPosition(
             //constant(new vec3.zero())
             line(new vec3(0.0, 0.0, 0.0), new vec3(800.0, 100.0, 0.0), ease.periodicRatio(ease.random, 3000))
           , true
         ))
         ..initializers.add(addComponents([
-          () => new proto.Drawable(proto.particles(3.0, fillStyle : 'red', strokeStyle : 'black')),
+          () => new proto.Drawable(proto.particles(3.0, fillStyle : STYLE0, strokeStyle : STYLE1)),
           () => new Animatable()
             ..add(new Animation()
               ..onTick = (e, t, t0) {
