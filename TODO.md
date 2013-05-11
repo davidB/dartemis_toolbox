@@ -1,4 +1,6 @@
 - [ ] link demo into apidoc
+- [ ] display stats : timespent in system
+- [ ] display stats : nb of entities, nb of particles
 - [ ] port zone from [flint](http://flintparticles.org)
 - [ ] port sample from [Simulate Tearable Cloth and Ragdolls With Simple Verlet Integration](http://gamedev.tutsplus.com/tutorials/implementation/simulate-fabric-and-ragdolls-with-simple-verlet-integration/)
 - [ ] port sample from [Make Your Game Pop With Particle Effects and Quadtrees](http://gamedev.tutsplus.com/tutorials/implementation/make-your-game-pop-with-particle-effects-and-quadtrees/)
