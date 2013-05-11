@@ -1,0 +1,21 @@
+#  humanstxt.org
+#  The humans responsible & technology colophon
+
+# TEAM
+
+	Lead: David Bernard
+	Github: http://github.com/davidB
+	From: Chartres, France
+
+# THANKS
+
+                            
+# SITE
+
+	Language: English
+	Standards: HTML5, CSS3, Dart
+	Doctype:HTML5
+	Components: dartemis, dartbox2d, bootwatch 
+	Software: DartEditor, Vim, Inkscape, Chromium, Firefox, Arch Linux, Ant
+	Fonts: Font-Awesome, weloveiconfonts.com
+	Host: Github

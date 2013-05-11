@@ -1,0 +1,11 @@
+- [ ] link demo into apidoc
+- [ ] port zone from [flint](http://flintparticles.org)
+- [ ] port sample from [Simulate Tearable Cloth and Ragdolls With Simple Verlet Integration](http://gamedev.tutsplus.com/tutorials/implementation/simulate-fabric-and-ragdolls-with-simple-verlet-integration/)
+- [ ] port sample from [Make Your Game Pop With Particle Effects and Quadtrees](http://gamedev.tutsplus.com/tutorials/implementation/make-your-game-pop-with-particle-effects-and-quadtrees/)
+- [ ] port sample from [flave](https://code.google.com/p/flave/) into demos
+- [ ] port sample from [verlet-js](https://github.com/subprotocol/verlet-js) into demos 
+- [ ] port sample from [flint](http://flintparticles.org) into demos
+- [ ] port [tinycolor](http://bgrins.github.io/TinyColor/docs/tinycolor.html) + test + demo
+- [ ] use tinycolor into other demos (in paperblue)
+- [ ] port stuff from D3.js ? 
+- [ ] add quadtree 
