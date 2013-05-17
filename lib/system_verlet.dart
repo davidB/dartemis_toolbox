@@ -253,7 +253,7 @@ Iterable<Component> makeCloth(vec3 origin, vec3 width, vec3 height, int segments
     for (var x = 1; x < segments; ++x) {
 //      var px = origin.x + x*xStride - width/2 + xStride/2;
 //      var py = origin.y + y*yStride - height/2 + yStride/2;
-      var xi = = new Particle(x0.position3d + x * xStride);
+      var xi = new Particle(x0.position3d + x * xStride);
       ps.l.add(xi);
       cs.l.add(new Constraint_Distance(xi.position3d, ps.l[y*segments+x-1].position3d, stiffness));
       if (y > 0)
