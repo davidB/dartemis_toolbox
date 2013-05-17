@@ -1,4 +1,5 @@
 import 'dart:html';
+import 'dart:math' as math;
 import 'package:web_ui/web_ui.dart';
 import 'package:dartemis_addons/ease.dart' as ease;
 import 'package:dartemis_addons/transform.dart';
@@ -27,6 +28,9 @@ void _setupRoutes() {
   _route(window.location.hash);
 }
 
+@observable
+var activeDemo = null;
+var activeCtrl = new Future.value(new Ctrl());
 void _route(String hash) {
   var k = (hash != null && hash.length < 2)? null : hash.substring(2);
   print("k :: ${k}");
@@ -40,10 +44,9 @@ void _route(String hash) {
     return;
   }
   activeDemo = k;
-  init(initEntities).then(start);
+  activeCtrl.then((x) => x.running = false);
+  activeCtrl = init(initEntities).then(start);
 }
-
-var sim = new System_Simulator(step:16);
 
 Future init(initEntities) => handleError((){
   var world = new World();
@@ -53,7 +56,7 @@ Future init(initEntities) => handleError((){
   //world.addSystem(new System_Physics(false), passive : false);
   world.addSystem(new System_Animator());
   world.addSystem(new System_Emitters());
-  world.addSystem(sim);
+  world.addSystem(new System_Simulator(step:16));
   // Dart is single Threaded, and System doesn't run in // => component aren't
   // modified concurrently => Render3D.process like other System
   //world.addSystem(new System_Render3D(container), passive : false);
@@ -66,21 +69,26 @@ Future init(initEntities) => handleError((){
   return initEntities(world);
 });
 
+class Ctrl {
+  var running = true;
+}
 
 start(world) {
   var lastT = -1;
+  var ctrl = new Ctrl();
   loop(num highResTime) => handleError((){
     try {
       world.delta = (lastT > 0)? highResTime - lastT : 0;
       world.process();
       lastT = highResTime;
-      window.requestAnimationFrame(loop);
+      if (ctrl.running) window.requestAnimationFrame(loop);
     } on Object catch(e,s) {
       print(e);
       print(s);
     }
   });
   window.requestAnimationFrame(loop);
+  return ctrl;
 }
 
 handleError(f) {
@@ -115,8 +123,6 @@ Future initDemo0(world) {
   return new Future.value(world);
 }
 
-@observable
-var activeDemo = null;
 const STYLE0 = '#e3e3f8';
 const STYLE1 = '#f7e4ed'; //tetrad
 const STYLE2 = '#f7f7e4';
@@ -184,19 +190,29 @@ final initDemo = {
           () => new proto.Drawable(proto.particles(3.0, fillStyle : STYLE0, strokeStyle : STYLE1)),
           () => new Animatable()
             ..add(new Animation()
-              ..onTick = (e, t, t0) {
-                var ps = e.getComponent(Particles.CT);
-                var ratio = (t - t0) / 10000;
-                ps.l.forEach((p) {
-                //Improvement cache ease.loop result
-                // use t as ratio because periodicRatio will convert it 0..1
-                  p.position3d.y += ease.inBounce(ratio, 30, 0);
-                });
-                return (ratio < 1.0);
-              }
+              ..onTick = () {
+                //workaround use a closure to memorize initial state
+                var ys0 = [];
+                return (e, t, t0) {
+                  var ps = e.getComponent(Particles.CT);
+                  var ratio = (t - t0) / 10000;
+                  if (t == t0) { // store in parent closure
+                    // ps.l.map generate a MappedListIterable, with fixed size List I 'force' an optimzed List for call [i]
+                    ys0 = new List(ps.l.length);
+                    for( var i = ps.l.length - 1; i > -1; --i) {
+                      ys0[i] = ps.l[i].position3d.y;
+                    }
+                  }
+                  for( var i = ps.l.length - 1; i > -1; --i) {
+                    //Improvement cache ease.loop result
+                    // use t as ratio because periodicRatio will convert it 0..1
+                    ps.l[i].position3d.y = ease.inBounce(ratio, 200, ys0[i]);
+                  }
+                  return (ratio < 1.0);
+                };
+              }()
               ..onEnd = (e, t, t0) {
                 e.deleteFromWorld();
-                return false;
               }
             )
         ])),
@@ -204,9 +220,9 @@ final initDemo = {
     return new Future.value(world);
   },
   'verlet shapes' : (world) {
-    sim.friction = 1.0;
+    world.getSystem(System_Simulator).friction = 1.0;
     var defaultDraw = proto.drawComponentType([
-      new proto.DrawComponentType(Particles.CT, proto.particles(3.0, fillStyle : STYLE0, strokeStyle : STYLE1)),
+      new proto.DrawComponentType(Particles.CT, proto.particles(5.0, fillStyle : STYLE0, strokeStyle : STYLE1)),
       new proto.DrawComponentType(Constraints.CT, proto.drawConstraints())
     ]);
 
@@ -230,6 +246,56 @@ final initDemo = {
     addNewEntity(world, makeTireXY(new vec3(200.0, 50.0, 0.0), 50.0, 30, 0.3, 0.9).toList()..add(new proto.Drawable(defaultDraw)));
     addNewEntity(world, makeTireXY(new vec3(400.0, 50.0, 0.0), 70.0, 7, 0.1, 0.2).toList()..add(new proto.Drawable(defaultDraw)));
     addNewEntity(world, makeTireXY(new vec3(600.0, 50.0, 0.0), 70.0, 3, 1.0, 1.0).toList()..add(new proto.Drawable(defaultDraw)));
+    return new Future.value(world);
+  },
+  'quadtree' : (world) {
+    world.getSystem(System_Simulator).friction = 1.0;
+    addNewEntity(world, [
+      new Transform.w2d(50.0, 50.0, 0.0),
+      new Emitter()
+      ..genParticles = true
+      ..counter = singleWave(500)
+      ..initializers.add(particlesStartPosition(
+        //constant(new vec3.zero())
+          box(new vec3(500.0, 500.0, 0.0), new vec3(400.0, 400.0, 0.0))
+        , true
+      ))
+      ..initializers.add(particlesStartPositionPrevious(box(new vec3.zero(), new vec3(3.0, 3.0, 0.0))))
+      ..initializers.add(particlesAddComponents([
+        (lg){
+          var b = new ParticleInfo0s(lg);
+          b.l.forEach((p){
+            p.radius = 3.0;
+          });
+          return b;
+        }
+      ]))
+      ..initializers.add(addComponents([
+        () => new proto.Drawable(proto.particleInfo0s(3.0, fillStyle : STYLE0, strokeStyle : STYLE1)),
+        () => new Constraints(),
+        () => new Animatable()
+          ..add(new Animation()
+            ..onTick = (e, t, t0) {
+               var ps = e.getComponent(Particles.CT);
+               var cont = true;
+               for( var i = ps.l.length - 1; i > -1; --i) {
+                 cont = true;
+                 cont = cont && ps.l[i].position3d.y > 0;
+                 cont = cont && ps.l[i].position3d.y < 1000;
+                 cont = cont && ps.l[i].position3d.x > 0;
+                 cont = cont && ps.l[i].position3d.x < 1000;
+                 if (!cont) {
+                   ps.l[i].position3d.setFrom(ps.l[i].position3dPrevious);
+                 }
+               }
+               return true;//cont;
+             }
+             ..onEnd = (e, t, t0) {
+               e.deleteFromWorld();
+             }
+          )
+      ])),
+    ]);
     return new Future.value(world);
   }
 };
