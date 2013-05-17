@@ -41,6 +41,7 @@ import 'dart:math' as math;
 import 'package:dartemis_addons/transform.dart';
 import 'package:dartemis_addons/system_particles.dart';
 import 'package:dartemis_addons/system_verlet.dart';
+import 'package:dartemis_addons/colors.dart';
 import 'package:vector_math/vector_math.dart';
 
 typedef void DrawCanvas(CanvasRenderingContext2D g, Entity e, vec2 area);
@@ -200,7 +201,7 @@ DrawCanvas particles(num radius, {fillStyle, strokeStyle, strokeLineWidth : 1, s
     particles.l.forEach((p) {
       var pos = p.position3d;
       if (pos != null) {
-        g.moveTo(pos.x, pos.y);
+        g.moveTo(pos.x + radius, pos.y);
         //print('${pos.x} // ${pos.y}');
         g.arc(pos.x, pos.y, radius, 0, math.PI*2,true);
       }
@@ -215,6 +216,43 @@ DrawCanvas particles(num radius, {fillStyle, strokeStyle, strokeLineWidth : 1, s
       g.lineWidth = strokeLineWidth;
       g.lineDashOffset = strokeLineDashOffset;
       g.stroke();
+    }
+    //TODO define the area
+//    area.x = radius.toDouble();
+//    area.y = radius.toDouble();
+  };
+}
+
+DrawCanvas particleInfo0s(num radius, {fillStyle, strokeStyle, strokeLineWidth : 1, strokeLineDashOffset : 0}){
+  return (CanvasRenderingContext2D g, Entity entity, area) {
+    var particle0s = entity.getComponent(Particles.CT) as Particles;
+    var particleInfo0s = entity.getComponent(ParticleInfo0s.CT) as ParticleInfo0s;
+    if (particle0s == null || particle0s.l.isEmpty) {
+      return particles(radius, fillStyle : fillStyle, strokeStyle : strokeStyle, strokeLineWidth : strokeLineWidth, strokeLineDashOffset : strokeLineDashOffset)(g, entity, area);
+    }
+    for(var i = particle0s.l.length - 1; i > -1; --i){
+      var p = particle0s.l[i];
+      var pos = p.position3d;
+      if (pos != null) {
+        var p0 = particleInfo0s.l[i];
+        var radius0 = (p0 != null) ? p0.radius * p0.scale : radius;
+        var fillStyle0 = (p0 != null) ? irgb2rgbString(p0.color) : fillStyle;
+        //g.moveTo(pos.x, pos.y);
+        g.beginPath();
+        //print('${pos.x} // ${pos.y}');
+        g.arc(pos.x, pos.y, radius0, 0, math.PI*2,true);
+        g.closePath();
+        if (fillStyle != null) {
+          g.fillStyle = fillStyle0;
+          g.fill();
+        }
+        if (strokeStyle != null) {
+          g.strokeStyle = strokeStyle;
+          g.lineWidth = strokeLineWidth;
+          g.lineDashOffset = strokeLineDashOffset;
+          g.stroke();
+        }
+      }
     }
     //TODO define the area
 //    area.x = radius.toDouble();

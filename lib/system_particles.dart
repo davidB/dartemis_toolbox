@@ -34,31 +34,32 @@ class Particle {
   final vec3 position3d;
 
   vec3 position3dPrevious = null;
+  Particle([pos]): position3d = (pos==null)? new vec3.zero() : pos;
+}
 
+class ParticleInfo0 {
   /// The lifetime of the particle, in seconds.
-//  double lifetime = double.INFINITY;
+  double lifetime = double.INFINITY;
 
-//  int color = 0x888888;
-//
-//  /// The scale of the particle ( 1 is normal size ).
-//  double scale = 1.0;
-//
-//  /// The mass of the particle ( 1 is the default ).
-//  double mass = 1.0;
-//
-//  /// The radius of the particle, for collision approximation
-//  double collisionRadius = 1.0;
-//
-//
-//  /// The age of the particle, in seconds.
-//  double age = 0;
-//
-//  /// The energy of the particle.
-//  double energy= 1;
+  int color = 0x000000;
+
+  /// The scale of the particle ( 1 is normal size ).
+  double scale = 1.0;
+
+  /// The mass of the particle ( 1 is the default ).
+  double mass = 1.0;
+
+  /// The radius of the particle, for collision approximation
+  double radius = 1.0;
+
+  /// The age of the particle, in seconds.
+  double age = 0.0;
+
+  /// The energy of the particle.
+  double energy= 1.0;
 
   /// Whether the particle is dead and should be removed from the stage.
-//  var isDead = false;
-  Particle([pos]): position3d = (pos==null)? new vec3.zero() : pos;
+  var isDead = false;
 }
 
 class Particles extends Component {
@@ -73,6 +74,17 @@ class Particles extends Component {
 
 }
 
+class ParticleInfo0s extends Component {
+  static final CT = ComponentTypeManager.getTypeFor(ParticleInfo0s);
+  final List<ParticleInfo0> l;
+
+  ParticleInfo0s([nb = 0]) :
+    l = (nb == 0)
+      ? new List<ParticleInfo0>()
+      : new List.generate(nb, (i) => new ParticleInfo0())
+      ;
+
+}
 
 //--- UpdateP ------------------------------------------------------------------
 
