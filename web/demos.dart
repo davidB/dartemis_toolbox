@@ -227,6 +227,16 @@ final initDemo = {
           , true
         ))
       ..initializers.add(particlesStartPositionPrevious(line(new vec3.zero(), new vec3(5.0, 0.0, 0.0), ease.periodicRatio(ease.random, 3000)), true))
+      ..initializers.add(particlesAddComponents([
+        (lg){
+          var b = new ParticleInfo0s(lg);
+          b.l.forEach((p){
+            p.color = 0xff0000ff;
+            p.radius = 4.0;
+          });
+          return b;
+        }
+      ]))
       ..initializers.add(addComponents([
         () => new proto.Drawable(proto.particleInfo0s(3.0, fillStyle : STYLE0, strokeStyle : STYLE1)),
         // move by verlet simulator
@@ -234,9 +244,20 @@ final initDemo = {
         // living for 5s
         () => new Animatable()
           ..add(new Animation()
-          ..onTick = ((e, t, t0) => t - t0 < 5000)
-          ..onEnd = ((e, t, t0) => e.deleteFromWorld())
-        )
+            ..onTick = ((e, t, t0) => t - t0 < 5000)
+            ..onEnd = ((e, t, t0) => e.deleteFromWorld())
+          )
+          ..add(new Animation()
+            ..onTick = (e, t, t0){
+              var opacity = ease.onceRatio(ease.linear, 5000)(t - t0, -255.0, 255.0).toInt();
+
+              var ps = e.getComponent(ParticleInfo0s.CT);
+              ps.l.forEach((p0) {
+                p0.color = (p0.color & 0xffffff00) | opacity;
+              });
+              return t - t0 < 5001;
+            }
+          )
       ])),
       new Animatable()
         ..add(new Animation()
