@@ -18,17 +18,32 @@ main() {
 //      expect(t.toHslString(), "hsl(0, 100%, 50%)");
 //      expect(t.toName(), "red");
 //    });
-    test('irgb2vrgb',(){
-      expect(irgb2rgb(0xffffff), equalsVec3(255.0, 255.0, 255.0));
-      expect(irgb2rgb(0x000000), equalsVec3(0.0, 0.0, 0.0));
+    test('irgba2rgb',(){
+      expect(irgba2rgb(0xffffff00), equalsVec3(255.0, 255.0, 255.0));
+      expect(irgba2rgb(0xffffffff), equalsVec3(255.0, 255.0, 255.0));
+      expect(irgba2rgb(0x00000000), equalsVec3(0.0, 0.0, 0.0));
+      expect(irgba2rgb(0x000000ff), equalsVec3(0.0, 0.0, 0.0));
+    });
+    test('irgba2rgba',(){
+      expect(irgba2rgba(0xffffff00), equalsVec4(255.0, 255.0, 255.0, 0.0));
+      expect(irgba2rgba(0xffffffff), equalsVec4(255.0, 255.0, 255.0, 255.0));
+      expect(irgba2rgba(0x00000000), equalsVec4(0.0, 0.0, 0.0, 0.0));
+      expect(irgba2rgba(0x000000ff), equalsVec4(0.0, 0.0, 0.0, 255.0));
     });
   });
 }
 
 equalsVec3(x, y, z) => new AllMatcher([
-  predicate((v0) => v0.x == x, "same x"),
-  predicate((v0) => v0.y == y, "same y"),
-  predicate((v0) => v0.z == z, "same z"),
+  predicate((v0) => v0.x == x, "same x "),
+  predicate((v0) => v0.y == y, "same y "),
+  predicate((v0) => v0.z == z, "same z "),
+]);
+
+equalsVec4(x, y, z, w) => new AllMatcher([
+  predicate((v0) => v0.x == x, "same x "),
+  predicate((v0) => v0.y == y, "same y "),
+  predicate((v0) => v0.z == z, "same z "),
+  predicate((v0) => v0.w == w, "same w "),
 ]);
 
 class AllMatcher extends Matcher{

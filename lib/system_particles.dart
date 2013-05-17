@@ -41,7 +41,7 @@ class ParticleInfo0 {
   /// The lifetime of the particle, in seconds.
   double lifetime = double.INFINITY;
 
-  int color = 0x000000;
+  int color = 0x000000ff;
 
   /// The scale of the particle ( 1 is normal size ).
   double scale = 1.0;

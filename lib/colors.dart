@@ -31,15 +31,29 @@ library colors;
 import 'dart:math';
 import 'package:vector_math/vector_math.dart';
 
-irgb2rgb(int v) {
+irgba2rgb(int v) {
   return new vec3(
-      ((v & 0xff0000) >> 16).toDouble(),
-      ((v & 0x00ff00) >> 8).toDouble(),
-      (v & 0x0000ff).toDouble()
+      ((v & 0xff000000) >> 24).toDouble(),
+      ((v & 0x00ff0000) >> 16).toDouble(),
+      ((v & 0x0000ff00) >> 8 ).toDouble()
   );
 }
 
-irgb2rgbString(int v) {
-  var rgb = irgb2rgb(v);
+irgba2rgbString(int v) {
+  var rgb = irgba2rgb(v);
   return 'rgb(${rgb.x.toInt()}, ${rgb.y.toInt()}, ${rgb.z.toInt()})';
+}
+
+irgba2rgba(int v) {
+  return new vec4(
+      ((v & 0xff000000) >> 24).toDouble(),
+      ((v & 0x00ff0000) >> 16).toDouble(),
+      ((v & 0x0000ff00) >> 8 ).toDouble(),
+      ((v & 0x000000ff)      ).toDouble()
+  );
+}
+
+irgba2rgbaString(int v) {
+  var rgba = irgba2rgba(v);
+  return 'rgba(${rgba.x.toInt()}, ${rgba.y.toInt()}, ${rgba.z.toInt()}, ${rgba.w / 255.0})';
 }
