@@ -194,11 +194,11 @@ DrawCanvas text(String txt, {fillStyle, strokeStyle, strokeLineWidth : 1, stroke
 
 DrawCanvas particles(num radius, {fillStyle, strokeStyle, strokeLineWidth : 1, strokeLineDashOffset : 0}){
   return (CanvasRenderingContext2D g, Entity entity, area) {
-    var particles = entity.getComponent(Particles.CT) as Particles;
-    if (particles == null || particles.l.isEmpty) return;
+    var particle0s = entity.getComponent(Particles.CT) as Particles;
+    if (particle0s == null || particle0s.l.isEmpty) return;
     if (strokeStyle == null && fillStyle == null) return;
     g.beginPath();
-    particles.l.forEach((p) {
+    particle0s.l.forEach((p) {
       var pos = p.position3d;
       if (pos != null) {
         g.moveTo(pos.x + radius, pos.y);
@@ -226,8 +226,9 @@ DrawCanvas particles(num radius, {fillStyle, strokeStyle, strokeLineWidth : 1, s
 DrawCanvas particleInfo0s(num radius, {fillStyle, strokeStyle, strokeLineWidth : 1, strokeLineDashOffset : 0}){
   return (CanvasRenderingContext2D g, Entity entity, area) {
     var particle0s = entity.getComponent(Particles.CT) as Particles;
+    if (particle0s == null || particle0s.l.isEmpty) return;
     var particleInfo0s = entity.getComponent(ParticleInfo0s.CT) as ParticleInfo0s;
-    if (particle0s == null || particle0s.l.isEmpty) {
+    if (particleInfo0s == null || particleInfo0s.l.isEmpty) {
       return particles(radius, fillStyle : fillStyle, strokeStyle : strokeStyle, strokeLineWidth : strokeLineWidth, strokeLineDashOffset : strokeLineDashOffset)(g, entity, area);
     }
     for(var i = particle0s.l.length - 1; i > -1; --i){
