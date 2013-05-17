@@ -277,6 +277,7 @@ final initDemo = {
     addNewEntity(world, makeTireXY(new vec3(200.0, 50.0, 0.0), 50.0, 30, 0.3, 0.9).toList()..add(new proto.Drawable(defaultDraw)));
     addNewEntity(world, makeTireXY(new vec3(400.0, 50.0, 0.0), 70.0, 7, 0.1, 0.2).toList()..add(new proto.Drawable(defaultDraw)));
     addNewEntity(world, makeTireXY(new vec3(600.0, 50.0, 0.0), 70.0, 3, 1.0, 1.0).toList()..add(new proto.Drawable(defaultDraw)));
+    addNewEntity(world, makeCloth(new vec3(800.0, 50.0, 0.0), new vec3(300.0, 0.0, 0.0), new vec3(0.0, 200.0, 0.0), 15, 3, 0.5).toList()..add(new proto.Drawable(defaultDraw)));
     return new Future.value(world);
   },
   'quadtree' : (world) {

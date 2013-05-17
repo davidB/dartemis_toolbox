@@ -240,20 +240,20 @@ Iterable<Component> makeLineSegments(List<vec3> vertices, double stiffness, bool
 }
 
 Iterable<Component> makeCloth(vec3 origin, vec3 width, vec3 height, int segments, int pinMod, double stiffness) {
-  var xStride = width / segments;
-  var yStride = height / segments;
+  var xStride = width / segments.toDouble();
+  var yStride = height / segments.toDouble();
 
   var ps = new Particles();
   var cs = new Constraints();
   for (var y=0; y < segments; ++y) {
-    var x0 = new Particle(origin + y * yStride);
+    var x0 = new Particle(origin + yStride * y.toDouble());
     ps.l.add(x0);
     if (y > 0)
       cs.l.add(new Constraint_Distance(x0.position3d, ps.l[(y-1)*segments].position3d, stiffness));
     for (var x = 1; x < segments; ++x) {
 //      var px = origin.x + x*xStride - width/2 + xStride/2;
 //      var py = origin.y + y*yStride - height/2 + yStride/2;
-      var xi = new Particle(x0.position3d + x * xStride);
+      var xi = new Particle(x0.position3d + xStride * x.toDouble());
       ps.l.add(xi);
       cs.l.add(new Constraint_Distance(xi.position3d, ps.l[y*segments+x-1].position3d, stiffness));
       if (y > 0)
