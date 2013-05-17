@@ -99,22 +99,37 @@ class System_Emitters extends EntityProcessingSystem {
 }
 
 //--- Initializer --------------------------------------------------------------
-Initializer particlesStartPosition(Vec3GenInto gen, bool fromEmitter) => (dt, Entity emitter, List<Entity> es) {
-  var tf = emitter.getComponent(Transform.CT) as Transform;
-  var pos = tf.position3d;
+processParticules(List<Entity> es, f(Particule)) {
   es.forEach((e) {
     var ps = e.getComponent(Particles.CT) as Particles;
     if (ps != null) {
       //print("init on ${ps.l.length} particles");
-      ps.l.forEach((p) {
-        gen(p.position3d, dt);
-        //print(p.position3d);
-        if (fromEmitter) p.position3d.add(pos);
-      });
-      //print("----");
+      ps.l.forEach(f);
     }
   });
+}
+Initializer particlesStartPosition(Vec3GenInto gen, bool fromEmitter) => (dt, Entity emitter, List<Entity> es) {
+  var tf = emitter.getComponent(Transform.CT) as Transform;
+  var pos = tf.position3d;
+  processParticules(es, (p) {
+    gen(p.position3d, dt);
+    //print(p.position3d);
+    if (fromEmitter) p.position3d.add(pos);
+  });
 };
+
+/// used to define a initial velocity if Verlet Simulator, also add Constraints Component
+/// should add after a Initializer that set position3d of particules
+Initializer particlesStartPositionPrevious(Vec3GenInto gen) => (dt, Entity emitter, List<Entity> es) {
+  processParticules(es, (p) {
+    p.position3dPrevious = gen(new vec3.zero(), dt).add(p.position3d);
+  });
+};
+
+// shortcut
+Initializer addParticleInfo0s() => particlesAddComponents([
+  (lg) => new ParticleInfo0s(lg)
+]);
 
 Initializer addComponents(List<Function> fs) => (dt, Entity emitter, List<Entity> es) {
   es.forEach((e){
@@ -122,10 +137,21 @@ Initializer addComponents(List<Function> fs) => (dt, Entity emitter, List<Entity
   });
 };
 
+Initializer particlesAddComponents(List<Function> fs) => (dt, Entity emitter, List<Entity> es) {
+  es.forEach((e){
+    var ps = e.getComponent(Particles.CT) as Particles;
+    if (ps != null) {
+      fs.forEach((f) => e.addComponent(f(ps.l.length)));
+    }
+  });
+};
+
 //--- IntGen -------------------------------------------------------------------
 
 /// always return 0.
 IntGen zero() => (dt) => 0;
+
+IntGen singleWave(v) => ((dt) => (dt == 0) ? v : 0);
 
 /// [rate] The number of particles to emit per second.
 ///TODO manage case where rate * dt < 1000
@@ -149,9 +175,18 @@ IntGen easingOverTime(ease.Ease easing, num change, num baseValue){
 }
 
 //--- Vec3Gen ------------------------------------------------------------------
+final _random = new math.Random();
 
-/// always return 0.
+/// always return a clone of x.
 Vec3GenInto constant(vec3 x) => (v, dt) => v.setFrom(x);
+
+Vec3GenInto box(vec3 center, vec3 offsets) => (v, dt){
+  v.setFrom(center);
+  v.x += (_random.nextDouble() - 0.5) * 2 * offsets.x;
+  v.y += (_random.nextDouble() - 0.5) * 2 * offsets.y;
+  v.z += (_random.nextDouble() - 0.5) * 2 * offsets.z;
+  return v;
+};
 
 Vec3GenInto line(vec3 start, vec3 end, ease.Ease easing){
   var length = end - start;
@@ -180,16 +215,15 @@ Vec3GenInto cone({vec3 apex, vec3 axis, double angle : 0.0, double height : 10.0
   axis = (axis  == null)?  VY_AXIS : axis;
   var _perp1 = perpendicular(axis);
   var _perp2 = axis.cross( _perp1 ).normalize();
-  var random = new math.Random();
   return (v, dt){
-    var h = random.nextDouble();
+    var h = _random.nextDouble();
     h = truncatedHeight + ( 1 - h * h ) * ( height - truncatedHeight );
 
-    var r = random.nextDouble();
+    var r = _random.nextDouble();
     var radiusAtHeight = math.tan( angle / 2 ) * h;
     r = ( 1 - r * r ) * ( h ) * radiusAtHeight;
 
-    var a = random.nextDouble() * 2 * math.PI;
+    var a = _random.nextDouble() * 2 * math.PI;
     var p1 = _perp1.clone();
     p1.scale( r * math.cos( a ) );
     var p2  = _perp2.clone();
