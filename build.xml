@@ -80,6 +80,10 @@
     <dart_check file="system_animator"/>
   </target>
 
+  <target name="colors">
+    <dart_check file="colors"/>
+  </target>
+
   <target name="ease">
     <dart_check file="ease"/>
   </target>
@@ -92,7 +96,7 @@
     <dart_check file="transform"/>
   </target>
 
-  <target name="check" depends="system_entity_state, utils, system_animator, system_simple_audio, transform, ease">
+  <target name="check" depends="system_entity_state, utils, system_animator, system_simple_audio, transform, ease, colors">
   </target>
 <!--
   <path id="tools.path">
