@@ -120,9 +120,19 @@ Initializer particlesStartPosition(Vec3GenInto gen, bool fromEmitter) => (dt, En
 
 /// used to define a initial velocity if Verlet Simulator, also add Constraints Component
 /// should add after a Initializer that set position3d of particules
-Initializer particlesStartPositionPrevious(Vec3GenInto gen) => (dt, Entity emitter, List<Entity> es) {
+Initializer particlesStartPositionPrevious(Vec3GenInto gen, bool fromEmitter) => (dt, Entity emitter, List<Entity> es) {
+  var mat4 = new mat4.identity();
+  if (fromEmitter) {
+    var tf = emitter.getComponent(Transform.CT) as Transform;
+    mat4.rotateX(tf.rotation3d.x);
+    mat4.rotateY(tf.rotation3d.y);
+    mat4.rotateZ(tf.rotation3d.z);
+  }
   processParticules(es, (p) {
-    p.position3dPrevious = gen(new vec3.zero(), dt).add(p.position3d);
+     var v = gen(new vec3.zero(), dt);
+     v = mat4.rotate3(v);
+     v.add(p.position3d);
+     p.position3dPrevious = v;
   });
 };
 
@@ -157,7 +167,7 @@ IntGen singleWave(v) => ((dt) => (dt == 0) ? v : 0);
 ///TODO manage case where rate * dt < 1000
 IntGen steady(int rate) {
   num _acc = 0;
-  num _rateInv = 1000/rate;
+  num _rateInv = (rate > 0)? 1000/rate : 0;
   return (dt){
     _acc += dt;
     var b = ((rate * _acc) / 1000).round();

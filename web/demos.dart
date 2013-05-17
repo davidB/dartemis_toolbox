@@ -176,7 +176,7 @@ final initDemo = {
 //          }
 //        )
 //    ]);
-    var e1 = addNewEntity(world, [
+    addNewEntity(world, [
       new Transform.w2d(50.0, 50.0, 0.0),
       new Emitter()
         ..genParticles = true
@@ -216,6 +216,37 @@ final initDemo = {
               }
             )
         ])),
+    ]);
+    addNewEntity(world, [
+      new Transform.w2d(600.0, 50.0, 0.0),
+      new Emitter()
+        ..genParticles = true
+        ..counter = steady(100)
+        ..initializers.add(particlesStartPosition(
+          constant(new vec3.zero())
+          , true
+        ))
+      ..initializers.add(particlesStartPositionPrevious(line(new vec3.zero(), new vec3(5.0, 0.0, 0.0), ease.periodicRatio(ease.random, 3000)), true))
+      ..initializers.add(addComponents([
+        () => new proto.Drawable(proto.particleInfo0s(3.0, fillStyle : STYLE0, strokeStyle : STYLE1)),
+        // move by verlet simulator
+        () => new Constraints(),
+        // living for 5s
+        () => new Animatable()
+          ..add(new Animation()
+          ..onTick = ((e, t, t0) => t - t0 < 5000)
+          ..onEnd = ((e, t, t0) => e.deleteFromWorld())
+        )
+      ])),
+      new Animatable()
+        ..add(new Animation()
+          ..onTick = (e, t, t0) {
+            var tf = e.getComponent(Transform.CT);
+            tf.rotation3d.z = ease.periodicRatio(ease.linear, 3000)(t - t0, math.PI * 2, 0.0);
+            //tf.position3d.x = ease.goback(ease.periodicRatio(ease.linear, 3000))(t - t0, 600.0, 0.0);
+            return true;
+          }
+        )
     ]);
     return new Future.value(world);
   },
@@ -260,7 +291,7 @@ final initDemo = {
           box(new vec3(500.0, 500.0, 0.0), new vec3(400.0, 400.0, 0.0))
         , true
       ))
-      ..initializers.add(particlesStartPositionPrevious(box(new vec3.zero(), new vec3(3.0, 3.0, 0.0))))
+      ..initializers.add(particlesStartPositionPrevious(box(new vec3.zero(), new vec3(3.0, 3.0, 0.0)), false))
       ..initializers.add(particlesAddComponents([
         (lg){
           var b = new ParticleInfo0s(lg);
