@@ -237,7 +237,7 @@ DrawCanvas particleInfo0s(num radius, {fillStyle, strokeStyle, strokeLineWidth :
       if (pos != null) {
         var p0 = particleInfo0s.l[i];
         var radius0 = (p0 != null) ? p0.radius * p0.scale : radius;
-        var fillStyle0 = (p0 != null) ? irgba2rgbaString(p0.color) : fillStyle;
+        var fillStyle0 = (p0 != null) ? irgba_rgbaString(p0.color) : fillStyle;
         //g.moveTo(pos.x, pos.y);
         g.beginPath();
         //print('${pos.x} // ${pos.y}');
