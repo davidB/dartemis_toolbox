@@ -33,14 +33,14 @@ library colors;
 import 'dart:math' as math;
 import 'package:vector_math/vector_math.dart';
 
-irgba_r255(int v) => ((v & 0xff000000) >> 24);
-irgba_r1(int v) => ((v & 0xff000000) >> 24) / 255.0;
-irgba_g255(int v) => ((v & 0x00ff0000) >> 16);
-irgba_g1(int v) => ((v & 0x00ff0000) >> 16) / 255.0;
-irgba_b255(int v) => ((v & 0x0000ff00) >> 8);
-irgba_b1(int v) => ((v & 0x0000ff00) >> 8) / 255.0;
-irgba_a255(int v) => ((v & 0x000000ff));
-irgba_a1(int v) => ((v & 0x000000ff)) / 255.0;
+irgba_r255(int c) => ((c & 0xff000000) >> 24);
+irgba_r1(int c) => ((c & 0xff000000) >> 24) / 255.0;
+irgba_g255(int c) => ((c & 0x00ff0000) >> 16);
+irgba_g1(int c) => ((c & 0x00ff0000) >> 16) / 255.0;
+irgba_b255(int c) => ((c & 0x0000ff00) >> 8);
+irgba_b1(int c) => ((c & 0x0000ff00) >> 8) / 255.0;
+irgba_a255(int c) => ((c & 0x000000ff));
+irgba_a1(int c) => ((c & 0x000000ff)) / 255.0;
 
 int rgb1_irgba(double r, double g, double b) {
   return 0x000000ff | ((r * 255).toInt() << 24) | ((g * 255).toInt() << 16) | ((b * 255).toInt() << 8);
@@ -48,10 +48,10 @@ int rgb1_irgba(double r, double g, double b) {
 
 
 // Converts an rgba (int) color value to [h, s, l] each value in [0.0, 1.0].
-List<double> irgb_hsl(int v) {
-  var r = irgba_r1(v);
-  var g = irgba_g1(v);
-  var b = irgba_r1(v);
+List<double> irgba_hsl(int c) {
+  var r = irgba_r1(c);
+  var g = irgba_g1(c);
+  var b = irgba_r1(c);
 
   var max = math.max(math.max(r, g), b);
   var min = math.min(math.min(r, g), b);
@@ -102,10 +102,10 @@ int hsl_irgba(List<double> hsl) {
 }
 
 /// Converts an rgba (int) color value to [h, s, v] each value in [0.0, 1.0].
-irgba_hsv(int v) {
-  var r = irgba_r1(v);
-  var g = irgba_g1(v);
-  var b = irgba_r1(v);
+irgba_hsv(int c) {
+  var r = irgba_r1(c);
+  var g = irgba_g1(c);
+  var b = irgba_r1(c);
 
   var max = math.max(math.max(r, g), b);
   var min = math.min(math.min(r, g), b);
@@ -128,7 +128,7 @@ irgba_hsv(int v) {
   return [h, s, v];
 }
 
-hsv_irga(List<double> hsv) {
+hsv_irgba(List<double> hsv) {
 
   var h = hsv[0] * 6;
   var s = hsv[1];
@@ -251,10 +251,10 @@ List<List<double>> hsv_monochromatic(List<double> hsv, [int results = 6]) {
 ///      expect(irgba_rgbString(0x00000000), 'rgb(0, 0, 0)');
 ///      expect(irgba_rgbString(0x000000ff), 'rgb(0, 0, 0)');
 ///    });
-irgba_rgbString(int v) {
-  var r = irgba_r255(v);
-  var g = irgba_g255(v);
-  var b = irgba_b255(v);
+irgba_rgbString(int c) {
+  var r = irgba_r255(c);
+  var g = irgba_g255(c);
+  var b = irgba_b255(c);
   return 'rgb(${r}, ${g}, ${b})';
 }
 
@@ -266,11 +266,11 @@ irgba_rgbString(int v) {
 ///      expect(irgba_rgbaString(0x00000000), 'rgba(0, 0, 0, 0.0)');
 ///      expect(irgba_rgbaString(0x000000ff), 'rgba(0, 0, 0, 1.0)');
 ///    });
-irgba_rgbaString(int v) {
-  var r = irgba_r255(v);
-  var g = irgba_g255(v);
-  var b = irgba_b255(v);
-  var a = irgba_a1(v);
+irgba_rgbaString(int c) {
+  var r = irgba_r255(c);
+  var g = irgba_g255(c);
+  var b = irgba_b255(c);
+  var a = irgba_a1(c);
   return 'rgba(${r}, ${g}, ${b}, ${a})';
 }
 
@@ -285,8 +285,8 @@ irgba_rgbaString(int v) {
 ///      expect(irgba_hexString(0x00000000), '000000');
 ///      expect(irgba_hexString(0x000000ff), '000000');
 ///    });
-irgba_hexString(int v) {
-  var x = (v >> 8) | 0x1000000; // start with 1 for padding with 0
+irgba_hexString(int c) {
+  var x = (c >> 8) | 0x1000000; // start with 1 for padding with 0
   return x.toRadixString(16).substring(1);
 }
 
