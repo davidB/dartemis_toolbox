@@ -29,7 +29,7 @@ library darticles;
 
 import 'package:dartemis/dartemis.dart';
 import 'dart:math' as math;
-import 'package:dartemis_addons/system_particles.dart';
+import 'package:dartemis_toolbox/system_particles.dart';
 import 'package:vector_math/vector_math.dart';
 
 /// Constraint is a class (vs a typedef of Function) to allow

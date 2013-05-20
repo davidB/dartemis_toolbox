@@ -1,7 +1,7 @@
 library ease_test;
 
 import 'package:unittest/unittest.dart';
-import 'package:dartemis_addons/ease.dart' as ease;
+import 'package:dartemis_toolbox/ease.dart' as ease;
 
 main() {
   group("ease start at baseValue end at baseValue + change", () {

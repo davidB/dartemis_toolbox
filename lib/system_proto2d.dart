@@ -26,7 +26,7 @@
 /// Use to debug or to prototype display in canvas
 /// use it with prefix
 ///
-///    import 'package:dartemis_addons/system_proto2d.dart' as proto;
+///    import 'package:dartemis_toolbox/system_proto2d.dart' as proto;
 ///
 /// It's an unoptimize library (ex : failed 100% of the advices at
 /// [Optimizing canvas - MDN](https://developer.mozilla.org/en-US/docs/HTML/Canvas/Tutorial/Optimizing_canvas)
@@ -38,10 +38,10 @@ library system_proto2d;
 import 'package:dartemis/dartemis.dart';
 import 'dart:html';
 import 'dart:math' as math;
-import 'package:dartemis_addons/transform.dart';
-import 'package:dartemis_addons/system_particles.dart';
-import 'package:dartemis_addons/system_verlet.dart';
-import 'package:dartemis_addons/colors.dart';
+import 'package:dartemis_toolbox/transform.dart';
+import 'package:dartemis_toolbox/system_particles.dart';
+import 'package:dartemis_toolbox/system_verlet.dart';
+import 'package:dartemis_toolbox/colors.dart';
 import 'package:vector_math/vector_math.dart';
 
 typedef void DrawCanvas(CanvasRenderingContext2D g, Entity e, vec2 area);

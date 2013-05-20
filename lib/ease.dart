@@ -25,9 +25,9 @@
 
 /**
  * A set of [Ease] function to compute intermediate value of a variable.
- * Functions can be used without dartemis or dartemis_addons (there are fully standalone)
+ * Functions can be used without dartemis or dartemis_toolbox (there are fully standalone)
  *
- * [graphical representation](http://davidb.github.io/dartemis_addons/ease_graphics.html)
+ * [graphical representation](http://davidb.github.io/dartemis_toolbox/ease_graphics.html)
  * links :
  * * [Robert Penner's Easing Functions](http://www.robertpenner.com/easing/)
  * * [Interpolation Tricks](http://sol.gfxile.net/interpolation/)

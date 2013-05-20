@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="dartemis_addons" default="check">
+<project name="dartemis_toolbox" default="check">
 
   <property environment="env" />
   <fail message="ERROR: Please set environmental variable DART_SDK">

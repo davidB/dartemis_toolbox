@@ -1,7 +1,7 @@
 import 'dart:html';
 import 'dart:math' as math;
 import 'package:web_ui/web_ui.dart';
-import 'package:dartemis_addons/colors.dart';
+import 'package:dartemis_toolbox/colors.dart';
 
 /// the main goal of the component is to show feature of colors .
 class XColorselector extends WebComponent{

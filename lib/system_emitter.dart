@@ -29,10 +29,10 @@ library system_emitter;
 
 import 'package:dartemis/dartemis.dart';
 import 'dart:math' as math;
-import 'package:dartemis_addons/transform.dart';
-import 'package:dartemis_addons/system_particles.dart';
+import 'package:dartemis_toolbox/transform.dart';
+import 'package:dartemis_toolbox/system_particles.dart';
 import 'package:vector_math/vector_math.dart';
-import 'package:dartemis_addons/ease.dart' as ease;
+import 'package:dartemis_toolbox/ease.dart' as ease;
 
 
 /// https://github.com/richardlord/Flint/blob/master/src/org/flintparticles/common/initializers/Initializer.as

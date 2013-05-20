@@ -26,7 +26,7 @@ library system_animator;
 
 import 'dart:math' as math;
 import 'package:dartemis/dartemis.dart';
-import 'package:dartemis_addons/utils.dart';
+import 'package:dartemis_toolbox/utils.dart';
 
 // -- Components ---------------------------------------------------------------
 

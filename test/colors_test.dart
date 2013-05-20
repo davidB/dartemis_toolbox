@@ -1,7 +1,7 @@
 library colors_test;
 
 import 'package:unittest/unittest.dart';
-import 'package:dartemis_addons/colors.dart';
+import 'package:dartemis_toolbox/colors.dart';
 
 main() {
   group("colors", () {

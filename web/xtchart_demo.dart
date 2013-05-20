@@ -1,6 +1,6 @@
 import 'dart:html';
 import 'package:web_ui/web_ui.dart';
-import 'package:dartemis_addons/ease.dart' as ease;
+import 'package:dartemis_toolbox/ease.dart' as ease;
 import 'dart:async';
 
 @observable

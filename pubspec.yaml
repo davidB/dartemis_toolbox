@@ -1,9 +1,9 @@
-name: dartemis_addons
+name: dartemis_toolbox
 version: 0.3.0-dev
 author: david bernard <david.bernard.31@gmail.com>
-description: A set of addons (Component, System, helper, functions, ...) usable w/o dartemis
-homepage: https://github.com/davidB/dartemis_addons
-documentation: http://davidb.github.io/dartemis_addons/
+description: 'A set of libraries for game developpement : easing function, colors, particles, addons for dartemis, ...'
+homepage: https://github.com/davidB/dartemis_toolbox
+documentation: http://davidb.github.io/dartemis_toolbox/
 dev_dependencies:
   dartemis: '>=0.4.1'
   unittest: any

@@ -25,8 +25,8 @@
 library system_simple_audio;
 
 import 'package:dartemis/dartemis.dart';
-import 'package:dartemis_addons/utils.dart';
-import 'package:dartemis_addons/transform.dart';
+import 'package:dartemis_toolbox/utils.dart';
+import 'package:dartemis_toolbox/transform.dart';
 import 'package:simple_audio/simple_audio.dart';
 
 /**
