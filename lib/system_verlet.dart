@@ -239,6 +239,10 @@ Iterable<Component> makeLineSegments(List<vec3> vertices, double stiffness, bool
   return [ps, cs];
 }
 
+Iterable<Component>  makeParallelogram(vec3 origin, vec3 width, vec3 height, double stiffness) {
+  return makeLineSegments([origin, origin + width, origin + width + height, origin + height], stiffness, true);
+}
+
 Iterable<Component> makeCloth(vec3 origin, vec3 width, vec3 height, int segments, int pinMod, double stiffness) {
   var xStride = width / segments.toDouble();
   var yStride = height / segments.toDouble();

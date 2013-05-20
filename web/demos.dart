@@ -8,6 +8,7 @@ import 'package:dartemis_addons/system_proto2d.dart' as proto;
 import 'package:dartemis_addons/system_verlet.dart';
 import 'package:dartemis_addons/system_emitter.dart';
 import 'package:dartemis_addons/system_particles.dart';
+import 'package:dartemis_addons/colors.dart';
 import 'package:dartemis/dartemis.dart';
 import 'dart:async';
 import 'package:vector_math/vector_math.dart';
@@ -123,29 +124,27 @@ Future initDemo0(world) {
   return new Future.value(world);
 }
 
-const STYLE0 = '#e3e3f8';
-const STYLE1 = '#f7e4ed'; //tetrad
-const STYLE2 = '#f7f7e4';
-const STYLE3 = '#e4f7ed';
-const STYLE0_M0 = '#4040f7'; //monochromatique
-const STYLE0_M1 = '#9295f7';
+var foregroundcolor = 0xe3e3f8ff;
+var foregroundcolors = hsl_tetrad(irgba_hsl(foregroundcolor)).map((hsl) => irgba_rgbaString(hsl_irgba(hsl))).toList();
+var foregroundcolorsM = hsv_monochromatic(irgba_hsv(foregroundcolor), 4).map((hsv) => irgba_rgbaString(hsv_irgba(hsv))).toList(); //monochromatique
+
 @observable
 final initDemo = {
   'proto2d' : (world) {
     addNewEntity(world, [
       new Transform.w2d(50.0, 50.0, 0.0),
-      new proto.Drawable(proto.rect(10.0,10.0, fillStyle : STYLE0_M1, strokeStyle : STYLE0))
+      new proto.Drawable(proto.rect(10.0,10.0, fillStyle : foregroundcolorsM[3], strokeStyle : foregroundcolorsM[0]))
     ]);
     addNewEntity(world, [
       new Transform.w2d(0.0, 20.0, 0.0),
-      new proto.Drawable(proto.text("Hello World, choose an other demo in the list", strokeStyle : STYLE0, font: '16px sans-serif'))
+      new proto.Drawable(proto.text("Hello World, choose an other demo in the list", strokeStyle : foregroundcolorsM[0], font: '16px sans-serif'))
     ]);
     return new Future.value(world);
   },
   'proto2d + animatable' : (world) {
     addNewEntity(world, [
       new Transform.w2d(50.0, 50.0, 0.0),
-      new proto.Drawable(proto.rect(10.0, 20.0, fillStyle : STYLE0_M1, strokeStyle : STYLE0)),
+      new proto.Drawable(proto.rect(10.0, 20.0, fillStyle : foregroundcolorsM[1], strokeStyle : foregroundcolorsM[0])),
       new Animatable()
         ..add(new Animation()
           ..onTick = (e, t, t0) {
@@ -187,7 +186,7 @@ final initDemo = {
           , true
         ))
         ..initializers.add(addComponents([
-          () => new proto.Drawable(proto.particles(3.0, fillStyle : STYLE0, strokeStyle : STYLE1)),
+          () => new proto.Drawable(proto.particles(3.0, fillStyle : foregroundcolors[0], strokeStyle : foregroundcolorsM[1])),
           () => new Animatable()
             ..add(new Animation()
               ..onTick = () {
@@ -238,7 +237,7 @@ final initDemo = {
         }
       ]))
       ..initializers.add(addComponents([
-        () => new proto.Drawable(proto.particleInfo0s(3.0, fillStyle : STYLE0, strokeStyle : STYLE1)),
+        () => new proto.Drawable(proto.particleInfo0s(3.0, fillStyle : foregroundcolors[0], strokeStyle : foregroundcolors[1])),
         // move by verlet simulator
         () => new Constraints(),
         // living for 5s
@@ -274,7 +273,7 @@ final initDemo = {
   'verlet shapes' : (world) {
     world.getSystem(System_Simulator).friction = 1.0;
     var defaultDraw = proto.drawComponentType([
-      new proto.DrawComponentType(Particles.CT, proto.particles(5.0, fillStyle : STYLE0, strokeStyle : STYLE1)),
+      new proto.DrawComponentType(Particles.CT, proto.particles(5.0, fillStyle : foregroundcolors[0], strokeStyle : foregroundcolors[1])),
       new proto.DrawComponentType(Constraints.CT, proto.drawConstraints())
     ]);
 
@@ -299,6 +298,10 @@ final initDemo = {
     addNewEntity(world, makeTireXY(new vec3(400.0, 50.0, 0.0), 70.0, 7, 0.1, 0.2).toList()..add(new proto.Drawable(defaultDraw)));
     addNewEntity(world, makeTireXY(new vec3(600.0, 50.0, 0.0), 70.0, 3, 1.0, 1.0).toList()..add(new proto.Drawable(defaultDraw)));
     addNewEntity(world, makeCloth(new vec3(800.0, 50.0, 0.0), new vec3(300.0, 0.0, 0.0), new vec3(0.0, 200.0, 0.0), 15, 3, 0.5).toList()..add(new proto.Drawable(defaultDraw)));
+
+    addNewEntity(world, makeTireXY(new vec3(600.0, 300.0, 0.0), 70.0, 4, 1.0, 1.0).toList()..add(new proto.Drawable(defaultDraw)));
+    addNewEntity(world, makeParallelogram(new vec3(400.0, 300.0, 0.0), new vec3(70.0, 0.0, 0.0), new vec3(0.0, 70.0, 0.0), 1.0).toList()..add(new proto.Drawable(defaultDraw)));
+    addNewEntity(world, makeParallelogram(new vec3(200.0, 300.0, 0.0), new vec3(70.0, 10.0, 0.0), new vec3(10.0, 30.0, 0.0), 1.0).toList()..add(new proto.Drawable(defaultDraw)));
     return new Future.value(world);
   },
   'quadtree' : (world) {
@@ -324,7 +327,7 @@ final initDemo = {
         }
       ]))
       ..initializers.add(addComponents([
-        () => new proto.Drawable(proto.particleInfo0s(3.0, fillStyle : STYLE0, strokeStyle : STYLE1)),
+        () => new proto.Drawable(proto.particleInfo0s(3.0, fillStyle : foregroundcolors[0], strokeStyle : foregroundcolors[1])),
         () => new Constraints(),
         () => new Animatable()
           ..add(new Animation()
