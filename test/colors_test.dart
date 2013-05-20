@@ -21,13 +21,21 @@ main() {
       expect(irgba_rgbaString(0x00000000), 'rgba(0, 0, 0, 0.0)');
       expect(irgba_rgbaString(0x000000ff), 'rgba(0, 0, 0, 1.0)');
     });
+    test('irgba_hex3String',(){
+      expect(irgba_hex3String(0xff000000), 'ff0000');
+      expect(irgba_hex3String(0x00ff0000), '00ff00');
+      expect(irgba_hex3String(0x0000ff00), '0000ff');
+      expect(irgba_hex3String(0xffffff00), 'ffffff');
+      expect(irgba_hex3String(0x00000000), '000000');
+      expect(irgba_hex3String(0x000000ff), '000000');
+    });
     test('irgba_hexString',(){
-      expect(irgba_hexString(0xff000000), 'ff0000');
-      expect(irgba_hexString(0x00ff0000), '00ff00');
-      expect(irgba_hexString(0x0000ff00), '0000ff');
-      expect(irgba_hexString(0xffffff00), 'ffffff');
-      expect(irgba_hexString(0x00000000), '000000');
-      expect(irgba_hexString(0x000000ff), '000000');
+      expect(irgba_hexString(0xff000000), '0xff000000');
+      expect(irgba_hexString(0x00ff0000), '0x00ff0000');
+      expect(irgba_hexString(0x0000ff00), '0x0000ff00');
+      expect(irgba_hexString(0xffffff00), '0xffffff00');
+      expect(irgba_hexString(0x00000000), '0x00000000');
+      expect(irgba_hexString(0x000000ff), '0x000000ff');
     });
     test('irgba_r255',(){
       expect(irgba_r255(0xff000000), 255);
