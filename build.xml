@@ -88,15 +88,15 @@
     <dart_check file="ease"/>
   </target>
 
-  <target name="system_simple_audio" depends="transform">
+  <target name="system_simple_audio" depends="system_transform">
     <dart_check file="system_simple_audio"/>
   </target>
 
-  <target name="transform">
-    <dart_check file="transform"/>
+  <target name="system_transform">
+    <dart_check file="system_transform"/>
   </target>
 
-  <target name="check" depends="system_entity_state, utils, system_animator, system_simple_audio, transform, ease, colors">
+  <target name="check" depends="system_entity_state, utils, system_animator, system_simple_audio, system_transform, ease, colors">
   </target>
 <!--
   <path id="tools.path">
@@ -122,6 +122,8 @@
   <target name="js" depends="web">
     <dart_optjs file="ease_graphics"/>
     <dart_optjs file="xtchart_demo"/>
+    <dart_optjs file="demos"/>
+    <dart_optjs file="colors_demo"/>
    </target>
 
    <target name="remove_packages" depends="js">
@@ -145,7 +147,7 @@
   <target name="apidoc">
     <mkdir dir="${target}/web/apidoc"/>
     <apply executable="${dartdoc}" failonerror="true" parallel="true">
-      <arg line="--out ${target}/web/apidoc --package-root=packages/ --link-api --exclude-lib vector_math"/>
+      <arg line="--out ${target}/web/apidoc --package-root=packages/ --link-api --exclude-lib=vector_math --exclude-lib=metadata --exclude-lib=dartemis --exclude-lib=simple_audio"/>
       <mapper type="glob" from="*.dart" to="--include-lib *"/>
       <fileset dir="${basedir}/lib">
         <patternset>

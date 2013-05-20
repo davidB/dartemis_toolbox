@@ -23,6 +23,7 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 library system_entity_state;
+
 import "package:dartemis/dartemis.dart";
 
 /**

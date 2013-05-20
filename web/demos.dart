@@ -2,7 +2,7 @@ import 'dart:html';
 import 'dart:math' as math;
 import 'package:web_ui/web_ui.dart';
 import 'package:dartemis_toolbox/ease.dart' as ease;
-import 'package:dartemis_toolbox/transform.dart';
+import 'package:dartemis_toolbox/system_transform.dart';
 import 'package:dartemis_toolbox/system_animator.dart';
 import 'package:dartemis_toolbox/system_proto2d.dart' as proto;
 import 'package:dartemis_toolbox/system_verlet.dart';

@@ -25,11 +25,11 @@
 
 ///TODO lot of test (unit, ...)
 ///TODO benchmark, profiling, optimisation
-library darticles;
+library system_verlet;
 
-import 'package:dartemis/dartemis.dart';
 import 'dart:math' as math;
-import 'package:dartemis_toolbox/system_particles.dart';
+import 'system_particles.dart';
+import 'package:dartemis/dartemis.dart';
 import 'package:vector_math/vector_math.dart';
 
 /// Constraint is a class (vs a typedef of Function) to allow

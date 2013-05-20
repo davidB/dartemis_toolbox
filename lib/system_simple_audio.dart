@@ -25,9 +25,9 @@
 library system_simple_audio;
 
 import 'package:dartemis/dartemis.dart';
-import 'package:dartemis_toolbox/utils.dart';
-import 'package:dartemis_toolbox/transform.dart';
 import 'package:simple_audio/simple_audio.dart';
+import 'utils.dart';
+import 'system_transform.dart';
 
 /**
  * Component use to store a bag of name of [AudioClip] to play.

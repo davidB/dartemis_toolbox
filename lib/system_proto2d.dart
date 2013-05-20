@@ -35,14 +35,14 @@
 
 library system_proto2d;
 
-import 'package:dartemis/dartemis.dart';
 import 'dart:html';
 import 'dart:math' as math;
-import 'package:dartemis_toolbox/transform.dart';
-import 'package:dartemis_toolbox/system_particles.dart';
-import 'package:dartemis_toolbox/system_verlet.dart';
-import 'package:dartemis_toolbox/colors.dart';
+import 'package:dartemis/dartemis.dart';
 import 'package:vector_math/vector_math.dart';
+import 'system_transform.dart';
+import 'system_particles.dart';
+import 'system_verlet.dart';
+import 'colors.dart';
 
 typedef void DrawCanvas(CanvasRenderingContext2D g, Entity e, vec2 area);
 

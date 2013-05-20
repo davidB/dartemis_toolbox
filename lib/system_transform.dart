@@ -1,7 +1,3 @@
-library transform;
-
-import 'dart:math' as math;
-import 'package:dartemis/dartemis.dart';
 // This is free and unencumbered software released into the public domain.
 //
 // Anyone is free to copy, modify, publish, use, compile, sell, or
@@ -26,6 +22,10 @@ import 'package:dartemis/dartemis.dart';
 // OTHER DEALINGS IN THE SOFTWARE.
 //
 // For more information, please refer to <http://unlicense.org/>
+library system_transform;
+
+import 'dart:math' as math;
+import 'package:dartemis/dartemis.dart';
 import 'package:vector_math/vector_math.dart';
 
 class Transform extends ComponentPoolable {

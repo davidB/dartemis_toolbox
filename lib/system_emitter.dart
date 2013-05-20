@@ -27,12 +27,12 @@
 ///TODO benchmark, profiling, optimisation
 library system_emitter;
 
-import 'package:dartemis/dartemis.dart';
 import 'dart:math' as math;
-import 'package:dartemis_toolbox/transform.dart';
-import 'package:dartemis_toolbox/system_particles.dart';
+import 'package:dartemis/dartemis.dart';
 import 'package:vector_math/vector_math.dart';
-import 'package:dartemis_toolbox/ease.dart' as ease;
+import 'system_particles.dart';
+import 'system_transform.dart';
+import 'ease.dart' as ease;
 
 
 /// https://github.com/richardlord/Flint/blob/master/src/org/flintparticles/common/initializers/Initializer.as
