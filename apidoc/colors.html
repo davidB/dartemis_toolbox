@@ -1835,7 +1835,7 @@ dynamic <strong>irgba_hexString</strong>(<a href="http://api.dartlang.org/dart_c
 <pre class="source">
 irgba_hexString(int c) {
  var x = (c &gt;&gt; 8) | 0x1000000; //0x100000000 is too bigger on js
- return "0x" + x.toRadixString(16).substring(1) + (c &amp; 0xff).toRadixString(16);
+ return "0x" + x.toRadixString(16).substring(1) + (c &amp; 0xff | 0x100).toRadixString(16).substring(1);
 }
 </pre>
 </div>
@@ -2450,7 +2450,7 @@ irgba_r255(int c) =&gt; ((c &amp; 0xff000000) &gt;&gt; 24);
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-05-20 19:09:48.080</div>
+          <div>This page was generated at 2013-05-20 21:46:56.524</div>
         </div>
         <script async src="client-live-nav.js"></script>
         </body></html>

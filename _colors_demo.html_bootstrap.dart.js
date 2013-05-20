@@ -138,16 +138,14 @@ $$.SubListIterable = {"": "ListIterable;_iterable,_start,_endOrLength",
   },
   elementAt$1: function(_, index) {
     var t1, realIndex;
-    if (typeof index !== "number")
-      return this.elementAt$1$bailout2(1, index);
     t1 = this.get$_startIndex();
     if (typeof t1 !== "number")
-      return this.elementAt$1$bailout2(2, index, t1);
+      return this.elementAt$1$bailout2(1, index, t1);
     realIndex = t1 + index;
     if (!(index < 0)) {
       t1 = this.get$_endIndex();
       if (typeof t1 !== "number")
-        return this.elementAt$1$bailout2(3, index, t1, realIndex);
+        return this.elementAt$1$bailout2(2, index, t1, realIndex);
       t1 = realIndex >= t1;
     } else
       t1 = true;
@@ -158,18 +156,16 @@ $$.SubListIterable = {"": "ListIterable;_iterable,_start,_endOrLength",
   elementAt$1$bailout2: function(state0, index, t1, realIndex) {
     switch (state0) {
       case 0:
+        t1 = this.get$_startIndex();
       case 1:
         state0 = 0;
-        t1 = this.get$_startIndex();
-      case 2:
-        state0 = 0;
         realIndex = $.$add$ns(t1, index);
-      case 3:
-        if (state0 === 3 || state0 === 0 && !$.$lt$n(index, 0))
+      case 2:
+        if (state0 === 2 || state0 === 0 && !(index < 0))
           switch (state0) {
             case 0:
               t1 = this.get$_endIndex();
-            case 3:
+            case 2:
               state0 = 0;
               t1 = $.$ge$n(realIndex, t1);
           }
@@ -293,7 +289,7 @@ $$.SkipIterable = {"": "IterableBase;_iterable,_skipCount",
   skip$1: function(_, n) {
     if (typeof n !== "number" || Math.floor(n) !== n || n < 0)
       throw $.wrapException($.ArgumentError$(n));
-    return $.SkipIterable$(this._iterable, $.$add$ns(this._skipCount, n), $.getRuntimeTypeArgument(this, this.$asSkipIterable, 0));
+    return $.SkipIterable$(this._iterable, this._skipCount + n, $.getRuntimeTypeArgument(this, this.$asSkipIterable, 0));
   },
   get$iterator: function(_) {
     var t1 = this._iterable;
@@ -301,7 +297,7 @@ $$.SkipIterable = {"": "IterableBase;_iterable,_skipCount",
   },
   SkipIterable$2: function(_iterable, _skipCount, E) {
     var t1 = this._skipCount;
-    if (typeof t1 !== "number" || Math.floor(t1) !== t1 || $.$lt$n(t1, 0))
+    if (typeof t1 !== "number" || Math.floor(t1) !== t1 || t1 < 0)
       throw $.wrapException($.ArgumentError$(t1));
   },
   $asIterableBase: null,
@@ -311,7 +307,7 @@ $$.SkipIterable = {"": "IterableBase;_iterable,_skipCount",
 $$.SkipIterator = {"": "Iterator;_iterator,_skipCount",
   moveNext$0: function() {
     var t1, i;
-    for (t1 = this._iterator, i = 0; $.JSNumber_methods.$lt(i, this._skipCount); ++i)
+    for (t1 = this._iterator, i = 0; i < this._skipCount; ++i)
       t1.moveNext$0();
     this._skipCount = 0;
     return t1.moveNext$0();
@@ -1626,8 +1622,8 @@ $$.JSArray = {"": "List/Interceptor;",
   },
   contains$1: function(receiver, other) {
     var t1, i;
-    for (t1 = receiver.length, i = 0; i < t1; ++i)
-      if (other === receiver[i])
+    for (t1 = $.getInterceptor(other), i = 0; i < receiver.length; ++i)
+      if (t1.$eq(other, receiver[i]))
         return true;
     return false;
   },
@@ -2371,7 +2367,7 @@ $$._FutureImpl__FutureImpl$wait_closure = {"": "Closure;box_0,pos_1",
       throw $.ioore(t3);
     t2[t3] = value;
     t1.remaining_2 = $.$sub$n(t1.remaining_2, 1);
-    if ($.$eq(t1.remaining_2, 0)) {
+    if ($.$eq(t1.remaining_2, 0) === true) {
       t2 = t1.completer_0;
       t1 = t1.values_1;
       if (t2._isComplete)
@@ -3877,8 +3873,6 @@ $$.IterableBase = {"": "Object;",
   },
   elementAt$1: function(_, index) {
     var t1, remaining, element;
-    if (typeof index !== "number")
-      return this.elementAt$1$bailout(1, index);
     if (typeof index !== "number" || Math.floor(index) !== index || index < 0)
       throw $.wrapException($.RangeError$value(index));
     for (t1 = this.get$iterator(this), remaining = index; t1.moveNext$0() === true;) {
@@ -3886,19 +3880,6 @@ $$.IterableBase = {"": "Object;",
       if (remaining === 0)
         return element;
       --remaining;
-    }
-    throw $.wrapException($.RangeError$value(index));
-  },
-  elementAt$1$bailout: function(state0, index) {
-    var t1, remaining, element, t2;
-    if (typeof index !== "number" || Math.floor(index) !== index || index < 0)
-      throw $.wrapException($.RangeError$value(index));
-    for (t1 = this.get$iterator(this), remaining = index; t1.moveNext$0() === true;) {
-      element = t1.get$current();
-      t2 = $.getInterceptor(remaining);
-      if (t2.$eq(remaining, 0))
-        return element;
-      remaining = t2.$sub(remaining, 1);
     }
     throw $.wrapException($.RangeError$value(index));
   },
@@ -4347,7 +4328,7 @@ $$.ListMixin = {"": "Object;",
         this._rangeCheck$2(receiver, start, end);
         $length = $.$sub$n(end, start);
         t1 = $.getInterceptor($length);
-        if (t1.$eq($length, 0))
+        if (t1.$eq($length, 0) === true)
           return;
         if ($.$lt$n(skipCount, 0))
           throw $.wrapException($.ArgumentError$(skipCount));
@@ -4428,18 +4409,14 @@ $$.ListQueue = {"": "IterableBase;_table,_liblib0$_head,_liblib0$_tail,_modifica
   },
   elementAt$1: function(_, index) {
     var t1, t2, t3;
-    t1 = $.getInterceptor$n(index);
-    if (t1.$lt(index, 0) || t1.$gt(index, this.get$length(this)))
+    if (index < 0 || index > this.get$length(this))
       throw $.wrapException($.RangeError$range(index, 0, this.get$length(this)));
     t1 = this._table;
-    t2 = this._liblib0$_head;
-    if (typeof index !== "number")
-      throw $.iae(index);
-    t3 = t1.length;
-    t2 = (t2 + index & t3 - 1) >>> 0;
-    if (t2 < 0 || t2 >= t3)
-      throw $.ioore(t2);
-    return t1[t2];
+    t2 = t1.length;
+    t3 = (this._liblib0$_head + index & t2 - 1) >>> 0;
+    if (t3 < 0 || t3 >= t2)
+      throw $.ioore(t3);
+    return t1[t3];
   },
   toList$1$growable: function(_, growable) {
     var list;
@@ -4558,14 +4535,13 @@ $$.ListQueue = {"": "IterableBase;_table,_liblib0$_head,_liblib0$_tail,_modifica
     return t1[t2];
   },
   _add$1: function(element) {
-    var t1, t2, t3;
+    var t1, t2;
     t1 = this._table;
     t2 = this._liblib0$_tail;
-    t3 = t1.length;
-    if (t2 >>> 0 !== t2 || t2 >= t3)
+    if (t2 >>> 0 !== t2 || t2 >= t1.length)
       throw $.ioore(t2);
     t1[t2] = element;
-    this._liblib0$_tail = $.$and$n(t2 + 1, t3 - 1);
+    this._liblib0$_tail = $.$and$n(t2 + 1, this._table.length - 1);
     if (this._liblib0$_head === this._liblib0$_tail)
       this._grow$0();
     this._modificationCount = this._modificationCount + 1;
@@ -4579,7 +4555,7 @@ $$.ListQueue = {"": "IterableBase;_table,_liblib0$_head,_liblib0$_tail,_modifica
     startDistance = (offset - t3 & mask) >>> 0;
     t4 = this._liblib0$_tail;
     if (typeof t4 !== "number")
-      return this._remove$1$bailout(1, offset, startDistance, t1, t2, mask, t3, t4);
+      return this._remove$1$bailout(1, offset, mask, startDistance, t4);
     if (startDistance < (t4 - offset & mask) >>> 0) {
       for (i = offset; i !== t3; i = prevOffset) {
         prevOffset = (i - 1 & mask) >>> 0;
@@ -4612,39 +4588,52 @@ $$.ListQueue = {"": "IterableBase;_table,_liblib0$_head,_liblib0$_tail,_modifica
       return offset;
     }
   },
-  _remove$1$bailout: function(state0, offset, startDistance, t1, t2, mask, t3, t4) {
-    var t5, i, prevOffset, nextOffset;
-    t5 = $.getInterceptor$n(t4);
-    if (startDistance < $.$and$n(t5.$sub(t4, offset), mask)) {
-      for (i = offset; i !== t3; i = prevOffset) {
-        prevOffset = (i - 1 & mask) >>> 0;
-        if (prevOffset < 0 || prevOffset >= t2)
-          throw $.ioore(prevOffset);
-        t4 = t1[prevOffset];
-        if (i < 0 || i >= t2)
-          throw $.ioore(i);
-        t1[i] = t4;
-      }
-      if (t3 < 0 || t3 >= t2)
-        throw $.ioore(t3);
-      t1[t3] = null;
-      this._liblib0$_head = (t3 + 1 & mask) >>> 0;
-      return (offset + 1 & mask) >>> 0;
-    } else {
-      this._liblib0$_tail = $.$and$n(t5.$sub(t4, 1), mask);
-      for (t1 = this._table, t2 = t1.length, i = offset; t3 = this._liblib0$_tail, i !== t3; i = nextOffset) {
-        nextOffset = (i + 1 & mask) >>> 0;
-        if (nextOffset < 0 || nextOffset >= t2)
-          throw $.ioore(nextOffset);
-        t3 = t1[nextOffset];
-        if (i < 0 || i >= t2)
-          throw $.ioore(i);
-        t1[i] = t3;
-      }
-      if (t3 >>> 0 !== t3 || t3 >= t2)
-        throw $.ioore(t3);
-      t1[t3] = null;
-      return offset;
+  _remove$1$bailout: function(state0, offset, mask, startDistance, t1) {
+    switch (state0) {
+      case 0:
+        mask = this._table.length - 1;
+        startDistance = (offset - this._liblib0$_head & mask) >>> 0;
+        t1 = this._liblib0$_tail;
+      case 1:
+        state0 = 0;
+      case 2:
+        var t2, i, t3, prevOffset, nextOffset;
+        if (state0 === 0 && startDistance < $.$and$n($.$sub$n(t1, offset), mask)) {
+          for (t1 = this._table, t2 = t1.length, i = offset; t3 = this._liblib0$_head, i !== t3; i = prevOffset) {
+            prevOffset = (i - 1 & mask) >>> 0;
+            if (prevOffset < 0 || prevOffset >= t2)
+              throw $.ioore(prevOffset);
+            t3 = t1[prevOffset];
+            if (i < 0 || i >= t2)
+              throw $.ioore(i);
+            t1[i] = t3;
+          }
+          if (t3 < 0 || t3 >= t2)
+            throw $.ioore(t3);
+          t1[t3] = null;
+          this._liblib0$_head = (t3 + 1 & mask) >>> 0;
+          return (offset + 1 & mask) >>> 0;
+        } else
+          switch (state0) {
+            case 0:
+              t1 = this._liblib0$_tail;
+            case 2:
+              state0 = 0;
+              this._liblib0$_tail = $.$and$n($.$sub$n(t1, 1), mask);
+              for (t1 = this._table, t2 = t1.length, i = offset; t3 = this._liblib0$_tail, i !== t3; i = nextOffset) {
+                nextOffset = (i + 1 & mask) >>> 0;
+                if (nextOffset < 0 || nextOffset >= t2)
+                  throw $.ioore(nextOffset);
+                t3 = t1[nextOffset];
+                if (i < 0 || i >= t2)
+                  throw $.ioore(i);
+                t1[i] = t3;
+              }
+              if (t3 >>> 0 !== t3 || t3 >= t2)
+                throw $.ioore(t3);
+              t1[t3] = null;
+              return offset;
+          }
     }
   },
   _grow$0: function() {
@@ -4661,18 +4650,17 @@ $$.ListQueue = {"": "IterableBase;_table,_liblib0$_head,_liblib0$_tail,_modifica
     this._table = newTable;
   },
   _writeToList$1: function(target) {
-    var t1, t2, t3, t4, $length, firstPartSize;
+    var t1, t2, $length, firstPartSize;
     t1 = this._liblib0$_head;
     t2 = this._liblib0$_tail;
-    t3 = $.JSInt_methods.$le(t1, t2);
-    t4 = this._table;
-    if (t3) {
+    if ($.JSInt_methods.$le(t1, t2)) {
       $length = $.$sub$n(t2, t1);
-      $.JSArray_methods.setRange$4(target, 0, $length, t4, t1);
+      $.JSArray_methods.setRange$4(target, 0, $length, this._table, this._liblib0$_head);
       return $length;
     } else {
-      firstPartSize = t4.length - t1;
-      $.JSArray_methods.setRange$4(target, 0, firstPartSize, t4, t1);
+      t2 = this._table;
+      firstPartSize = t2.length - t1;
+      $.JSArray_methods.setRange$4(target, 0, firstPartSize, t2, t1);
       t1 = this._liblib0$_tail;
       if (typeof t1 !== "number")
         throw $.iae(t1);
@@ -5957,6 +5945,68 @@ $$._PropertyObserver = {"": "Object;_path,_property,_liblib3$_next,_object,_libl
   }
 };
 
+$$.Point = {"": "Object;x>,y>",
+  toString$0: function(_) {
+    return "(" + $.S(this.x) + ", " + $.S(this.y) + ")";
+  },
+  $eq: function(_, other) {
+    if (other == null)
+      return false;
+    if (typeof other !== "object" || other === null || !$.getInterceptor(other).$isPoint)
+      return false;
+    else
+      other;
+    return $.$eq(this.x, other.x) === true && $.$eq(this.y, other.y) === true;
+  },
+  $add: function(_, other) {
+    var t1 = $.getInterceptor$x(other);
+    return $.Point$($.$add$ns(this.x, t1.get$x(other)), $.$add$ns(this.y, t1.get$y(other)));
+  },
+  $sub: function(_, other) {
+    var t1 = $.getInterceptor$x(other);
+    return $.Point$($.$sub$n(this.x, t1.get$x(other)), $.$sub$n(this.y, t1.get$y(other)));
+  },
+  $mul: function(_, factor) {
+    return $.Point$($.$mul$n(this.x, factor), $.$mul$n(this.y, factor));
+  },
+  floor$0: function(_) {
+    return $.Point$($.floor$0$nx(this.x), $.floor$0$nx(this.y));
+  },
+  toInt$0: function(_) {
+    return $.Point$($.toInt$0$nx(this.x), $.toInt$0$nx(this.y));
+  },
+  $isPoint: true
+};
+
+$$.Rect = {"": "Object;left>,top>,width>,height>",
+  get$right: function(_) {
+    return $.$add$ns(this.left, this.width);
+  },
+  toString$0: function(_) {
+    return "(" + $.S(this.left) + ", " + $.S(this.top) + ", " + $.S(this.width) + ", " + $.S(this.height) + ")";
+  },
+  $eq: function(_, other) {
+    var t1;
+    if (other == null)
+      return false;
+    if (typeof other !== "object" || other === null || !$.getInterceptor(other).$isRect)
+      return false;
+    t1 = $.getInterceptor$x(other);
+    return $.$eq(this.left, t1.get$left(other)) === true && this.top === t1.get$top(other) && this.width === t1.get$width(other) && this.height === t1.get$height(other);
+  },
+  floor$0: function(_) {
+    return $.Rect$($.floor$0$nx(this.left), $.JSNumber_methods.floor$0(this.top), $.JSNumber_methods.floor$0(this.width), $.JSNumber_methods.floor$0(this.height));
+  },
+  toInt$0: function(_) {
+    return $.Rect$($.toInt$0$nx(this.left), $.JSNumber_methods.toInt$0(this.top), $.JSNumber_methods.toInt$0(this.width), $.JSNumber_methods.toInt$0(this.height));
+  },
+  get$topLeft: function(_) {
+    return $.Point$(this.left, this.top);
+  },
+  $isRect: true,
+  $asRect: null
+};
+
 $$.TemplateInstance = {"": "Object;firstNode,lastNode,model"};
 
 $$.CompoundBinding = {"": "ObservableBase;_combinator,_bindings,_values<,_liblib3$_scheduled,_disposed,_liblib3$_value,_observers,_stream,_changes",
@@ -6751,91 +6801,95 @@ $$.Uri_hashCode_combine = {"": "Closure;",
   $isFunction: true
 };
 
-$$.XColorselector = {"": "WebComponent;__e21,__e22,__e23,__e24,__e25,__e26,__e27,__e31,__e35,__e39,__e43,__e47,__e10<,__e11<,__e14<,__e17<,__e20<,__e3<,__e6<,__e9<,__e13,__e16,__e19,__e2,__e5,__e8,__t,_color,_host,_shadowRoots,_generatedRoots",
+$$.XColorselector = {"": "WebComponent;__e23,__e24,__e25,__e26,__e27,__e28,__e29,__e1,__e2,__e33,__e37,__e41,__e45,__e49,__e11<,__e12<,__e13<,__e16<,__e19<,__e22<,__e5<,__e8<,__e10,__e15,__e18,__e21,__e4,__e7,__t,_color,_host,_shadowRoots,_generatedRoots",
   created_autogenerated$0: function() {
-    var root, t1, __binding1, __binding4, __binding7, __binding12, __binding15, __binding18, t2, t3;
+    var root, t1, __binding3, __binding6, __binding9, __binding14, __binding17, __binding20, t2, t3;
     root = this._createShadowRoot$0();
     t1 = this._generatedRoots;
     t1.$indexSet(t1, "x-colorselector", root);
     this.__t = $.Template$(root);
     t1 = $.getInterceptor$x(root);
     $.add$1$ax(t1.get$nodes(root), $.clone$1$x($.get$XColorselector___shadowTemplate(), true));
-    this.__e2 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 3)), 3)), 0);
-    __binding1 = this.__t.contentBind$2(new $.XColorselector_created_autogenerated_closure(this), false);
-    $.addAll$1$ax($.get$nodes$x(this.__e2), [document.createTextNode("R : "), __binding1]);
-    this.__e3 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 3)), 3)), 1);
-    this.__t.listen$2($.get$onInput$x(this.__e3), new $.XColorselector_created_autogenerated_closure0(this));
-    this.__t.children.push($.DomPropertyBinding$(new $.XColorselector_created_autogenerated_closure1(this), new $.XColorselector_created_autogenerated_closure2(this), false, false));
-    this.__e5 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 3)), 5)), 0);
-    __binding4 = this.__t.contentBind$2(new $.XColorselector_created_autogenerated_closure3(this), false);
-    $.addAll$1$ax($.get$nodes$x(this.__e5), [document.createTextNode("G : "), __binding4]);
-    this.__e6 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 3)), 5)), 1);
-    this.__t.listen$2($.get$onInput$x(this.__e6), new $.XColorselector_created_autogenerated_closure4(this));
-    this.__t.children.push($.DomPropertyBinding$(new $.XColorselector_created_autogenerated_closure5(this), new $.XColorselector_created_autogenerated_closure6(this), false, false));
-    this.__e8 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 3)), 7)), 0);
-    __binding7 = this.__t.contentBind$2(new $.XColorselector_created_autogenerated_closure7(this), false);
-    $.addAll$1$ax($.get$nodes$x(this.__e8), [document.createTextNode("B : "), __binding7]);
-    this.__e9 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 3)), 7)), 1);
-    this.__t.listen$2($.get$onInput$x(this.__e9), new $.XColorselector_created_autogenerated_closure8(this));
-    this.__t.children.push($.DomPropertyBinding$(new $.XColorselector_created_autogenerated_closure9(this), new $.XColorselector_created_autogenerated_closure10(this), false, false));
-    this.__e10 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 3)), 9)), 1);
-    this.__t.listen$2($.get$onInput$x(this.__e10), new $.XColorselector_created_autogenerated_closure11(this));
-    this.__t.children.push($.DomPropertyBinding$(new $.XColorselector_created_autogenerated_closure12(this), new $.XColorselector_created_autogenerated_closure13(this), false, false));
-    this.__e11 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 3)), 11)), 1);
-    this.__t.listen$2($.get$onInput$x(this.__e11), new $.XColorselector_created_autogenerated_closure14(this));
-    this.__t.children.push($.DomPropertyBinding$(new $.XColorselector_created_autogenerated_closure15(this), new $.XColorselector_created_autogenerated_closure16(this), false, false));
-    this.__e13 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 5)), 3)), 0);
-    __binding12 = this.__t.contentBind$2(new $.XColorselector_created_autogenerated_closure17(this), false);
-    $.addAll$1$ax($.get$nodes$x(this.__e13), [document.createTextNode("H : "), __binding12, document.createTextNode("\u00b0")]);
-    this.__e14 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 5)), 3)), 1);
-    this.__t.listen$2($.get$onInput$x(this.__e14), new $.XColorselector_created_autogenerated_closure18(this));
-    this.__t.children.push($.DomPropertyBinding$(new $.XColorselector_created_autogenerated_closure19(this), new $.XColorselector_created_autogenerated_closure20(this), false, false));
-    this.__e16 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 5)), 5)), 0);
-    __binding15 = this.__t.contentBind$2(new $.XColorselector_created_autogenerated_closure21(this), false);
-    $.addAll$1$ax($.get$nodes$x(this.__e16), [document.createTextNode("S : "), __binding15, document.createTextNode("%")]);
-    this.__e17 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 5)), 5)), 1);
-    this.__t.listen$2($.get$onInput$x(this.__e17), new $.XColorselector_created_autogenerated_closure22(this));
-    this.__t.children.push($.DomPropertyBinding$(new $.XColorselector_created_autogenerated_closure23(this), new $.XColorselector_created_autogenerated_closure24(this), false, false));
-    this.__e19 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 5)), 7)), 0);
-    __binding18 = this.__t.contentBind$2(new $.XColorselector_created_autogenerated_closure25(this), false);
-    $.addAll$1$ax($.get$nodes$x(this.__e19), [document.createTextNode("V : "), __binding18, document.createTextNode("%")]);
-    this.__e20 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 5)), 7)), 1);
-    this.__t.listen$2($.get$onInput$x(this.__e20), new $.XColorselector_created_autogenerated_closure26(this));
-    this.__t.children.push($.DomPropertyBinding$(new $.XColorselector_created_autogenerated_closure27(this), new $.XColorselector_created_autogenerated_closure28(this), false, false));
-    this.__e21 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 7)), 3)), 1);
-    this.__t.listen$2($.get$onClick$x(this.__e21), new $.XColorselector_created_autogenerated_closure29(this));
-    this.__e22 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 7)), 3)), 3);
-    this.__t.listen$2($.get$onClick$x(this.__e22), new $.XColorselector_created_autogenerated_closure30(this));
-    this.__e23 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 7)), 5)), 1);
+    this.__e1 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 1)), 1);
+    this.__t.listen$2($.get$onClick$x(this.__e1), new $.XColorselector_created_autogenerated_closure(this));
+    this.__e2 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 1)), 3);
+    this.__t.listen$2($.get$onClick$x(this.__e2), new $.XColorselector_created_autogenerated_closure0(this));
+    this.__e4 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 3)), 3)), 0);
+    __binding3 = this.__t.contentBind$2(new $.XColorselector_created_autogenerated_closure1(this), false);
+    $.addAll$1$ax($.get$nodes$x(this.__e4), [document.createTextNode("R : "), __binding3]);
+    this.__e5 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 3)), 3)), 1);
+    this.__t.listen$2($.get$onInput$x(this.__e5), new $.XColorselector_created_autogenerated_closure2(this));
+    this.__t.children.push($.DomPropertyBinding$(new $.XColorselector_created_autogenerated_closure3(this), new $.XColorselector_created_autogenerated_closure4(this), false, false));
+    this.__e7 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 3)), 5)), 0);
+    __binding6 = this.__t.contentBind$2(new $.XColorselector_created_autogenerated_closure5(this), false);
+    $.addAll$1$ax($.get$nodes$x(this.__e7), [document.createTextNode("G : "), __binding6]);
+    this.__e8 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 3)), 5)), 1);
+    this.__t.listen$2($.get$onInput$x(this.__e8), new $.XColorselector_created_autogenerated_closure6(this));
+    this.__t.children.push($.DomPropertyBinding$(new $.XColorselector_created_autogenerated_closure7(this), new $.XColorselector_created_autogenerated_closure8(this), false, false));
+    this.__e10 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 3)), 7)), 0);
+    __binding9 = this.__t.contentBind$2(new $.XColorselector_created_autogenerated_closure9(this), false);
+    $.addAll$1$ax($.get$nodes$x(this.__e10), [document.createTextNode("B : "), __binding9]);
+    this.__e11 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 3)), 7)), 1);
+    this.__t.listen$2($.get$onInput$x(this.__e11), new $.XColorselector_created_autogenerated_closure10(this));
+    this.__t.children.push($.DomPropertyBinding$(new $.XColorselector_created_autogenerated_closure11(this), new $.XColorselector_created_autogenerated_closure12(this), false, false));
+    this.__e12 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 3)), 9)), 1);
+    this.__t.listen$2($.get$onInput$x(this.__e12), new $.XColorselector_created_autogenerated_closure13(this));
+    this.__t.children.push($.DomPropertyBinding$(new $.XColorselector_created_autogenerated_closure14(this), new $.XColorselector_created_autogenerated_closure15(this), false, false));
+    this.__e13 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 3)), 11)), 1);
+    this.__t.listen$2($.get$onInput$x(this.__e13), new $.XColorselector_created_autogenerated_closure16(this));
+    this.__t.children.push($.DomPropertyBinding$(new $.XColorselector_created_autogenerated_closure17(this), new $.XColorselector_created_autogenerated_closure18(this), false, false));
+    this.__e15 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 5)), 3)), 0);
+    __binding14 = this.__t.contentBind$2(new $.XColorselector_created_autogenerated_closure19(this), false);
+    $.addAll$1$ax($.get$nodes$x(this.__e15), [document.createTextNode("H : "), __binding14, document.createTextNode("\u00b0")]);
+    this.__e16 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 5)), 3)), 1);
+    this.__t.listen$2($.get$onInput$x(this.__e16), new $.XColorselector_created_autogenerated_closure20(this));
+    this.__t.children.push($.DomPropertyBinding$(new $.XColorselector_created_autogenerated_closure21(this), new $.XColorselector_created_autogenerated_closure22(this), false, false));
+    this.__e18 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 5)), 5)), 0);
+    __binding17 = this.__t.contentBind$2(new $.XColorselector_created_autogenerated_closure23(this), false);
+    $.addAll$1$ax($.get$nodes$x(this.__e18), [document.createTextNode("S : "), __binding17, document.createTextNode("%")]);
+    this.__e19 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 5)), 5)), 1);
+    this.__t.listen$2($.get$onInput$x(this.__e19), new $.XColorselector_created_autogenerated_closure24(this));
+    this.__t.children.push($.DomPropertyBinding$(new $.XColorselector_created_autogenerated_closure25(this), new $.XColorselector_created_autogenerated_closure26(this), false, false));
+    this.__e21 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 5)), 7)), 0);
+    __binding20 = this.__t.contentBind$2(new $.XColorselector_created_autogenerated_closure27(this), false);
+    $.addAll$1$ax($.get$nodes$x(this.__e21), [document.createTextNode("V : "), __binding20, document.createTextNode("%")]);
+    this.__e22 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 5)), 7)), 1);
+    this.__t.listen$2($.get$onInput$x(this.__e22), new $.XColorselector_created_autogenerated_closure28(this));
+    this.__t.children.push($.DomPropertyBinding$(new $.XColorselector_created_autogenerated_closure29(this), new $.XColorselector_created_autogenerated_closure30(this), false, false));
+    this.__e23 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 7)), 3)), 1);
     this.__t.listen$2($.get$onClick$x(this.__e23), new $.XColorselector_created_autogenerated_closure31(this));
-    this.__e24 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 7)), 5)), 3);
+    this.__e24 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 7)), 3)), 3);
     this.__t.listen$2($.get$onClick$x(this.__e24), new $.XColorselector_created_autogenerated_closure32(this));
-    this.__e25 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 7)), 7)), 1);
+    this.__e25 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 7)), 5)), 1);
     this.__t.listen$2($.get$onClick$x(this.__e25), new $.XColorselector_created_autogenerated_closure33(this));
-    this.__e26 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 7)), 7)), 3);
+    this.__e26 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 7)), 5)), 3);
     this.__t.listen$2($.get$onClick$x(this.__e26), new $.XColorselector_created_autogenerated_closure34(this));
-    this.__e27 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 7)), 9)), 1);
+    this.__e27 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 7)), 7)), 1);
     this.__t.listen$2($.get$onClick$x(this.__e27), new $.XColorselector_created_autogenerated_closure35(this));
-    this.__e31 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 9)), 3);
+    this.__e28 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 7)), 7)), 3);
+    this.__t.listen$2($.get$onClick$x(this.__e28), new $.XColorselector_created_autogenerated_closure36(this));
+    this.__e29 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 7)), 9)), 1);
+    this.__t.listen$2($.get$onClick$x(this.__e29), new $.XColorselector_created_autogenerated_closure37(this));
+    this.__e33 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 9)), 3);
     t2 = this.__t;
-    t3 = this.__e31;
-    t2.children.push($.LoopTemplateInAttribute$(t3, new $.XColorselector_created_autogenerated_closure36(this), new $.XColorselector_created_autogenerated_closure37(this)));
-    this.__e35 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 11)), 3);
+    t3 = this.__e33;
+    t2.children.push($.LoopTemplateInAttribute$(t3, new $.XColorselector_created_autogenerated_closure38(this), new $.XColorselector_created_autogenerated_closure39(this)));
+    this.__e37 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 11)), 3);
     t3 = this.__t;
-    t2 = this.__e35;
-    t3.children.push($.LoopTemplateInAttribute$(t2, new $.XColorselector_created_autogenerated_closure38(this), new $.XColorselector_created_autogenerated_closure39(this)));
-    this.__e39 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 13)), 3);
+    t2 = this.__e37;
+    t3.children.push($.LoopTemplateInAttribute$(t2, new $.XColorselector_created_autogenerated_closure40(this), new $.XColorselector_created_autogenerated_closure41(this)));
+    this.__e41 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 13)), 3);
     t2 = this.__t;
-    t3 = this.__e39;
-    t2.children.push($.LoopTemplateInAttribute$(t3, new $.XColorselector_created_autogenerated_closure40(this), new $.XColorselector_created_autogenerated_closure41(this)));
-    this.__e43 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 15)), 3);
+    t3 = this.__e41;
+    t2.children.push($.LoopTemplateInAttribute$(t3, new $.XColorselector_created_autogenerated_closure42(this), new $.XColorselector_created_autogenerated_closure43(this)));
+    this.__e45 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 15)), 3);
     t3 = this.__t;
-    t2 = this.__e43;
-    t3.children.push($.LoopTemplateInAttribute$(t2, new $.XColorselector_created_autogenerated_closure42(this), new $.XColorselector_created_autogenerated_closure43(this)));
-    this.__e47 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 17)), 3);
+    t2 = this.__e45;
+    t3.children.push($.LoopTemplateInAttribute$(t2, new $.XColorselector_created_autogenerated_closure44(this), new $.XColorselector_created_autogenerated_closure45(this)));
+    this.__e49 = $.$index$asx($.get$nodes$x($.$index$asx($.get$nodes$x($.$index$asx(t1.get$nodes(root), 2)), 17)), 3);
     t1 = this.__t;
-    t2 = this.__e47;
-    t1.children.push($.LoopTemplateInAttribute$(t2, new $.XColorselector_created_autogenerated_closure44(this), new $.XColorselector_created_autogenerated_closure45(this)));
+    t2 = this.__e49;
+    t1.children.push($.LoopTemplateInAttribute$(t2, new $.XColorselector_created_autogenerated_closure46(this), new $.XColorselector_created_autogenerated_closure47(this)));
     this.__t.create$0();
   },
   inserted_autogenerated$0: function() {
@@ -6845,11 +6899,13 @@ $$.XColorselector = {"": "WebComponent;__e21,__e22,__e23,__e24,__e25,__e26,__e27
   removed_autogenerated$0: function() {
     var t1 = this.__t;
     t1.remove$0(t1);
-    this.__e47 = null;
-    this.__e43 = null;
-    this.__e39 = null;
-    this.__e35 = null;
-    this.__e31 = null;
+    this.__e49 = null;
+    this.__e45 = null;
+    this.__e41 = null;
+    this.__e37 = null;
+    this.__e33 = null;
+    this.__e29 = null;
+    this.__e28 = null;
     this.__e27 = null;
     this.__e26 = null;
     this.__e25 = null;
@@ -6857,20 +6913,20 @@ $$.XColorselector = {"": "WebComponent;__e21,__e22,__e23,__e24,__e25,__e26,__e27
     this.__e23 = null;
     this.__e22 = null;
     this.__e21 = null;
-    this.__e20 = null;
     this.__e19 = null;
-    this.__e17 = null;
+    this.__e18 = null;
     this.__e16 = null;
-    this.__e14 = null;
+    this.__e15 = null;
     this.__e13 = null;
+    this.__e12 = null;
     this.__e11 = null;
     this.__e10 = null;
-    this.__e9 = null;
     this.__e8 = null;
-    this.__e6 = null;
+    this.__e7 = null;
     this.__e5 = null;
-    this.__e3 = null;
+    this.__e4 = null;
     this.__e2 = null;
+    this.__e1 = null;
     this.__t = null;
   },
   get$color: function(_) {
@@ -6920,7 +6976,7 @@ $$.XColorselector = {"": "WebComponent;__e21,__e22,__e23,__e24,__e25,__e26,__e27
     var t1 = $.irgba_hsv(this.get$color(this));
     if (0 >= t1.length)
       throw $.ioore(0);
-    return $.JSNumber_methods.toString$0($.toInt$0$n($.$mul$n(t1[0], 360)));
+    return $.toString$0($.toInt$0$nx($.$mul$n(t1[0], 360)));
   },
   set$hStr: function(s) {
     var hsv, t1;
@@ -6937,7 +6993,7 @@ $$.XColorselector = {"": "WebComponent;__e21,__e22,__e23,__e24,__e25,__e26,__e27
     var t1 = $.irgba_hsv(this.get$color(this));
     if (1 >= t1.length)
       throw $.ioore(1);
-    return $.JSNumber_methods.toString$0($.toInt$0$n($.$mul$n(t1[1], 100)));
+    return $.toString$0($.toInt$0$nx($.$mul$n(t1[1], 100)));
   },
   set$sStr: function(s) {
     var hsv, t1;
@@ -6954,7 +7010,7 @@ $$.XColorselector = {"": "WebComponent;__e21,__e22,__e23,__e24,__e25,__e26,__e27
     var t1 = $.irgba_hsv(this.get$color(this));
     if (2 >= t1.length)
       throw $.ioore(2);
-    return $.JSNumber_methods.toString$0($.toInt$0$n($.$mul$n(t1[2], 100)));
+    return $.toString$0($.toInt$0$nx($.$mul$n(t1[2], 100)));
   },
   set$vStr: function(s) {
     var hsv, t1;
@@ -6982,7 +7038,7 @@ $$.XColorselector = {"": "WebComponent;__e21,__e22,__e23,__e24,__e25,__e26,__e27
   get$monochromatic: function() {
     return $.JSArray_methods.map$1($.hsv_monochromatic($.irgba_hsv(this.get$color(this)), 6), $.hsv_irgba);
   },
-  draw_sv$0: function() {
+  sv_draw$0: function() {
     var c, g, w1, h1, hsv, s0, t1, t2, v0;
     c = $.interceptedTypeCast($.query$1$x(this.get$host(this), "canvas.cs_sv"), "$isCanvasElement");
     g = $.get$context2d$x(c);
@@ -6998,23 +7054,40 @@ $$.XColorselector = {"": "WebComponent;__e21,__e22,__e23,__e24,__e25,__e26,__e27
         g.fillRect(t2, (100 - v0) * h1 + 2, w1, h1);
       }
     g.beginPath();
-    t1 = hsv.length;
-    if (1 >= t1)
+    if (1 >= hsv.length)
       throw $.ioore(1);
-    t2 = $.$mul$n(hsv[1], 100);
-    if (typeof t2 !== "number")
-      throw $.iae(t2);
-    if (2 >= t1)
-      throw $.ioore(2);
-    t1 = $.$mul$n(hsv[2], 100);
+    t1 = $.$mul$n(hsv[1], 100);
     if (typeof t1 !== "number")
       throw $.iae(t1);
-    g.arc((100 - t2) * w1 + 2, (100 - t1) * h1 + 2, 2 + $.max(h1, w1), 0, 6.283185307179586, false);
+    if (2 >= hsv.length)
+      throw $.ioore(2);
+    t2 = $.$mul$n(hsv[2], 100);
+    if (typeof t2 !== "number")
+      throw $.iae(t2);
+    g.arc((100 - t1) * w1 + 2, (100 - t2) * h1 + 2, 2 + $.max(h1, w1), 0, 6.283185307179586, false);
     g.closePath();
     g.strokeStyle = "#000000";
     g.stroke();
   },
-  draw_h$0: function() {
+  sv_setColorFrom$4: function(x, y, width, height) {
+    var t1, t2, hsv, t3;
+    t1 = $.$sub$n(width, 4);
+    t2 = $.$sub$n(height, 4);
+    hsv = $.irgba_hsv(this.get$color(this));
+    if (typeof x !== "number")
+      throw $.iae(x);
+    t3 = hsv.length;
+    if (1 >= t3)
+      throw $.ioore(1);
+    hsv[1] = (100 - x - 2) / (t1 / 100 * 100);
+    if (typeof y !== "number")
+      throw $.iae(y);
+    if (2 >= t3)
+      throw $.ioore(2);
+    hsv[2] = (100 - y - 2) / (t2 / 100 * 100);
+    this.set$color(this, $.hsv_irgba(hsv));
+  },
+  h_draw$0: function() {
     var c, g, w1, h1, t1, h0, y;
     c = $.interceptedTypeCast($.query$1$x(this.get$host(this), "canvas.cs_h"), "$isCanvasElement");
     g = $.get$context2d$x(c);
@@ -7032,29 +7105,44 @@ $$.XColorselector = {"": "WebComponent;__e21,__e22,__e23,__e24,__e25,__e26,__e27
     g.strokeStyle = "#000000";
     g.strokeRect(0, $.$add$ns($.$mul$n($.$mul$n(h0, 100), h1), 2), w1 + 4, h1 + 4);
   },
+  h_setColorFrom$4: function(x, y, width, height) {
+    var t1, hsv;
+    t1 = $.$sub$n(height, 4);
+    hsv = $.irgba_hsv(this.get$color(this));
+    t1 = $.$div$n($.$sub$n(y, 2), t1 / 100 * 100);
+    if (0 >= hsv.length)
+      throw $.ioore(0);
+    hsv[0] = t1;
+    this.set$color(this, $.hsv_irgba(hsv));
+  },
   inserted$0: function() {
     var max = 16777216;
     this.set$color(this, (Math.random() * max >>> 0 << 8 | 255) >>> 0);
-    this.draw_sv$0();
-    this.draw_h$0();
+    this.sv_draw$0();
+    this.h_draw$0();
   },
   refresh$0: function() {
-    this.draw_sv$0();
-    this.draw_h$0();
+    this.sv_draw$0();
+    this.h_draw$0();
   }
 };
 
 $$.XColorselector_created_autogenerated_closure = {"": "Closure;this_5",
-  call$0: function() {
-    return this.this_5.get$rStr();
+  call$1: function($$event) {
+    var t1, t;
+    t1 = $.getInterceptor$x($$event);
+    t = $.interceptedTypeCast(t1.get$target($$event), "$isCanvasElement");
+    this.this_5.sv_setColorFrom$4(t1.get$offsetX($$event), t1.get$offsetY($$event), t.width, t.height);
   },
   $isFunction: true
 };
 
 $$.XColorselector_created_autogenerated_closure0 = {"": "Closure;this_6",
   call$1: function($$event) {
-    var t1 = this.this_6;
-    t1.set$rStr($.get$value$x(t1.get$__e3()));
+    var t1, t;
+    t1 = $.getInterceptor$x($$event);
+    t = $.interceptedTypeCast(t1.get$target($$event), "$isCanvasElement");
+    this.this_6.h_setColorFrom$4(t1.get$offsetX($$event), t1.get$offsetY($$event), t.width, t.height);
   },
   $isFunction: true
 };
@@ -7067,25 +7155,25 @@ $$.XColorselector_created_autogenerated_closure1 = {"": "Closure;this_7",
 };
 
 $$.XColorselector_created_autogenerated_closure2 = {"": "Closure;this_8",
-  call$1: function(e) {
+  call$1: function($$event) {
     var t1 = this.this_8;
-    if ($.$eq($.get$value$x(t1.get$__e3()), e) !== true)
-      $.set$value$x(t1.get$__e3(), e);
+    t1.set$rStr($.get$value$x(t1.get$__e5()));
   },
   $isFunction: true
 };
 
 $$.XColorselector_created_autogenerated_closure3 = {"": "Closure;this_9",
   call$0: function() {
-    return this.this_9.get$gStr();
+    return this.this_9.get$rStr();
   },
   $isFunction: true
 };
 
 $$.XColorselector_created_autogenerated_closure4 = {"": "Closure;this_10",
-  call$1: function($$event) {
+  call$1: function(e) {
     var t1 = this.this_10;
-    t1.set$gStr($.get$value$x(t1.get$__e6()));
+    if ($.$eq($.get$value$x(t1.get$__e5()), e) !== true)
+      $.set$value$x(t1.get$__e5(), e);
   },
   $isFunction: true
 };
@@ -7098,25 +7186,25 @@ $$.XColorselector_created_autogenerated_closure5 = {"": "Closure;this_11",
 };
 
 $$.XColorselector_created_autogenerated_closure6 = {"": "Closure;this_12",
-  call$1: function(e) {
+  call$1: function($$event) {
     var t1 = this.this_12;
-    if ($.$eq($.get$value$x(t1.get$__e6()), e) !== true)
-      $.set$value$x(t1.get$__e6(), e);
+    t1.set$gStr($.get$value$x(t1.get$__e8()));
   },
   $isFunction: true
 };
 
 $$.XColorselector_created_autogenerated_closure7 = {"": "Closure;this_13",
   call$0: function() {
-    return this.this_13.get$bStr();
+    return this.this_13.get$gStr();
   },
   $isFunction: true
 };
 
 $$.XColorselector_created_autogenerated_closure8 = {"": "Closure;this_14",
-  call$1: function($$event) {
+  call$1: function(e) {
     var t1 = this.this_14;
-    t1.set$bStr($.get$value$x(t1.get$__e9()));
+    if ($.$eq($.get$value$x(t1.get$__e8()), e) !== true)
+      $.set$value$x(t1.get$__e8(), e);
   },
   $isFunction: true
 };
@@ -7129,73 +7217,73 @@ $$.XColorselector_created_autogenerated_closure9 = {"": "Closure;this_15",
 };
 
 $$.XColorselector_created_autogenerated_closure10 = {"": "Closure;this_16",
-  call$1: function(e) {
+  call$1: function($$event) {
     var t1 = this.this_16;
-    if ($.$eq($.get$value$x(t1.get$__e9()), e) !== true)
-      $.set$value$x(t1.get$__e9(), e);
+    t1.set$bStr($.get$value$x(t1.get$__e11()));
   },
   $isFunction: true
 };
 
 $$.XColorselector_created_autogenerated_closure11 = {"": "Closure;this_17",
-  call$1: function($$event) {
-    var t1 = this.this_17;
-    t1.set$hex_html($.get$value$x(t1.get$__e10()));
+  call$0: function() {
+    return this.this_17.get$bStr();
   },
   $isFunction: true
 };
 
 $$.XColorselector_created_autogenerated_closure12 = {"": "Closure;this_18",
-  call$0: function() {
-    return this.this_18.get$hex_html();
-  },
-  $isFunction: true
-};
-
-$$.XColorselector_created_autogenerated_closure13 = {"": "Closure;this_19",
   call$1: function(e) {
-    var t1 = this.this_19;
-    if ($.$eq($.get$value$x(t1.get$__e10()), e) !== true)
-      $.set$value$x(t1.get$__e10(), e);
-  },
-  $isFunction: true
-};
-
-$$.XColorselector_created_autogenerated_closure14 = {"": "Closure;this_20",
-  call$1: function($$event) {
-    var t1 = this.this_20;
-    t1.set$hex_irgba($.get$value$x(t1.get$__e11()));
-  },
-  $isFunction: true
-};
-
-$$.XColorselector_created_autogenerated_closure15 = {"": "Closure;this_21",
-  call$0: function() {
-    return this.this_21.get$hex_irgba();
-  },
-  $isFunction: true
-};
-
-$$.XColorselector_created_autogenerated_closure16 = {"": "Closure;this_22",
-  call$1: function(e) {
-    var t1 = this.this_22;
+    var t1 = this.this_18;
     if ($.$eq($.get$value$x(t1.get$__e11()), e) !== true)
       $.set$value$x(t1.get$__e11(), e);
   },
   $isFunction: true
 };
 
+$$.XColorselector_created_autogenerated_closure13 = {"": "Closure;this_19",
+  call$1: function($$event) {
+    var t1 = this.this_19;
+    t1.set$hex_html($.get$value$x(t1.get$__e12()));
+  },
+  $isFunction: true
+};
+
+$$.XColorselector_created_autogenerated_closure14 = {"": "Closure;this_20",
+  call$0: function() {
+    return this.this_20.get$hex_html();
+  },
+  $isFunction: true
+};
+
+$$.XColorselector_created_autogenerated_closure15 = {"": "Closure;this_21",
+  call$1: function(e) {
+    var t1 = this.this_21;
+    if ($.$eq($.get$value$x(t1.get$__e12()), e) !== true)
+      $.set$value$x(t1.get$__e12(), e);
+  },
+  $isFunction: true
+};
+
+$$.XColorselector_created_autogenerated_closure16 = {"": "Closure;this_22",
+  call$1: function($$event) {
+    var t1 = this.this_22;
+    t1.set$hex_irgba($.get$value$x(t1.get$__e13()));
+  },
+  $isFunction: true
+};
+
 $$.XColorselector_created_autogenerated_closure17 = {"": "Closure;this_23",
   call$0: function() {
-    return this.this_23.get$hStr();
+    return this.this_23.get$hex_irgba();
   },
   $isFunction: true
 };
 
 $$.XColorselector_created_autogenerated_closure18 = {"": "Closure;this_24",
-  call$1: function($$event) {
+  call$1: function(e) {
     var t1 = this.this_24;
-    t1.set$hStr($.get$value$x(t1.get$__e14()));
+    if ($.$eq($.get$value$x(t1.get$__e13()), e) !== true)
+      $.set$value$x(t1.get$__e13(), e);
   },
   $isFunction: true
 };
@@ -7208,25 +7296,25 @@ $$.XColorselector_created_autogenerated_closure19 = {"": "Closure;this_25",
 };
 
 $$.XColorselector_created_autogenerated_closure20 = {"": "Closure;this_26",
-  call$1: function(e) {
+  call$1: function($$event) {
     var t1 = this.this_26;
-    if ($.$eq($.get$value$x(t1.get$__e14()), e) !== true)
-      $.set$value$x(t1.get$__e14(), e);
+    t1.set$hStr($.get$value$x(t1.get$__e16()));
   },
   $isFunction: true
 };
 
 $$.XColorselector_created_autogenerated_closure21 = {"": "Closure;this_27",
   call$0: function() {
-    return this.this_27.get$sStr();
+    return this.this_27.get$hStr();
   },
   $isFunction: true
 };
 
 $$.XColorselector_created_autogenerated_closure22 = {"": "Closure;this_28",
-  call$1: function($$event) {
+  call$1: function(e) {
     var t1 = this.this_28;
-    t1.set$sStr($.get$value$x(t1.get$__e17()));
+    if ($.$eq($.get$value$x(t1.get$__e16()), e) !== true)
+      $.set$value$x(t1.get$__e16(), e);
   },
   $isFunction: true
 };
@@ -7239,25 +7327,25 @@ $$.XColorselector_created_autogenerated_closure23 = {"": "Closure;this_29",
 };
 
 $$.XColorselector_created_autogenerated_closure24 = {"": "Closure;this_30",
-  call$1: function(e) {
+  call$1: function($$event) {
     var t1 = this.this_30;
-    if ($.$eq($.get$value$x(t1.get$__e17()), e) !== true)
-      $.set$value$x(t1.get$__e17(), e);
+    t1.set$sStr($.get$value$x(t1.get$__e19()));
   },
   $isFunction: true
 };
 
 $$.XColorselector_created_autogenerated_closure25 = {"": "Closure;this_31",
   call$0: function() {
-    return this.this_31.get$vStr();
+    return this.this_31.get$sStr();
   },
   $isFunction: true
 };
 
 $$.XColorselector_created_autogenerated_closure26 = {"": "Closure;this_32",
-  call$1: function($$event) {
+  call$1: function(e) {
     var t1 = this.this_32;
-    t1.set$vStr($.get$value$x(t1.get$__e20()));
+    if ($.$eq($.get$value$x(t1.get$__e19()), e) !== true)
+      $.set$value$x(t1.get$__e19(), e);
   },
   $isFunction: true
 };
@@ -7270,42 +7358,25 @@ $$.XColorselector_created_autogenerated_closure27 = {"": "Closure;this_33",
 };
 
 $$.XColorselector_created_autogenerated_closure28 = {"": "Closure;this_34",
-  call$1: function(e) {
+  call$1: function($$event) {
     var t1 = this.this_34;
-    if ($.$eq($.get$value$x(t1.get$__e20()), e) !== true)
-      $.set$value$x(t1.get$__e20(), e);
+    t1.set$vStr($.get$value$x(t1.get$__e22()));
   },
   $isFunction: true
 };
 
 $$.XColorselector_created_autogenerated_closure29 = {"": "Closure;this_35",
-  call$1: function($$event) {
-    var t1, t2, t3;
-    t1 = this.this_35;
-    t2 = $.getInterceptor$x(t1);
-    t3 = $.irgba_hsl(t2.get$color(t1));
-    if (0 >= t3.length)
-      throw $.ioore(0);
-    t3[0] = $.$mod$n($.$add$ns(t3[0], 0.5), 1);
-    t2.set$color(t1, $.hsl_irgba(t3));
+  call$0: function() {
+    return this.this_35.get$vStr();
   },
   $isFunction: true
 };
 
 $$.XColorselector_created_autogenerated_closure30 = {"": "Closure;this_36",
-  call$1: function($$event) {
-    var t1, t2, t3, t4;
-    t1 = this.this_36;
-    t2 = $.getInterceptor$x(t1);
-    t3 = $.irgba_hsl(t2.get$color(t1));
-    if (1 >= t3.length)
-      throw $.ioore(1);
-    t3[1] = $.$sub$n(t3[1], 1);
-    t4 = $.max(0, t3[1]);
-    if (1 >= t3.length)
-      throw $.ioore(1);
-    t3[1] = t4;
-    t2.set$color(t1, $.hsl_irgba(t3));
+  call$1: function(e) {
+    var t1 = this.this_36;
+    if ($.$eq($.get$value$x(t1.get$__e22()), e) !== true)
+      $.set$value$x(t1.get$__e22(), e);
   },
   $isFunction: true
 };
@@ -7316,13 +7387,12 @@ $$.XColorselector_created_autogenerated_closure31 = {"": "Closure;this_37",
     t1 = this.this_37;
     t2 = $.getInterceptor$x(t1);
     t3 = $.irgba_hsl(t2.get$color(t1));
-    if (2 >= t3.length)
-      throw $.ioore(2);
-    t3[2] = $.$add$ns(t3[2], 0.1);
-    t4 = $.min(1, t3[2]);
-    if (2 >= t3.length)
-      throw $.ioore(2);
-    t3[2] = t4;
+    if (0 >= t3.length)
+      throw $.ioore(0);
+    t4 = $.$mod$n($.$add$ns(t3[0], 0.5), 1);
+    if (0 >= t3.length)
+      throw $.ioore(0);
+    t3[0] = t4;
     t2.set$color(t1, $.hsl_irgba(t3));
   },
   $isFunction: true
@@ -7334,13 +7404,16 @@ $$.XColorselector_created_autogenerated_closure32 = {"": "Closure;this_38",
     t1 = this.this_38;
     t2 = $.getInterceptor$x(t1);
     t3 = $.irgba_hsl(t2.get$color(t1));
-    if (2 >= t3.length)
-      throw $.ioore(2);
-    t3[2] = $.$sub$n(t3[2], 0.1);
-    t4 = $.max(0, t3[2]);
-    if (2 >= t3.length)
-      throw $.ioore(2);
-    t3[2] = t4;
+    if (1 >= t3.length)
+      throw $.ioore(1);
+    t4 = $.$sub$n(t3[1], 1);
+    if (1 >= t3.length)
+      throw $.ioore(1);
+    t3[1] = t4;
+    t4 = $.max(0, t3[1]);
+    if (1 >= t3.length)
+      throw $.ioore(1);
+    t3[1] = t4;
     t2.set$color(t1, $.hsl_irgba(t3));
   },
   $isFunction: true
@@ -7352,13 +7425,16 @@ $$.XColorselector_created_autogenerated_closure33 = {"": "Closure;this_39",
     t1 = this.this_39;
     t2 = $.getInterceptor$x(t1);
     t3 = $.irgba_hsl(t2.get$color(t1));
-    if (1 >= t3.length)
-      throw $.ioore(1);
-    t3[1] = $.$add$ns(t3[1], 0.1);
-    t4 = $.min(1, t3[1]);
-    if (1 >= t3.length)
-      throw $.ioore(1);
-    t3[1] = t4;
+    if (2 >= t3.length)
+      throw $.ioore(2);
+    t4 = $.$add$ns(t3[2], 0.1);
+    if (2 >= t3.length)
+      throw $.ioore(2);
+    t3[2] = t4;
+    t4 = $.min(1, t3[2]);
+    if (2 >= t3.length)
+      throw $.ioore(2);
+    t3[2] = t4;
     t2.set$color(t1, $.hsl_irgba(t3));
   },
   $isFunction: true
@@ -7370,9 +7446,54 @@ $$.XColorselector_created_autogenerated_closure34 = {"": "Closure;this_40",
     t1 = this.this_40;
     t2 = $.getInterceptor$x(t1);
     t3 = $.irgba_hsl(t2.get$color(t1));
+    if (2 >= t3.length)
+      throw $.ioore(2);
+    t4 = $.$sub$n(t3[2], 0.1);
+    if (2 >= t3.length)
+      throw $.ioore(2);
+    t3[2] = t4;
+    t4 = $.max(0, t3[2]);
+    if (2 >= t3.length)
+      throw $.ioore(2);
+    t3[2] = t4;
+    t2.set$color(t1, $.hsl_irgba(t3));
+  },
+  $isFunction: true
+};
+
+$$.XColorselector_created_autogenerated_closure35 = {"": "Closure;this_41",
+  call$1: function($$event) {
+    var t1, t2, t3, t4;
+    t1 = this.this_41;
+    t2 = $.getInterceptor$x(t1);
+    t3 = $.irgba_hsl(t2.get$color(t1));
     if (1 >= t3.length)
       throw $.ioore(1);
-    t3[1] = $.$sub$n(t3[1], 0.1);
+    t4 = $.$add$ns(t3[1], 0.1);
+    if (1 >= t3.length)
+      throw $.ioore(1);
+    t3[1] = t4;
+    t4 = $.min(1, t3[1]);
+    if (1 >= t3.length)
+      throw $.ioore(1);
+    t3[1] = t4;
+    t2.set$color(t1, $.hsl_irgba(t3));
+  },
+  $isFunction: true
+};
+
+$$.XColorselector_created_autogenerated_closure36 = {"": "Closure;this_42",
+  call$1: function($$event) {
+    var t1, t2, t3, t4;
+    t1 = this.this_42;
+    t2 = $.getInterceptor$x(t1);
+    t3 = $.irgba_hsl(t2.get$color(t1));
+    if (1 >= t3.length)
+      throw $.ioore(1);
+    t4 = $.$sub$n(t3[1], 0.1);
+    if (1 >= t3.length)
+      throw $.ioore(1);
+    t3[1] = t4;
     t4 = $.max(0, t3[1]);
     if (1 >= t3.length)
       throw $.ioore(1);
@@ -7382,275 +7503,275 @@ $$.XColorselector_created_autogenerated_closure34 = {"": "Closure;this_40",
   $isFunction: true
 };
 
-$$.XColorselector_created_autogenerated_closure35 = {"": "Closure;this_41",
+$$.XColorselector_created_autogenerated_closure37 = {"": "Closure;this_43",
   call$1: function($$event) {
     var max = 16777216;
-    $.set$color$x(this.this_41, (Math.random() * max >>> 0 << 8 | 255) >>> 0);
+    $.set$color$x(this.this_43, (Math.random() * max >>> 0 << 8 | 255) >>> 0);
   },
   $isFunction: true
 };
 
-$$.XColorselector_created_autogenerated_closure36 = {"": "Closure;this_42",
+$$.XColorselector_created_autogenerated_closure38 = {"": "Closure;this_44",
   call$0: function() {
-    return this.this_42.get$triad();
+    return this.this_44.get$triad();
   },
   $isFunction: true
 };
 
-$$.XColorselector_created_autogenerated_closure37 = {"": "Closure;this_43",
+$$.XColorselector_created_autogenerated_closure39 = {"": "Closure;this_45",
   call$3: function($$list, $$index, __t) {
-    var t1, c, __e29, __binding28, t2;
+    var t1, c, __e31, __binding30, t2;
     t1 = {};
     c = $.$index$asx($$list, $$index);
-    t1.__e30_0 = null;
-    __e29 = $.clone$1$x($.get$XColorselector___html2(), true);
-    __binding28 = __t.contentBind$2(new $.XColorselector_created_autogenerated__closure15(c), false);
-    $.add$1$ax($.get$nodes$x(__e29), __binding28);
-    t1.__e30_0 = $.clone$1$x($.get$XColorselector___html3(), true);
-    __t.listen$2($.get$onClick$x(t1.__e30_0), new $.XColorselector_created_autogenerated__closure16(this.this_43, c));
+    t1.__e32_0 = null;
+    __e31 = $.clone$1$x($.get$XColorselector___html2(), true);
+    __binding30 = __t.contentBind$2(new $.XColorselector_created_autogenerated__closure15(c), false);
+    $.add$1$ax($.get$nodes$x(__e31), __binding30);
+    t1.__e32_0 = $.clone$1$x($.get$XColorselector___html3(), true);
+    __t.listen$2($.get$onClick$x(t1.__e32_0), new $.XColorselector_created_autogenerated__closure16(this.this_45, c));
     t2 = $.getInterceptor$x(__t);
     t2.bind$3(__t, new $.XColorselector_created_autogenerated__closure17(c), new $.XColorselector_created_autogenerated__closure18(t1), false);
-    t2.addAll$1(__t, [document.createTextNode("\n              "), __e29, document.createTextNode("\n              "), t1.__e30_0, document.createTextNode("\n              "), $.get$XColorselector___html1().cloneNode(true), document.createTextNode("\n            ")]);
+    t2.addAll$1(__t, [document.createTextNode("\n              "), __e31, document.createTextNode("\n              "), t1.__e32_0, document.createTextNode("\n              "), $.get$XColorselector___html1().cloneNode(true), document.createTextNode("\n            ")]);
   },
   $isFunction: true
 };
 
-$$.XColorselector_created_autogenerated__closure15 = {"": "Closure;c_44",
+$$.XColorselector_created_autogenerated__closure15 = {"": "Closure;c_46",
   call$0: function() {
-    return $.irgba_hexString(this.c_44);
+    return $.irgba_hexString(this.c_46);
   },
   $isFunction: true
 };
 
-$$.XColorselector_created_autogenerated__closure16 = {"": "Closure;this_45,c_46",
+$$.XColorselector_created_autogenerated__closure16 = {"": "Closure;this_47,c_48",
   call$1: function($$event) {
-    $.set$color$x(this.this_45, this.c_46);
+    $.set$color$x(this.this_47, this.c_48);
   },
   $isFunction: true
 };
 
-$$.XColorselector_created_autogenerated__closure17 = {"": "Closure;c_47",
+$$.XColorselector_created_autogenerated__closure17 = {"": "Closure;c_49",
   call$0: function() {
-    return $.JSString_methods.$add("#", $.JSString_methods.substring$1($.JSInt_methods.toRadixString$1(($.$shr$n(this.c_47, 8) | 16777216) >>> 0, 16), 1));
+    return $.JSString_methods.$add("#", $.JSString_methods.substring$1($.JSInt_methods.toRadixString$1(($.$shr$n(this.c_49, 8) | 16777216) >>> 0, 16), 1));
   },
   $isFunction: true
 };
 
 $$.XColorselector_created_autogenerated__closure18 = {"": "Closure;box_0",
   call$1: function(__e) {
-    $.$indexSet$ax($.get$attributes$x(this.box_0.__e30_0), "style", "background-color:" + $.S($.get$newValue$x(__e)));
+    $.$indexSet$ax($.get$attributes$x(this.box_0.__e32_0), "style", "background-color:" + $.S($.get$newValue$x(__e)));
   },
   $isFunction: true
 };
 
-$$.XColorselector_created_autogenerated_closure38 = {"": "Closure;this_48",
+$$.XColorselector_created_autogenerated_closure40 = {"": "Closure;this_50",
   call$0: function() {
-    return this.this_48.get$tetrad();
+    return this.this_50.get$tetrad();
   },
   $isFunction: true
 };
 
-$$.XColorselector_created_autogenerated_closure39 = {"": "Closure;this_49",
+$$.XColorselector_created_autogenerated_closure41 = {"": "Closure;this_51",
   call$3: function($$list, $$index, __t) {
-    var t1, c, __e33, __binding32, t2;
+    var t1, c, __e35, __binding34, t2;
     t1 = {};
     c = $.$index$asx($$list, $$index);
-    t1.__e34_1 = null;
-    __e33 = $.clone$1$x($.get$XColorselector___html5(), true);
-    __binding32 = __t.contentBind$2(new $.XColorselector_created_autogenerated__closure11(c), false);
-    $.add$1$ax($.get$nodes$x(__e33), __binding32);
-    t1.__e34_1 = $.clone$1$x($.get$XColorselector___html6(), true);
-    __t.listen$2($.get$onClick$x(t1.__e34_1), new $.XColorselector_created_autogenerated__closure12(this.this_49, c));
+    t1.__e36_1 = null;
+    __e35 = $.clone$1$x($.get$XColorselector___html5(), true);
+    __binding34 = __t.contentBind$2(new $.XColorselector_created_autogenerated__closure11(c), false);
+    $.add$1$ax($.get$nodes$x(__e35), __binding34);
+    t1.__e36_1 = $.clone$1$x($.get$XColorselector___html6(), true);
+    __t.listen$2($.get$onClick$x(t1.__e36_1), new $.XColorselector_created_autogenerated__closure12(this.this_51, c));
     t2 = $.getInterceptor$x(__t);
     t2.bind$3(__t, new $.XColorselector_created_autogenerated__closure13(c), new $.XColorselector_created_autogenerated__closure14(t1), false);
-    t2.addAll$1(__t, [document.createTextNode("\n              "), __e33, document.createTextNode("\n              "), t1.__e34_1, document.createTextNode("\n              "), $.get$XColorselector___html4().cloneNode(true), document.createTextNode("\n            ")]);
+    t2.addAll$1(__t, [document.createTextNode("\n              "), __e35, document.createTextNode("\n              "), t1.__e36_1, document.createTextNode("\n              "), $.get$XColorselector___html4().cloneNode(true), document.createTextNode("\n            ")]);
   },
   $isFunction: true
 };
 
-$$.XColorselector_created_autogenerated__closure11 = {"": "Closure;c_50",
+$$.XColorselector_created_autogenerated__closure11 = {"": "Closure;c_52",
   call$0: function() {
-    return $.irgba_hexString(this.c_50);
+    return $.irgba_hexString(this.c_52);
   },
   $isFunction: true
 };
 
-$$.XColorselector_created_autogenerated__closure12 = {"": "Closure;this_51,c_52",
+$$.XColorselector_created_autogenerated__closure12 = {"": "Closure;this_53,c_54",
   call$1: function($$event) {
-    $.set$color$x(this.this_51, this.c_52);
+    $.set$color$x(this.this_53, this.c_54);
   },
   $isFunction: true
 };
 
-$$.XColorselector_created_autogenerated__closure13 = {"": "Closure;c_53",
+$$.XColorselector_created_autogenerated__closure13 = {"": "Closure;c_55",
   call$0: function() {
-    return $.JSString_methods.$add("#", $.JSString_methods.substring$1($.JSInt_methods.toRadixString$1(($.$shr$n(this.c_53, 8) | 16777216) >>> 0, 16), 1));
+    return $.JSString_methods.$add("#", $.JSString_methods.substring$1($.JSInt_methods.toRadixString$1(($.$shr$n(this.c_55, 8) | 16777216) >>> 0, 16), 1));
   },
   $isFunction: true
 };
 
 $$.XColorselector_created_autogenerated__closure14 = {"": "Closure;box_1",
   call$1: function(__e) {
-    $.$indexSet$ax($.get$attributes$x(this.box_1.__e34_1), "style", "background-color:" + $.S($.get$newValue$x(__e)));
+    $.$indexSet$ax($.get$attributes$x(this.box_1.__e36_1), "style", "background-color:" + $.S($.get$newValue$x(__e)));
   },
   $isFunction: true
 };
 
-$$.XColorselector_created_autogenerated_closure40 = {"": "Closure;this_54",
+$$.XColorselector_created_autogenerated_closure42 = {"": "Closure;this_56",
   call$0: function() {
-    return this.this_54.get$splitcomplement();
+    return this.this_56.get$splitcomplement();
   },
   $isFunction: true
 };
 
-$$.XColorselector_created_autogenerated_closure41 = {"": "Closure;this_55",
+$$.XColorselector_created_autogenerated_closure43 = {"": "Closure;this_57",
   call$3: function($$list, $$index, __t) {
-    var t1, c, __e37, __binding36, t2;
+    var t1, c, __e39, __binding38, t2;
     t1 = {};
     c = $.$index$asx($$list, $$index);
-    t1.__e38_2 = null;
-    __e37 = $.clone$1$x($.get$XColorselector___html8(), true);
-    __binding36 = __t.contentBind$2(new $.XColorselector_created_autogenerated__closure7(c), false);
-    $.add$1$ax($.get$nodes$x(__e37), __binding36);
-    t1.__e38_2 = $.clone$1$x($.get$XColorselector___html9(), true);
-    __t.listen$2($.get$onClick$x(t1.__e38_2), new $.XColorselector_created_autogenerated__closure8(this.this_55, c));
+    t1.__e40_2 = null;
+    __e39 = $.clone$1$x($.get$XColorselector___html8(), true);
+    __binding38 = __t.contentBind$2(new $.XColorselector_created_autogenerated__closure7(c), false);
+    $.add$1$ax($.get$nodes$x(__e39), __binding38);
+    t1.__e40_2 = $.clone$1$x($.get$XColorselector___html9(), true);
+    __t.listen$2($.get$onClick$x(t1.__e40_2), new $.XColorselector_created_autogenerated__closure8(this.this_57, c));
     t2 = $.getInterceptor$x(__t);
     t2.bind$3(__t, new $.XColorselector_created_autogenerated__closure9(c), new $.XColorselector_created_autogenerated__closure10(t1), false);
-    t2.addAll$1(__t, [document.createTextNode("\n              "), __e37, document.createTextNode("\n              "), t1.__e38_2, document.createTextNode("\n              "), $.get$XColorselector___html7().cloneNode(true), document.createTextNode("\n            ")]);
+    t2.addAll$1(__t, [document.createTextNode("\n              "), __e39, document.createTextNode("\n              "), t1.__e40_2, document.createTextNode("\n              "), $.get$XColorselector___html7().cloneNode(true), document.createTextNode("\n            ")]);
   },
   $isFunction: true
 };
 
-$$.XColorselector_created_autogenerated__closure7 = {"": "Closure;c_56",
+$$.XColorselector_created_autogenerated__closure7 = {"": "Closure;c_58",
   call$0: function() {
-    return $.irgba_hexString(this.c_56);
+    return $.irgba_hexString(this.c_58);
   },
   $isFunction: true
 };
 
-$$.XColorselector_created_autogenerated__closure8 = {"": "Closure;this_57,c_58",
+$$.XColorselector_created_autogenerated__closure8 = {"": "Closure;this_59,c_60",
   call$1: function($$event) {
-    $.set$color$x(this.this_57, this.c_58);
+    $.set$color$x(this.this_59, this.c_60);
   },
   $isFunction: true
 };
 
-$$.XColorselector_created_autogenerated__closure9 = {"": "Closure;c_59",
+$$.XColorselector_created_autogenerated__closure9 = {"": "Closure;c_61",
   call$0: function() {
-    return $.JSString_methods.$add("#", $.JSString_methods.substring$1($.JSInt_methods.toRadixString$1(($.$shr$n(this.c_59, 8) | 16777216) >>> 0, 16), 1));
+    return $.JSString_methods.$add("#", $.JSString_methods.substring$1($.JSInt_methods.toRadixString$1(($.$shr$n(this.c_61, 8) | 16777216) >>> 0, 16), 1));
   },
   $isFunction: true
 };
 
 $$.XColorselector_created_autogenerated__closure10 = {"": "Closure;box_2",
   call$1: function(__e) {
-    $.$indexSet$ax($.get$attributes$x(this.box_2.__e38_2), "style", "background-color:" + $.S($.get$newValue$x(__e)));
+    $.$indexSet$ax($.get$attributes$x(this.box_2.__e40_2), "style", "background-color:" + $.S($.get$newValue$x(__e)));
   },
   $isFunction: true
 };
 
-$$.XColorselector_created_autogenerated_closure42 = {"": "Closure;this_60",
+$$.XColorselector_created_autogenerated_closure44 = {"": "Closure;this_62",
   call$0: function() {
-    return this.this_60.get$analogous();
+    return this.this_62.get$analogous();
   },
   $isFunction: true
 };
 
-$$.XColorselector_created_autogenerated_closure43 = {"": "Closure;this_61",
+$$.XColorselector_created_autogenerated_closure45 = {"": "Closure;this_63",
   call$3: function($$list, $$index, __t) {
-    var t1, c, __e41, __binding40, t2;
+    var t1, c, __e43, __binding42, t2;
     t1 = {};
     c = $.$index$asx($$list, $$index);
-    t1.__e42_3 = null;
-    __e41 = $.clone$1$x($.get$XColorselector___html11(), true);
-    __binding40 = __t.contentBind$2(new $.XColorselector_created_autogenerated__closure3(c), false);
-    $.add$1$ax($.get$nodes$x(__e41), __binding40);
-    t1.__e42_3 = $.clone$1$x($.get$XColorselector___html12(), true);
-    __t.listen$2($.get$onClick$x(t1.__e42_3), new $.XColorselector_created_autogenerated__closure4(this.this_61, c));
+    t1.__e44_3 = null;
+    __e43 = $.clone$1$x($.get$XColorselector___html11(), true);
+    __binding42 = __t.contentBind$2(new $.XColorselector_created_autogenerated__closure3(c), false);
+    $.add$1$ax($.get$nodes$x(__e43), __binding42);
+    t1.__e44_3 = $.clone$1$x($.get$XColorselector___html12(), true);
+    __t.listen$2($.get$onClick$x(t1.__e44_3), new $.XColorselector_created_autogenerated__closure4(this.this_63, c));
     t2 = $.getInterceptor$x(__t);
     t2.bind$3(__t, new $.XColorselector_created_autogenerated__closure5(c), new $.XColorselector_created_autogenerated__closure6(t1), false);
-    t2.addAll$1(__t, [document.createTextNode("\n              "), __e41, document.createTextNode("\n              "), t1.__e42_3, document.createTextNode("\n              "), $.get$XColorselector___html10().cloneNode(true), document.createTextNode("\n            ")]);
+    t2.addAll$1(__t, [document.createTextNode("\n              "), __e43, document.createTextNode("\n              "), t1.__e44_3, document.createTextNode("\n              "), $.get$XColorselector___html10().cloneNode(true), document.createTextNode("\n            ")]);
   },
   $isFunction: true
 };
 
-$$.XColorselector_created_autogenerated__closure3 = {"": "Closure;c_62",
+$$.XColorselector_created_autogenerated__closure3 = {"": "Closure;c_64",
   call$0: function() {
-    return $.irgba_hexString(this.c_62);
+    return $.irgba_hexString(this.c_64);
   },
   $isFunction: true
 };
 
-$$.XColorselector_created_autogenerated__closure4 = {"": "Closure;this_63,c_64",
+$$.XColorselector_created_autogenerated__closure4 = {"": "Closure;this_65,c_66",
   call$1: function($$event) {
-    $.set$color$x(this.this_63, this.c_64);
+    $.set$color$x(this.this_65, this.c_66);
   },
   $isFunction: true
 };
 
-$$.XColorselector_created_autogenerated__closure5 = {"": "Closure;c_65",
+$$.XColorselector_created_autogenerated__closure5 = {"": "Closure;c_67",
   call$0: function() {
-    return $.JSString_methods.$add("#", $.JSString_methods.substring$1($.JSInt_methods.toRadixString$1(($.$shr$n(this.c_65, 8) | 16777216) >>> 0, 16), 1));
+    return $.JSString_methods.$add("#", $.JSString_methods.substring$1($.JSInt_methods.toRadixString$1(($.$shr$n(this.c_67, 8) | 16777216) >>> 0, 16), 1));
   },
   $isFunction: true
 };
 
 $$.XColorselector_created_autogenerated__closure6 = {"": "Closure;box_3",
   call$1: function(__e) {
-    $.$indexSet$ax($.get$attributes$x(this.box_3.__e42_3), "style", "background-color:" + $.S($.get$newValue$x(__e)));
+    $.$indexSet$ax($.get$attributes$x(this.box_3.__e44_3), "style", "background-color:" + $.S($.get$newValue$x(__e)));
   },
   $isFunction: true
 };
 
-$$.XColorselector_created_autogenerated_closure44 = {"": "Closure;this_66",
+$$.XColorselector_created_autogenerated_closure46 = {"": "Closure;this_68",
   call$0: function() {
-    return this.this_66.get$monochromatic();
+    return this.this_68.get$monochromatic();
   },
   $isFunction: true
 };
 
-$$.XColorselector_created_autogenerated_closure45 = {"": "Closure;this_67",
+$$.XColorselector_created_autogenerated_closure47 = {"": "Closure;this_69",
   call$3: function($$list, $$index, __t) {
-    var t1, c, __e45, __binding44, t2;
+    var t1, c, __e47, __binding46, t2;
     t1 = {};
     c = $.$index$asx($$list, $$index);
-    t1.__e46_4 = null;
-    __e45 = $.clone$1$x($.get$XColorselector___html14(), true);
-    __binding44 = __t.contentBind$2(new $.XColorselector_created_autogenerated__closure(c), false);
-    $.add$1$ax($.get$nodes$x(__e45), __binding44);
-    t1.__e46_4 = $.clone$1$x($.get$XColorselector___html15(), true);
-    __t.listen$2($.get$onClick$x(t1.__e46_4), new $.XColorselector_created_autogenerated__closure0(this.this_67, c));
+    t1.__e48_4 = null;
+    __e47 = $.clone$1$x($.get$XColorselector___html14(), true);
+    __binding46 = __t.contentBind$2(new $.XColorselector_created_autogenerated__closure(c), false);
+    $.add$1$ax($.get$nodes$x(__e47), __binding46);
+    t1.__e48_4 = $.clone$1$x($.get$XColorselector___html15(), true);
+    __t.listen$2($.get$onClick$x(t1.__e48_4), new $.XColorselector_created_autogenerated__closure0(this.this_69, c));
     t2 = $.getInterceptor$x(__t);
     t2.bind$3(__t, new $.XColorselector_created_autogenerated__closure1(c), new $.XColorselector_created_autogenerated__closure2(t1), false);
-    t2.addAll$1(__t, [document.createTextNode("\n              "), __e45, document.createTextNode("\n              "), t1.__e46_4, document.createTextNode("\n              "), $.get$XColorselector___html13().cloneNode(true), document.createTextNode("\n            ")]);
+    t2.addAll$1(__t, [document.createTextNode("\n              "), __e47, document.createTextNode("\n              "), t1.__e48_4, document.createTextNode("\n              "), $.get$XColorselector___html13().cloneNode(true), document.createTextNode("\n            ")]);
   },
   $isFunction: true
 };
 
-$$.XColorselector_created_autogenerated__closure = {"": "Closure;c_68",
+$$.XColorselector_created_autogenerated__closure = {"": "Closure;c_70",
   call$0: function() {
-    return $.irgba_hexString(this.c_68);
+    return $.irgba_hexString(this.c_70);
   },
   $isFunction: true
 };
 
-$$.XColorselector_created_autogenerated__closure0 = {"": "Closure;this_69,c_70",
+$$.XColorselector_created_autogenerated__closure0 = {"": "Closure;this_71,c_72",
   call$1: function($$event) {
-    $.set$color$x(this.this_69, this.c_70);
+    $.set$color$x(this.this_71, this.c_72);
   },
   $isFunction: true
 };
 
-$$.XColorselector_created_autogenerated__closure1 = {"": "Closure;c_71",
+$$.XColorselector_created_autogenerated__closure1 = {"": "Closure;c_73",
   call$0: function() {
-    return $.JSString_methods.$add("#", $.JSString_methods.substring$1($.JSInt_methods.toRadixString$1(($.$shr$n(this.c_71, 8) | 16777216) >>> 0, 16), 1));
+    return $.JSString_methods.$add("#", $.JSString_methods.substring$1($.JSInt_methods.toRadixString$1(($.$shr$n(this.c_73, 8) | 16777216) >>> 0, 16), 1));
   },
   $isFunction: true
 };
 
 $$.XColorselector_created_autogenerated__closure2 = {"": "Closure;box_4",
   call$1: function(__e) {
-    $.$indexSet$ax($.get$attributes$x(this.box_4.__e46_4), "style", "background-color:" + $.S($.get$newValue$x(__e)));
+    $.$indexSet$ax($.get$attributes$x(this.box_4.__e48_4), "style", "background-color:" + $.S($.get$newValue$x(__e)));
   },
   $isFunction: true
 };
@@ -7678,6 +7799,8 @@ $$.hsl_irgba_hue2rgb = {"": "Closure;",
   },
   $isFunction: true
 };
+
+$$._Deprecated = {"": "Object;"};
 
 $$.ChangeNotification = {"": "Object;oldValue,newValue>,changes",
   changes$1: function(arg0) {
@@ -8608,6 +8731,9 @@ $$.WebComponent = {"": "Object;",
   queryAll$1: function(_, selectors) {
     return $.queryAll$1$x(this.get$host(this), selectors);
   },
+  getBoundingClientRect$0: function(_) {
+    return $.getBoundingClientRect$0$x(this.get$host(this));
+  },
   get$$$dom_firstChild: function(_) {
     return $.get$$$dom_firstChild$x(this.get$host(this));
   },
@@ -8664,7 +8790,7 @@ $$._WorkerStub = {"": "Interceptor;",
 
 $$._HTMLElement = {"": "Element;"};
 
-$$.AnchorElement = {"": "Element;type=",
+$$.AnchorElement = {"": "Element;target=,type=",
   toString$0: function(receiver) {
     return receiver.toString();
   }
@@ -8672,7 +8798,7 @@ $$.AnchorElement = {"": "Element;type=",
 
 $$.AnimationEvent = {"": "Event;"};
 
-$$.AreaElement = {"": "Element;"};
+$$.AreaElement = {"": "Element;target="};
 
 $$.Attr = {"": "Node;"};
 
@@ -8682,7 +8808,7 @@ $$.AutocompleteErrorEvent = {"": "Event;"};
 
 $$.BRElement = {"": "Element;"};
 
-$$.BaseElement = {"": "Element;"};
+$$.BaseElement = {"": "Element;target="};
 
 $$.BeforeLoadEvent = {"": "Event;"};
 
@@ -8964,6 +9090,9 @@ $$.Element = {"": "Node;xtag%,_templateIterator%,_templateInstanceRef},_template
       throw $.wrapException($.UnsupportedError$($.S(receiver) + " is not a template."));
     $.TemplateElement_decorate(receiver, null);
   },
+  getBoundingClientRect$0: function(receiver) {
+    return receiver.getBoundingClientRect();
+  },
   query$1: function(receiver, selectors) {
     return receiver.querySelector(selectors);
   },
@@ -8987,7 +9116,11 @@ $$.EmbedElement = {"": "Element;type="};
 
 $$.ErrorEvent = {"": "Event;"};
 
-$$.Event = {"": "Interceptor;type="};
+$$.Event = {"": "Interceptor;type=",
+  get$target: function(receiver) {
+    return $._convertNativeToDart_EventTarget(receiver.target);
+  }
+};
 
 $$.EventException = {"": "Interceptor;",
   toString$0: function(receiver) {
@@ -9016,7 +9149,7 @@ $$.FileException = {"": "Interceptor;",
 
 $$.FocusEvent = {"": "UIEvent;"};
 
-$$.FormElement = {"": "Element;length="};
+$$.FormElement = {"": "Element;length=,target="};
 
 $$.HRElement = {"": "Element;"};
 
@@ -9069,7 +9202,7 @@ $$.HttpRequestProgressEvent = {"": "ProgressEvent;"};
 
 $$.IFrameElement = {"": "Element;"};
 
-$$.ImageElement = {"": "Element;"};
+$$.ImageElement = {"": "Element;x=,y="};
 
 $$.InputElement = {"": "Element;_checkedBinding=,form=,type=,value%",
   bind$3: function(receiver, $name, model, path) {
@@ -9180,7 +9313,30 @@ $$.MeterElement = {"": "Element;value%"};
 
 $$.ModElement = {"": "Element;"};
 
-$$.MouseEvent = {"": "UIEvent;"};
+$$.MouseEvent = {"": "UIEvent;",
+  get$offsetX: function(receiver) {
+    return this.get$offset(receiver).x;
+  },
+  get$offsetY: function(receiver) {
+    return this.get$offset(receiver).y;
+  },
+  get$client: function(receiver) {
+    return $.Point$(receiver.clientX, receiver.clientY);
+  },
+  get$offset: function(receiver) {
+    var target, t1;
+    if (!!receiver.offsetX)
+      return $.Point$(receiver.offsetX, receiver.offsetY);
+    else {
+      target = this.get$target(receiver);
+      if (typeof target !== "object" || target === null || !$.getInterceptor(target).$isElement)
+        throw $.wrapException($.UnsupportedError$("offsetX is only supported on elements"));
+      t1 = this.get$client(receiver);
+      t1 = t1.$sub(t1, $.get$topLeft$x($.getBoundingClientRect$0$x(this.get$target(receiver))));
+      return t1.toInt$0(t1);
+    }
+  }
+};
 
 $$.MutationEvent = {"": "Event;newValue="};
 
@@ -9343,7 +9499,7 @@ $$.PositionError = {"": "Interceptor;"};
 
 $$.PreElement = {"": "Element;"};
 
-$$.ProcessingInstruction = {"": "Node;"};
+$$.ProcessingInstruction = {"": "Node;target="};
 
 $$.ProgressElement = {"": "Element;value%"};
 
@@ -9526,6 +9682,51 @@ $$.XPathException = {"": "Interceptor;",
   }
 };
 
+$$._ClientRect = {"": "Interceptor;height=,left=,right=,top=,width=",
+  toString$0: function(receiver) {
+    return "(" + $.S(receiver.left) + ", " + $.S(receiver.top) + ", " + $.S(receiver.width) + ", " + $.S(receiver.height) + ")";
+  },
+  $eq: function(receiver, other) {
+    var t1, t2, t3;
+    if (other == null)
+      return false;
+    if (typeof other !== "object" || other === null || !$.getInterceptor(other).$isRect)
+      return false;
+    t1 = receiver.left;
+    t2 = $.getInterceptor$x(other);
+    t3 = t2.get$left(other);
+    if (t1 == null ? t3 == null : t1 === t3) {
+      t1 = receiver.top;
+      t3 = t2.get$top(other);
+      if (t1 == null ? t3 == null : t1 === t3) {
+        t1 = receiver.width;
+        t3 = t2.get$width(other);
+        if (t1 == null ? t3 == null : t1 === t3) {
+          t1 = receiver.height;
+          t2 = t2.get$height(other);
+          t2 = t1 == null ? t2 == null : t1 === t2;
+          t1 = t2;
+        } else
+          t1 = false;
+      } else
+        t1 = false;
+    } else
+      t1 = false;
+    return t1;
+  },
+  floor$0: function(receiver) {
+    return $.Rect$($.floor$0$nx(receiver.left), $.floor$0$nx(receiver.top), $.floor$0$nx(receiver.width), $.floor$0$nx(receiver.height));
+  },
+  toInt$0: function(receiver) {
+    return $.Rect$($.toInt$0$nx(receiver.left), $.toInt$0$nx(receiver.top), $.toInt$0$nx(receiver.width), $.toInt$0$nx(receiver.height));
+  },
+  get$topLeft: function(receiver) {
+    return $.Point$(receiver.left, receiver.top);
+  },
+  $isRect: true,
+  $asRect: null
+};
+
 $$._NamedNodeMap = {"": "Object_ListMixin_ImmutableListMixin1;",
   get$length: function(receiver) {
     return receiver.length;
@@ -9549,7 +9750,7 @@ $$._NamedNodeMap = {"": "Object_ListMixin_ImmutableListMixin1;",
 
 $$.VersionChangeEvent = {"": "Event;"};
 
-$$.AElement = {"": "StyledElement;"};
+$$.AElement = {"": "StyledElement;target="};
 
 $$.AltGlyphElement = {"": "TextPositioningElement;"};
 
@@ -9563,7 +9764,13 @@ $$.AnimatedEnumeration = {"": "Interceptor;"};
 
 $$.AnimatedLength = {"": "Interceptor;"};
 
+$$.AnimatedLengthList = {"": "Interceptor;"};
+
+$$.AnimatedNumber = {"": "Interceptor;"};
+
 $$.AnimatedNumberList = {"": "Interceptor;"};
+
+$$.AnimatedString = {"": "Interceptor;"};
 
 $$.AnimationElement = {"": "SvgElement;"};
 
@@ -9577,23 +9784,23 @@ $$.DescElement = {"": "StyledElement;"};
 
 $$.EllipseElement = {"": "StyledElement;"};
 
-$$.FEBlendElement = {"": "StyledElement;"};
+$$.FEBlendElement = {"": "StyledElement;x=,y="};
 
-$$.FEColorMatrixElement = {"": "StyledElement;type=,values="};
+$$.FEColorMatrixElement = {"": "StyledElement;type=,values=,x=,y="};
 
-$$.FEComponentTransferElement = {"": "StyledElement;"};
+$$.FEComponentTransferElement = {"": "StyledElement;x=,y="};
 
-$$.FECompositeElement = {"": "StyledElement;"};
+$$.FECompositeElement = {"": "StyledElement;x=,y="};
 
-$$.FEConvolveMatrixElement = {"": "StyledElement;"};
+$$.FEConvolveMatrixElement = {"": "StyledElement;x=,y="};
 
-$$.FEDiffuseLightingElement = {"": "StyledElement;"};
+$$.FEDiffuseLightingElement = {"": "StyledElement;x=,y="};
 
-$$.FEDisplacementMapElement = {"": "StyledElement;"};
+$$.FEDisplacementMapElement = {"": "StyledElement;x=,y="};
 
 $$.FEDistantLightElement = {"": "SvgElement;"};
 
-$$.FEFloodElement = {"": "StyledElement;"};
+$$.FEFloodElement = {"": "StyledElement;x=,y="};
 
 $$.FEFuncAElement = {"": "_SVGComponentTransferFunctionElement;"};
 
@@ -9603,35 +9810,35 @@ $$.FEFuncGElement = {"": "_SVGComponentTransferFunctionElement;"};
 
 $$.FEFuncRElement = {"": "_SVGComponentTransferFunctionElement;"};
 
-$$.FEGaussianBlurElement = {"": "StyledElement;"};
+$$.FEGaussianBlurElement = {"": "StyledElement;x=,y="};
 
-$$.FEImageElement = {"": "StyledElement;"};
+$$.FEImageElement = {"": "StyledElement;x=,y="};
 
-$$.FEMergeElement = {"": "StyledElement;"};
+$$.FEMergeElement = {"": "StyledElement;x=,y="};
 
 $$.FEMergeNodeElement = {"": "SvgElement;"};
 
-$$.FEMorphologyElement = {"": "StyledElement;"};
+$$.FEMorphologyElement = {"": "StyledElement;x=,y="};
 
-$$.FEOffsetElement = {"": "StyledElement;"};
+$$.FEOffsetElement = {"": "StyledElement;x=,y="};
 
-$$.FEPointLightElement = {"": "SvgElement;"};
+$$.FEPointLightElement = {"": "SvgElement;x=,y="};
 
-$$.FESpecularLightingElement = {"": "StyledElement;"};
+$$.FESpecularLightingElement = {"": "StyledElement;x=,y="};
 
-$$.FESpotLightElement = {"": "SvgElement;"};
+$$.FESpotLightElement = {"": "SvgElement;x=,y="};
 
-$$.FETileElement = {"": "StyledElement;"};
+$$.FETileElement = {"": "StyledElement;x=,y="};
 
-$$.FETurbulenceElement = {"": "StyledElement;type="};
+$$.FETurbulenceElement = {"": "StyledElement;type=,x=,y="};
 
-$$.FilterElement = {"": "StyledElement;"};
+$$.FilterElement = {"": "StyledElement;x=,y="};
 
-$$.ForeignObjectElement = {"": "StyledElement;"};
+$$.ForeignObjectElement = {"": "StyledElement;x=,y="};
 
 $$.GElement = {"": "StyledElement;"};
 
-$$.ImageElement0 = {"": "StyledElement;"};
+$$.ImageElement0 = {"": "StyledElement;x=,y="};
 
 $$.LineElement = {"": "StyledElement;"};
 
@@ -9639,13 +9846,13 @@ $$.LinearGradientElement = {"": "_GradientElement;"};
 
 $$.MarkerElement = {"": "StyledElement;"};
 
-$$.MaskElement = {"": "StyledElement;"};
+$$.MaskElement = {"": "StyledElement;x=,y="};
 
 $$.MetadataElement = {"": "SvgElement;"};
 
 $$.PathElement = {"": "StyledElement;"};
 
-$$.PatternElement = {"": "StyledElement;"};
+$$.PatternElement = {"": "StyledElement;x=,y="};
 
 $$.PolygonElement = {"": "StyledElement;"};
 
@@ -9653,7 +9860,7 @@ $$.PolylineElement = {"": "StyledElement;"};
 
 $$.RadialGradientElement = {"": "_GradientElement;"};
 
-$$.RectElement = {"": "StyledElement;"};
+$$.RectElement = {"": "StyledElement;x=,y="};
 
 $$.ScriptElement0 = {"": "SvgElement;type="};
 
@@ -9697,7 +9904,7 @@ $$.SvgException = {"": "Interceptor;",
   }
 };
 
-$$.SvgSvgElement = {"": "StyledElement;"};
+$$.SvgSvgElement = {"": "StyledElement;x=,y="};
 
 $$.SwitchElement = {"": "StyledElement;"};
 
@@ -9711,11 +9918,11 @@ $$.TextElement = {"": "TextPositioningElement;"};
 
 $$.TextPathElement = {"": "TextContentElement;"};
 
-$$.TextPositioningElement = {"": "TextContentElement;"};
+$$.TextPositioningElement = {"": "TextContentElement;x=,y="};
 
 $$.TitleElement0 = {"": "StyledElement;"};
 
-$$.UseElement = {"": "StyledElement;"};
+$$.UseElement = {"": "StyledElement;x=,y="};
 
 $$.ViewElement = {"": "SvgElement;"};
 
@@ -10152,9 +10359,9 @@ $.SkipIterator$ = function(_iterator, _skipCount) {
 };
 
 $.IterableMixinWorkaround_contains = function(iterable, element) {
-  var t1;
-  for (t1 = $.get$iterator$ax(iterable); t1.moveNext$0();)
-    if (element === t1.get$current())
+  var t1, t2;
+  for (t1 = $.get$iterator$ax(iterable), t2 = $.getInterceptor(element); t1.moveNext$0();)
+    if (t2.$eq(element, t1.get$current()))
       return true;
   return false;
 };
@@ -10178,7 +10385,7 @@ $.IterableMixinWorkaround_setRangeList = function(list, start, end, from, skipCo
   var $length, otherStart, otherList;
   $.IterableMixinWorkaround__rangeCheck(list, start, end);
   $length = $.$sub$n(end, start);
-  if ($.$eq($length, 0))
+  if ($.$eq($length, 0) === true)
     return;
   if (skipCount < 0)
     throw $.wrapException($.ArgumentError$(skipCount));
@@ -11525,10 +11732,9 @@ $._FutureImpl__FutureImpl$wait = function(futures, T) {
     t1.remaining_2 = $.$add$ns(pos, 1);
     future.catchError$1(t2).then$1(new $._FutureImpl__FutureImpl$wait_closure(t1, pos));
   }
-  t2 = t1.remaining_2;
-  if ($.$eq(t2, 0))
+  if ($.$eq(t1.remaining_2, 0) === true)
     return $._FutureImpl$immediate($.List_empty, null);
-  t1.values_1 = $.List_List(t2, null);
+  t1.values_1 = $.List_List(t1.remaining_2, null);
   t1.completer_0 = $._AsyncCompleter$($.JSArray);
   return t1.completer_0.future;
 };
@@ -12257,6 +12463,14 @@ $._isPathValid = function(s) {
   return t1._nativeRegExp.test(s);
 };
 
+$.Point$ = function(x, y) {
+  return new $.Point(x, y);
+};
+
+$.Rect$ = function(left, $top, width, height) {
+  return new $.Rect(left, $top, width, height);
+};
+
 $.TemplateInstance$ = function(firstNode, lastNode, model) {
   return new $.TemplateInstance(firstNode, lastNode, model);
 };
@@ -12615,6 +12829,13 @@ $._convertNativeToDart_Window = function(win) {
   return $._DOMWindowCrossFrame__createSafe(win);
 };
 
+$._convertNativeToDart_EventTarget = function(e) {
+  if ("setInterval" in e)
+    return $._DOMWindowCrossFrame__createSafe(e);
+  else
+    return e;
+};
+
 $._DOMWindowCrossFrame$ = function(_window) {
   return new $._DOMWindowCrossFrame(_window);
 };
@@ -12878,7 +13099,7 @@ $.main = function() {
 };
 
 $.XColorselector$ = function() {
-  return new $.XColorselector(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 2863311615, null, null, $.makeLiteralMap([]));
+  return new $.XColorselector(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 2863311615, null, null, $.makeLiteralMap([]));
 };
 
 $.irgba_r255 = function(c) {
@@ -12906,7 +13127,7 @@ $.irgba_b255_set = function(c, b) {
 };
 
 $.rgb1_irgba = function(r, g, b) {
-  return (255 | $.toInt$0$n($.$mul$n(r, 255)) << 24 | $.toInt$0$n($.$mul$n(g, 255)) << 16 | $.toInt$0$n($.$mul$n(b, 255)) << 8) >>> 0;
+  return (255 | $.$shl$n($.toInt$0$nx($.$mul$n(r, 255)), 24) | $.$shl$n($.toInt$0$nx($.$mul$n(g, 255)), 16) | $.$shl$n($.toInt$0$nx($.$mul$n(b, 255)), 8)) >>> 0;
 };
 
 $.irgba_hsl = function(c) {
@@ -13015,7 +13236,7 @@ $.hsv_irgba = function(hsv) {
   r = 0;
   g = 0;
   b = 0;
-  switch ($.JSNumber_methods.$mod(t2.floor$0(h2), 6)) {
+  switch ($.$mod$n(t2.floor$0(h2), 6)) {
     case 0:
       g = x;
       r = c;
@@ -13052,58 +13273,87 @@ $.hsv_irgba = function(hsv) {
 };
 
 $.hsl_triad = function(hsl) {
-  var t1, h, t2, t3, t4;
-  t1 = hsl.length;
-  if (0 >= t1)
+  var h, t1, t2, t3, t4, t5, t6;
+  if (0 >= hsl.length)
     throw $.ioore(0);
   h = hsl[0];
-  t2 = $.getInterceptor$ns(h);
-  t3 = $.$mod$n(t2.$add(h, 0.333), 1);
-  if (1 >= t1)
+  t1 = $.getInterceptor$ns(h);
+  t2 = $.$mod$n(t1.$add(h, 0.333), 1);
+  t3 = hsl.length;
+  if (1 >= t3)
     throw $.ioore(1);
   t4 = hsl[1];
-  if (2 >= t1)
+  if (2 >= t3)
     throw $.ioore(2);
-  t1 = hsl[2];
-  return [hsl, [t3, t4, t1], [$.$mod$n(t2.$add(h, 0.666), 1), t4, t1]];
+  t3 = hsl[2];
+  t1 = $.$mod$n(t1.$add(h, 0.666), 1);
+  t5 = hsl.length;
+  if (1 >= t5)
+    throw $.ioore(1);
+  t6 = hsl[1];
+  if (2 >= t5)
+    throw $.ioore(2);
+  return [hsl, [t2, t4, t3], [t1, t6, hsl[2]]];
 };
 
 $.hsl_tetrad = function(hsl) {
-  var t1, h, t2, t3, t4;
-  t1 = hsl.length;
-  if (0 >= t1)
+  var h, t1, t2, t3, t4, t5, t6, t7, t8, t9;
+  if (0 >= hsl.length)
     throw $.ioore(0);
   h = hsl[0];
-  t2 = $.getInterceptor$ns(h);
-  t3 = $.$mod$n(t2.$add(h, 0.25), 1);
-  if (1 >= t1)
+  t1 = $.getInterceptor$ns(h);
+  t2 = $.$mod$n(t1.$add(h, 0.25), 1);
+  t3 = hsl.length;
+  if (1 >= t3)
     throw $.ioore(1);
   t4 = hsl[1];
-  if (2 >= t1)
+  if (2 >= t3)
     throw $.ioore(2);
-  t1 = hsl[2];
-  return [hsl, [t3, t4, t1], [$.$mod$n(t2.$add(h, 0.5), 1), t4, t1], [$.$mod$n(t2.$add(h, 0.75), 1), t4, t1]];
+  t3 = hsl[2];
+  t5 = $.$mod$n(t1.$add(h, 0.5), 1);
+  t6 = hsl.length;
+  if (1 >= t6)
+    throw $.ioore(1);
+  t7 = hsl[1];
+  if (2 >= t6)
+    throw $.ioore(2);
+  t6 = hsl[2];
+  t1 = $.$mod$n(t1.$add(h, 0.75), 1);
+  t8 = hsl.length;
+  if (1 >= t8)
+    throw $.ioore(1);
+  t9 = hsl[1];
+  if (2 >= t8)
+    throw $.ioore(2);
+  return [hsl, [t2, t4, t3], [t5, t7, t6], [t1, t9, hsl[2]]];
 };
 
 $.hsl_splitcomplement = function(hsl) {
-  var t1, h, t2, t3, t4;
-  t1 = hsl.length;
-  if (0 >= t1)
+  var h, t1, t2, t3, t4, t5, t6;
+  if (0 >= hsl.length)
     throw $.ioore(0);
   h = hsl[0];
-  t2 = $.getInterceptor$ns(h);
-  t3 = $.$mod$n(t2.$add(h, 0.2), 1);
-  if (1 >= t1)
+  t1 = $.getInterceptor$ns(h);
+  t2 = $.$mod$n(t1.$add(h, 0.2), 1);
+  t3 = hsl.length;
+  if (1 >= t3)
     throw $.ioore(1);
   t4 = hsl[1];
-  if (2 >= t1)
+  if (2 >= t3)
     throw $.ioore(2);
-  t1 = hsl[2];
-  return [hsl, [t3, t4, t1], [$.$mod$n(t2.$add(h, 0.6), 1), t4, t1]];
+  t3 = hsl[2];
+  t1 = $.$mod$n(t1.$add(h, 0.6), 1);
+  t5 = hsl.length;
+  if (1 >= t5)
+    throw $.ioore(1);
+  t6 = hsl[1];
+  if (2 >= t5)
+    throw $.ioore(2);
+  return [hsl, [t2, t4, t3], [t1, t6, hsl[2]]];
 };
 
 $.hsl_analogous = function(hsl, results, slices) {
-  var part, ret, t1, t2, h, s, l, i;
+  var part, ret, t1, h, t2, s, l, i;
   part = $.JSInt_methods.$tdiv(360, slices);
   ret = $.List_List(results, [$.JSArray, $.JSDouble]);
   $.setRuntimeTypeInfo(ret, [[$.JSArray, $.JSDouble]]);
@@ -13111,10 +13361,10 @@ $.hsl_analogous = function(hsl, results, slices) {
   if (0 >= t1)
     throw $.ioore(0);
   ret[0] = hsl;
-  t2 = hsl.length;
-  if (0 >= t2)
+  if (0 >= hsl.length)
     throw $.ioore(0);
   h = $.$mod$n($.$add$ns($.$sub$n($.$mul$n(hsl[0], 360), $.JSNumber_methods.$shr(part * results, 1)), 720), 360);
+  t2 = hsl.length;
   if (1 >= t2)
     throw $.ioore(1);
   s = hsl[1];
@@ -13190,7 +13440,7 @@ $.hexHtml_irgba = function(s) {
 
 $.irgba_hexString = function(c) {
   var t1 = $.getInterceptor$n(c);
-  return $.JSString_methods.$add($.JSString_methods.$add("0x", $.JSString_methods.substring$1($.JSInt_methods.toRadixString$1((t1.$shr(c, 8) | 16777216) >>> 0, 16), 1)), $.JSInt_methods.toRadixString$1(t1.$and(c, 255), 16));
+  return $.JSString_methods.$add($.JSString_methods.$add("0x", $.JSString_methods.substring$1($.JSInt_methods.toRadixString$1((t1.$shr(c, 8) | 16777216) >>> 0, 16), 1)), $.JSString_methods.substring$1($.JSInt_methods.toRadixString$1((t1.$and(c, 255) | 256) >>> 0, 16), 1));
 };
 
 $.hexString_irgba = function(s) {
@@ -13772,6 +14022,9 @@ $.elementAt$1$ax = function(receiver, a0) {
 $.endsWith$1$s = function(receiver, a0) {
   return $.getInterceptor$s(receiver).endsWith$1(receiver, a0);
 };
+$.floor$0$nx = function(receiver) {
+  return $.getInterceptor$nx(receiver).floor$0(receiver);
+};
 $.forEach$1$ax = function(receiver, a0) {
   return $.getInterceptor$ax(receiver).forEach$1(receiver, a0);
 };
@@ -13877,6 +14130,9 @@ $.get$tHead$x = function(receiver) {
 $.get$tagName$x = function(receiver) {
   return $.getInterceptor$x(receiver).get$tagName(receiver);
 };
+$.get$topLeft$x = function(receiver) {
+  return $.getInterceptor$x(receiver).get$topLeft(receiver);
+};
 $.get$value$x = function(receiver) {
   return $.getInterceptor$x(receiver).get$value(receiver);
 };
@@ -13885,6 +14141,9 @@ $.get$values$x = function(receiver) {
 };
 $.get$xtag$x = function(receiver) {
   return $.getInterceptor$x(receiver).get$xtag(receiver);
+};
+$.getBoundingClientRect$0$x = function(receiver) {
+  return $.getInterceptor$x(receiver).getBoundingClientRect$0(receiver);
 };
 $.indexOf$2$asx = function(receiver, a0, a1) {
   return $.getInterceptor$asx(receiver).indexOf$2(receiver, a0, a1);
@@ -13967,8 +14226,8 @@ $.substring$1$s = function(receiver, a0) {
 $.substring$2$s = function(receiver, a0, a1) {
   return $.getInterceptor$s(receiver).substring$2(receiver, a0, a1);
 };
-$.toInt$0$n = function(receiver) {
-  return $.getInterceptor$n(receiver).toInt$0(receiver);
+$.toInt$0$nx = function(receiver) {
+  return $.getInterceptor$nx(receiver).toInt$0(receiver);
 };
 $.toList$0$ax = function(receiver) {
   return $.getInterceptor$ax(receiver).toList$0(receiver);
@@ -14055,6 +14314,19 @@ $.getInterceptor$ns = function(receiver) {
   if (receiver == null)
     return receiver;
   return receiver;
+};
+$.getInterceptor$nx = function(receiver) {
+  if (typeof receiver == "number")
+    return $.JSNumber.prototype;
+  if (receiver == null)
+    return receiver;
+  if (typeof receiver != "object")
+    return receiver;
+  if (receiver instanceof $.Object)
+    return receiver;
+  if (Object.getPrototypeOf(receiver) === Object.prototype)
+    return $.Interceptor.prototype;
+  return $.getNativeInterceptor(receiver);
 };
 $.getInterceptor$s = function(receiver) {
   if (typeof receiver == "string")
@@ -14170,7 +14442,7 @@ Isolate.$lazy($, "__html9", "XColorselector___html9", "get$XColorselector___html
   return $.Element_Element$html("<span class=\"cs_samplebox\" style=\"background-color:{{irgba_hexHtml(c)}}\"></span>");
 });
 Isolate.$lazy($, "__shadowTemplate", "XColorselector___shadowTemplate", "get$XColorselector___shadowTemplate", function() {
-  return $.DocumentFragment_DocumentFragment$html("        <style>\n.cs_samplebox {\n  width: 3em;\n  height: 1em;\n  border: 1px solid;\n  display: inline-block;\n  cursor: pointer;\n}\n.cs_sampletxt {\n  height: 1em;\n  width: 5em;\n  display: inline-block;\n}\n</style><div class=\"container-fluid\">\n          <div class=\"span3\">\n            <canvas class=\"cs_sv\" width=\"104\" height=\"104\"></canvas>\n            <canvas class=\"cs_h\" width=\"14\" height=\"104\"></canvas>\n          </div>\n          <fieldset class=\"span3\">\n            <legend>RGB</legend>\n            <div><label></label><input type=\"range\" min=\"0\" max=\"255\" step=\"1\"></div>\n            <div><label></label><input type=\"range\" min=\"0\" max=\"255\" step=\"1\"></div>\n            <div><label></label><input type=\"range\" min=\"0\" max=\"255\" step=\"1\"></div>\n            <div><label>html : </label><input type=\"text\"></div>\n            <div><label>irgba : </label><input type=\"text\"></div>\n          </fieldset>\n          <fieldset class=\"span3\">\n            <legend>HSV</legend>\n            <div><label></label><input type=\"range\" min=\"0\" max=\"360\" step=\"1\"></div>\n            <div><label></label><input type=\"range\" min=\"0\" max=\"100\" step=\"1\"></div>\n            <div><label></label><input type=\"range\" min=\"0\" max=\"100\" step=\"1\"></div>\n          </fieldset>\n          <fieldset class=\"span3\">\n            <legend>split complement</legend>\n            <div>\n             <button class=\"btn\">complement</button>\n             <button class=\"btn\">greyscale</button>\n            </div>\n            <div>\n              <button class=\"btn\">lighten 10%</button>\n              <button class=\"btn\">darken 10%</button>\n            </div>\n            <div>\n              <button class=\"btn\">saturate 10%</button>\n              <button class=\"btn\">desaturate 10%</button>\n            </div>\n            <div>\n              <button class=\"btn\">random</button>\n            </div>\n          </fieldset>\n          <fieldset class=\"span3\">\n            <legend>triad</legend>\n            <div></div>\n          </fieldset>\n          <fieldset class=\"span3\">\n            <legend>tetrad</legend>\n            <div></div>\n          </fieldset>\n          <fieldset class=\"span3\">\n            <legend>split complement</legend>\n            <div></div>\n          </fieldset>\n          <fieldset class=\"span3\">\n            <legend>analogous</legend>\n            <div></div>\n          </fieldset>\n          <fieldset class=\"span3\">\n            <legend>monochromatic</legend>\n            <div></div>\n          </fieldset>\n        </div>\n      ");
+  return $.DocumentFragment_DocumentFragment$html("        <style>\n.cs_h, .cs_sv {\n  cursor: pointer;\n}\n.cs_samplebox {\n  width: 3em;\n  height: 1em;\n  border: 1px solid;\n  display: inline-block;\n  cursor: pointer;\n}\n.cs_sampletxt {\n  height: 1em;\n  width: 5em;\n  display: inline-block;\n}\n</style><div class=\"container-fluid\">\n          <div class=\"span3\">\n            <canvas class=\"cs_sv\" width=\"104\" height=\"104\"></canvas>\n            <canvas class=\"cs_h\" width=\"14\" height=\"104\"></canvas>\n          </div>\n          <fieldset class=\"span3\">\n            <legend>RGB</legend>\n            <div><label></label><input type=\"range\" min=\"0\" max=\"255\" step=\"1\"></div>\n            <div><label></label><input type=\"range\" min=\"0\" max=\"255\" step=\"1\"></div>\n            <div><label></label><input type=\"range\" min=\"0\" max=\"255\" step=\"1\"></div>\n            <div><label>html : </label><input type=\"text\"></div>\n            <div><label>irgba : </label><input type=\"text\"></div>\n          </fieldset>\n          <fieldset class=\"span3\">\n            <legend>HSV</legend>\n            <div><label></label><input type=\"range\" min=\"0\" max=\"360\" step=\"1\"></div>\n            <div><label></label><input type=\"range\" min=\"0\" max=\"100\" step=\"1\"></div>\n            <div><label></label><input type=\"range\" min=\"0\" max=\"100\" step=\"1\"></div>\n          </fieldset>\n          <fieldset class=\"span3\">\n            <legend>Modifier</legend>\n            <div>\n             <button class=\"btn\">complement</button>\n             <button class=\"btn\">greyscale</button>\n            </div>\n            <div>\n              <button class=\"btn\">lighten 10%</button>\n              <button class=\"btn\">darken 10%</button>\n            </div>\n            <div>\n              <button class=\"btn\">saturate 10%</button>\n              <button class=\"btn\">desaturate 10%</button>\n            </div>\n            <div>\n              <button class=\"btn\">random</button>\n            </div>\n          </fieldset>\n          <fieldset class=\"span3\">\n            <legend>triad</legend>\n            <div></div>\n          </fieldset>\n          <fieldset class=\"span3\">\n            <legend>tetrad</legend>\n            <div></div>\n          </fieldset>\n          <fieldset class=\"span3\">\n            <legend>split complement</legend>\n            <div></div>\n          </fieldset>\n          <fieldset class=\"span3\">\n            <legend>analogous</legend>\n            <div></div>\n          </fieldset>\n          <fieldset class=\"span3\">\n            <legend>monochromatic</legend>\n            <div></div>\n          </fieldset>\n        </div>\n      ");
 });
 // Native classes
 $.defineNativeMethods("Worker", $._WorkerStub);
@@ -14471,6 +14743,8 @@ $.defineNativeMethods("DOMWindow|Window", $.Window);
 
 $.defineNativeMethods("XPathException", $.XPathException);
 
+$.defineNativeMethods("ClientRect", $._ClientRect);
+
 $.defineNativeMethods("NamedNodeMap", $._NamedNodeMap);
 
 $.defineNativeMethods("IDBVersionChangeEvent", $.VersionChangeEvent);
@@ -14489,7 +14763,13 @@ $.defineNativeMethods("SVGAnimatedEnumeration", $.AnimatedEnumeration);
 
 $.defineNativeMethods("SVGAnimatedLength", $.AnimatedLength);
 
+$.defineNativeMethods("SVGAnimatedLengthList", $.AnimatedLengthList);
+
+$.defineNativeMethods("SVGAnimatedNumber", $.AnimatedNumber);
+
 $.defineNativeMethods("SVGAnimatedNumberList", $.AnimatedNumberList);
+
+$.defineNativeMethods("SVGAnimatedString", $.AnimatedString);
 
 $.defineNativeMethodsNonleaf("SVGAnimationElement", $.AnimationElement);
 

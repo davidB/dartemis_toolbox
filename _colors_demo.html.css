@@ -4,6 +4,9 @@
 /* ==================================================== 
    Component x-colorselector stylesheet 
    ==================================================== */
+.x-colorselector_cs_h, .x-colorselector_cs_sv {
+  cursor: pointer;
+}
 .x-colorselector_cs_samplebox {
   width: 3em;
   height: 1em;
