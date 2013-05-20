@@ -339,8 +339,8 @@ hexHtml_irgba(String s) {
 }
 
 irgba_hexString(int c) {
-  var x = c | 0x100000000; // start with 1 for padding with 0
-  return "0x" + x.toRadixString(16).substring(1);
+  var x = (c >> 8) | 0x1000000; //0x100000000 is too bigger on js
+  return "0x" + x.toRadixString(16).substring(1) + (c & 0xff).toRadixString(16);
 }
 
 hexString_irgba(String s) {

@@ -37,6 +37,18 @@ main() {
       expect(irgba_hexString(0x00000000), '0x00000000');
       expect(irgba_hexString(0x000000ff), '0x000000ff');
     });
+    test('irgba_hexString symetric with hexString_irgba',(){
+      for(var i = 0x000000; i <= 0xffffff; ++i) {
+        var c = (i << 8 | 0xff);
+        expect(hexString_irgba(irgba_hexString(c)), c);
+      }
+    });
+    test('irgba_hexHtml symetric with hexHtml_irgba',(){
+      for(var i = 0x000000; i <= 0xffffff; ++i) {
+        var c = (i << 8 | 0xff);
+        expect(hexHtml_irgba(irgba_hexHtml(c)), c);
+      }
+    });
     test('irgba_r255',(){
       expect(irgba_r255(0xff000000), 255);
       expect(irgba_r255(0x00ffffff), 0);
@@ -58,7 +70,7 @@ main() {
       expect(irgba_a1(0xffffff00), 0.0);
     });
     test('irgba_rgb always in range',(){
-      for(var i = 0x000000; i < 0x1000000; ++i) {
+      for(var i = 0x000000; i <= 0xffffff; ++i) {
         var c = (i << 8 | 0xff);
         var rgb = irgba_rgb(c);
         expect(rgb[0], inInclusiveRange(0.0, 1.0));//, '0.0 <= r <= 1.0');
@@ -67,14 +79,14 @@ main() {
       }
     });
     test('irgba_rgb symetric with rgb_irgba',(){
-      for(var i = 0x000000; i < 0x1000000; ++i) {
+      for(var i = 0x000000; i <= 0xffffff; ++i) {
         var c = (i << 8 | 0xff);
         var rgb = irgba_rgb(c);
         expect(rgb_irgba(rgb), c);
       }
     });
     test('irgba_hsl always in range',(){
-      for(var i = 0x000000; i < 0x1000000; ++i) {
+      for(var i = 0x000000; i <= 0xffffff; ++i) {
         var c = (i << 8 | 0xff);
         var hsl = irgba_hsl(c);
         expect(hsl[0], inInclusiveRange(0.0, 1.0));//, '0.0 <= h <= 1.0');
@@ -90,7 +102,7 @@ main() {
 //      }
 //    });
     test('irgba_hsv always in range',(){
-      for(var i = 0x000000; i < 0x1000000; ++i) {
+      for(var i = 0x000000; i <= 0xffffff; ++i) {
         var c = (i << 8 | 0xff);
         var hsv = irgba_hsv(c);
         expect(hsv[0], inInclusiveRange(0.0, 1.0));//, '0.0 <= h <= 1.0');
