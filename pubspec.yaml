@@ -1,16 +1,18 @@
 name: dartemis_toolbox
 version: 0.3.0-dev
 author: david bernard <david.bernard.31@gmail.com>
-description: 'A set of libraries for game developpement : easing function, colors, particles, addons for dartemis, ...'
-homepage: https://github.com/davidB/dartemis_toolbox
-documentation: http://davidb.github.io/dartemis_toolbox/
+description: 'A set of libraries for game developpement : easing function, colors,
+  particles, addons for dartemis, ...'
+homepage: http://davidb.github.io/dartemis_toolbox/
+documentation: http://davidb.github.io/dartemis_toolbox/apidoc/
 dev_dependencies:
   dartemis: '>=0.4.1'
-  unittest: any
-  vector_math: '>=0.9.7'
   simple_audio:
     git: git://github.com/johnmccutchan/simpleaudio.git
+  unittest: any
+  vector_math: '>=0.9.7'
   web_ui: any
+
 #environment:
 #    sdk: 0.4.5+1.r21094
 #    path: ../dartemis

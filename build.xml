@@ -117,6 +117,8 @@
     <!--fmpp sourceFile="src/index.css.ftl" outputFile="${target}/web/index.css" /-->
     <dart_dwc file="ease_graphics"/>
     <dart_dwc file="xtchart_demo"/>
+    <dart_dwc file="demos"/>
+    <dart_dwc file="colors_demo"/>
   </target>
 
   <target name="js" depends="web">
