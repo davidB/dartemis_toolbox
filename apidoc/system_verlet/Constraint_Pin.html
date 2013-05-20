@@ -1,0 +1,116 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>Constraint_Pin class / system_verlet Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="system_verlet" data-type="Constraint_Pin">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../system_verlet.html">system_verlet</a> &rsaquo; <a href="../system_verlet/Constraint_Pin.html">Constraint_Pin</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>Constraint_Pin</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<pre class="source">
+class Constraint_Pin implements Constraint{
+ /// position of the pin
+ final vec3 pin;
+ final vec3 a;
+
+ Constraint_Pin(vec3 v) : pin = v.clone(), a = v;
+
+ relax(stepCoef) {
+   a.setFrom(pin);
+ }
+}
+</pre>
+</div>
+<h3>Implements</h3>
+<p>
+<span class="type-box"><span class="icon-class"></span><a href="../system_verlet/Constraint.html">Constraint</a></span></p>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="Constraint_Pin">
+<button class="show-code">Code</button>
+new <strong>Constraint_Pin</strong>(vec3 v) <a class="anchor-link" href="#Constraint_Pin"
+              title="Permalink to Constraint_Pin.Constraint_Pin">#</a></h4>
+<div class="doc">
+<pre class="source">
+Constraint_Pin(vec3 v) : pin = v.clone(), a = v;
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="a">
+<button class="show-code">Code</button>
+final vec3         <strong>a</strong> <a class="anchor-link"
+            href="#a"
+            title="Permalink to Constraint_Pin.a">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final vec3 a
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="pin">
+<button class="show-code">Code</button>
+final vec3         <strong>pin</strong> <a class="anchor-link"
+            href="#pin"
+            title="Permalink to Constraint_Pin.pin">#</a>
+        </h4>
+        <div class="doc">
+<p>position of the pin</p>
+<pre class="source">
+final vec3 pin
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="relax">
+<button class="show-code">Code</button>
+dynamic <strong>relax</strong>(stepCoef) <a class="anchor-link" href="#relax"
+              title="Permalink to Constraint_Pin.relax">#</a></h4>
+<div class="doc">
+<pre class="source">
+relax(stepCoef) {
+ a.setFrom(pin);
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-20 19:09:48.709</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

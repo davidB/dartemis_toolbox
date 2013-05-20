@@ -1,0 +1,318 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>System_Animator class / system_animator Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="system_animator" data-type="System_Animator">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../system_animator.html">system_animator</a> &rsaquo; <a href="../system_animator/System_Animator.html">System_Animator</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>System_Animator</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<pre class="source">
+class System_Animator extends EntityProcessingSystem {
+ ComponentMapper&lt;Animatable&gt; _animatableMapper;
+ double _tickTime = 0.0;
+
+ System_Animator() : super(Aspect.getAspectForAllOf([Animatable]));
+
+ void initialize(){
+   _animatableMapper = new ComponentMapper&lt;Animatable&gt;(Animatable, world);
+ }
+
+ void begin() {
+   _tickTime += world.delta;
+   //if (_tickTime &lt; 10000) print("_tickTime ${_tickTime}");
+ }
+
+ void processEntity(Entity entity) {
+   var animatable = _animatableMapper.get(entity);
+   animatable.l.iterateAndUpdate((anim) {
+     if (anim._t0 &lt; 0) {
+       anim._t0 = _tickTime;
+       anim.onBegin(entity, _tickTime, anim._t0);
+     }
+     var cont = (anim._t0 &lt;= _tickTime)? anim.onTick(entity, _tickTime, anim._t0) : true;
+     if (!cont) {
+       anim.onEnd(entity, _tickTime, anim._t0);
+     }
+     return cont ? anim : anim.next;
+   });
+ }
+}
+</pre>
+</div>
+<h3>Extends</h3>
+<p>
+<span class="type-box"><span class="icon-class"></span><a href="../dartemis/EntitySystem.html">EntitySystem</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><a href="../dartemis/EntityProcessingSystem.html">EntityProcessingSystem</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><strong>System_Animator</strong></span></p>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="System_Animator">
+<button class="show-code">Code</button>
+new <strong>System_Animator</strong>() <a class="anchor-link" href="#System_Animator"
+              title="Permalink to System_Animator.System_Animator">#</a></h4>
+<div class="doc">
+<pre class="source">
+System_Animator() : super(Aspect.getAspectForAllOf([Animatable]));
+</pre>
+</div>
+</div>
+</div>
+<div class="inherited">
+<h3>Properties</h3>
+<div class="field inherited"><h4 id="passive">
+<button class="show-code">Code</button>
+final         <strong>passive</strong> <a class="anchor-link"
+            href="#passive"
+            title="Permalink to System_Animator.passive">#</a>
+        </h4>
+        <div class="inherited-from">inherited from EntitySystem </div><div class="doc">
+<pre class="source">
+get passive =&gt; _passive;
+</pre>
+</div>
+</div>
+<div class="field inherited"><h4 id="world">
+<button class="show-code">Code</button>
+World         <strong>world</strong> <a class="anchor-link"
+            href="#world"
+            title="Permalink to System_Animator.world">#</a>
+        </h4>
+        <div class="inherited-from">inherited from EntitySystem </div><div class="doc">
+<pre class="source">
+World world
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method inherited"><h4 id="added">
+<button class="show-code">Code</button>
+void <strong>added</strong>(Entity e) <a class="anchor-link" href="#added"
+              title="Permalink to System_Animator.added">#</a></h4>
+<div class="inherited-from">inherited from EntitySystem </div><div class="doc">
+<pre class="source">
+void added(Entity e) =&gt; _check(e);
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="begin">
+<button class="show-code">Code</button>
+void <strong>begin</strong>() <a class="anchor-link" href="#begin"
+              title="Permalink to System_Animator.begin">#</a></h4>
+<div class="doc">
+<div class="inherited">
+<p>Called before processing of entities begins.</p>
+<div class="docs-inherited-from">docs inherited from EntitySystem </div></div>
+<pre class="source">
+void begin() {
+ _tickTime += world.delta;
+ //if (_tickTime &lt; 10000) print("_tickTime ${_tickTime}");
+}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="changed">
+<button class="show-code">Code</button>
+void <strong>changed</strong>(Entity e) <a class="anchor-link" href="#changed"
+              title="Permalink to System_Animator.changed">#</a></h4>
+<div class="inherited-from">inherited from EntitySystem </div><div class="doc">
+<pre class="source">
+void changed(Entity e) =&gt; _check(e);
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="checkProcessing">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>checkProcessing</strong>() <a class="anchor-link" href="#checkProcessing"
+              title="Permalink to System_Animator.checkProcessing">#</a></h4>
+<div class="inherited-from">inherited from EntityProcessingSystem </div><div class="doc">
+<div class="inherited">
+<p>Returns true if the system should be processed, false if not.</p>
+<div class="docs-inherited-from">docs inherited from EntitySystem </div></div>
+<pre class="source">
+bool checkProcessing() =&gt; true;
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="deleted">
+<button class="show-code">Code</button>
+void <strong>deleted</strong>(Entity e) <a class="anchor-link" href="#deleted"
+              title="Permalink to System_Animator.deleted">#</a></h4>
+<div class="inherited-from">inherited from EntitySystem </div><div class="doc">
+<pre class="source">
+void deleted(Entity e) {
+ if (_contains(e)) {
+   _removeFromSystem(e);
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="disabled">
+<button class="show-code">Code</button>
+void <strong>disabled</strong>(Entity e) <a class="anchor-link" href="#disabled"
+              title="Permalink to System_Animator.disabled">#</a></h4>
+<div class="inherited-from">inherited from EntitySystem </div><div class="doc">
+<pre class="source">
+void disabled(Entity e) {
+ if (_contains(e)) {
+   _removeFromSystem(e);
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="enabled">
+<button class="show-code">Code</button>
+void <strong>enabled</strong>(Entity e) <a class="anchor-link" href="#enabled"
+              title="Permalink to System_Animator.enabled">#</a></h4>
+<div class="inherited-from">inherited from EntitySystem </div><div class="doc">
+<pre class="source">
+void enabled(Entity e) =&gt; _check(e);
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="end">
+<button class="show-code">Code</button>
+void <strong>end</strong>() <a class="anchor-link" href="#end"
+              title="Permalink to System_Animator.end">#</a></h4>
+<div class="inherited-from">inherited from EntitySystem </div><div class="doc">
+<p>Called after the processing of entities ends.</p>
+<pre class="source">
+void end() {}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="initialize">
+<button class="show-code">Code</button>
+void <strong>initialize</strong>() <a class="anchor-link" href="#initialize"
+              title="Permalink to System_Animator.initialize">#</a></h4>
+<div class="doc">
+<div class="inherited">
+<p>Override to implement code that gets executed when systems are initialized.</p>
+<div class="docs-inherited-from">docs inherited from EntitySystem </div></div>
+<pre class="source">
+void initialize(){
+ _animatableMapper = new ComponentMapper&lt;Animatable&gt;(Animatable, world);
+}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="inserted">
+<button class="show-code">Code</button>
+void <strong>inserted</strong>(Entity entity) <a class="anchor-link" href="#inserted"
+              title="Permalink to System_Animator.inserted">#</a></h4>
+<div class="inherited-from">inherited from EntitySystem </div><div class="doc">
+<p>Called if the system has received an 
+<span class="param">entity</span> it is interested in, e.g. created or a component was added to it.</p>
+<pre class="source">
+void inserted(Entity entity) {}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="process">
+<button class="show-code">Code</button>
+void <strong>process</strong>() <a class="anchor-link" href="#process"
+              title="Permalink to System_Animator.process">#</a></h4>
+<div class="inherited-from">inherited from EntitySystem </div><div class="doc">
+<p>This is the only method that is supposed to be called from outside the library,</p>
+<pre class="source">
+void process() {
+ if(checkProcessing()) {
+   begin();
+   processEntities(_actives.readOnly);
+   end();
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="processEntities">
+<button class="show-code">Code</button>
+void <strong>processEntities</strong>(ReadOnlyBag&lt;Entity&gt; entities) <a class="anchor-link" href="#processEntities"
+              title="Permalink to System_Animator.processEntities">#</a></h4>
+<div class="inherited-from">inherited from EntityProcessingSystem </div><div class="doc">
+<div class="inherited">
+<p>Any implementing entity system must implement this method and the logic
+to process the given 
+<span class="param">entities</span> of the system.</p>
+<div class="docs-inherited-from">docs inherited from EntitySystem </div></div>
+<pre class="source">
+void processEntities(ReadOnlyBag&lt;Entity&gt; entities) =&gt; entities.forEach((entity) =&gt; processEntity(entity));
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="processEntity">
+<button class="show-code">Code</button>
+void <strong>processEntity</strong>(Entity entity) <a class="anchor-link" href="#processEntity"
+              title="Permalink to System_Animator.processEntity">#</a></h4>
+<div class="doc">
+<div class="inherited">
+<p>Process a 
+<span class="param">entity</span> this system is interested in.</p>
+<div class="docs-inherited-from">docs inherited from EntityProcessingSystem </div></div>
+<pre class="source">
+void processEntity(Entity entity) {
+ var animatable = _animatableMapper.get(entity);
+ animatable.l.iterateAndUpdate((anim) {
+   if (anim._t0 &lt; 0) {
+     anim._t0 = _tickTime;
+     anim.onBegin(entity, _tickTime, anim._t0);
+   }
+   var cont = (anim._t0 &lt;= _tickTime)? anim.onTick(entity, _tickTime, anim._t0) : true;
+   if (!cont) {
+     anim.onEnd(entity, _tickTime, anim._t0);
+   }
+   return cont ? anim : anim.next;
+ });
+}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="removed">
+<button class="show-code">Code</button>
+void <strong>removed</strong>(Entity entity) <a class="anchor-link" href="#removed"
+              title="Permalink to System_Animator.removed">#</a></h4>
+<div class="inherited-from">inherited from EntitySystem </div><div class="doc">
+<p>Called if an 
+<span class="param">entity</span> was removed from this system, e.g. deleted or had one of it's components removed.</p>
+<pre class="source">
+void removed(Entity entity) {}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-20 19:09:48.182</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

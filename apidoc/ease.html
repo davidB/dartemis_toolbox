@@ -27,17 +27,13 @@
 </div>
 <div class="content">
 <h2><strong>ease</strong> library</h2>
-<div class="doc"><p>A set of common "easing" function to compute intermediate value of a variable,
-generally from <code>baseValue</code> to <code>baseValue</code> + <code>change</code>,
-used for transition, interpolation.</p>
-<p>Every function follow the same signature :
-<em> <code>ratio</code> is the progression (0.0 .. 1.0).
-</em> <code>change</code> is the "amplitute" of the variation for the final variable,
-or the difference between <code>baseValue</code> and the final value.
-<em> <code>baseValue</code> the initiale value of the variable
-</em> return the intermediate value.</p>
-<p>Functions can be used without dartemis or dartemis_addons (there are fully standalone)</p>
-<p><a href="http://davidb.github.io/dartemis_addons/ease_graphics.html">graphical representation</a></p></div>
+<div class="doc"><p>A set of <a class="crossref" href="ease/Ease.html">Ease</a> function to compute intermediate value of a variable.
+Functions can be used without dartemis or dartemis_toolbox (there are fully standalone)</p>
+<p><a href="http://davidb.github.io/dartemis_toolbox/ease_graphics.html">graphical representation</a>
+links :
+<em> <a href="http://www.robertpenner.com/easing/">Robert Penner's Easing Functions</a>
+</em> <a href="http://sol.gfxile.net/interpolation/">Interpolation Tricks</a>
+* <a href="https://github.com/sole/tween.js/">Tween.js</a></p></div>
 <div>
 <h3>Properties</h3>
 <div class="field"><h4 id="all">
@@ -49,7 +45,7 @@ final         <strong>all</strong> <a class="anchor-link"
         <div class="doc">
 <p>a list/map of all functions, use for test, demo, editor</p>
 <pre class="source">
-final all = new LinkedHashMap&lt;String, Function&gt;()
+final all = new LinkedHashMap&lt;String, Ease&gt;()
  ..['linear'] = linear
  ..['random'] = random
  ..['inQuad'] = inQuad
@@ -652,29 +648,81 @@ num linear(double ratio, num change, num baseValue) {
 </pre>
 </div>
 </div>
+<div class="method"><h4 id="onceRatio">
+<button class="show-code">Code</button>
+dynamic <strong>onceRatio</strong>(<a href="ease/Ease.html">Ease</a> f0, <a href="http://api.dartlang.org/dart_core/num.html">num</a> duration) <a class="anchor-link" href="#onceRatio"
+              title="Permalink to onceRatio">#</a></h4>
+<div class="doc">
+<pre class="source">
+onceRatio(Ease f0, num duration) =&gt; (double ratio, num change, num baseValue) {
+ ratio = (ratio &lt; duration) ? (ratio / duration) : 1.0;
+ return f0(ratio, change, baseValue);
+};
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="periodicRatio">
+<button class="show-code">Code</button>
+dynamic <strong>periodicRatio</strong>(<a href="ease/Ease.html">Ease</a> f0, <a href="http://api.dartlang.org/dart_core/num.html">num</a> duration) <a class="anchor-link" href="#periodicRatio"
+              title="Permalink to periodicRatio">#</a></h4>
+<div class="doc">
+<pre class="source">
+periodicRatio(Ease f0, num duration) =&gt; (double ratio, num change, num baseValue) {
+ ratio = (ratio / duration);
+ ratio = ratio - ratio.toInt();
+ return f0(ratio, change, baseValue);
+};
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="easeRatio">
+<button class="show-code">Code</button>
+dynamic <strong>easeRatio</strong>(<a href="ease/Ease.html">Ease</a> f0, <a href="ease/Ease.html">Ease</a> ease4ratio) <a class="anchor-link" href="#easeRatio"
+              title="Permalink to easeRatio">#</a></h4>
+<div class="doc">
+<pre class="source">
+easeRatio(Ease f0, Ease ease4ratio) =&gt; (double ratio, num change, num baseValue) {
+ ratio = ease4ratio(ratio, 1.0, 0.0);
+ return f0(ratio, change, baseValue);
+};
+</pre>
+</div>
+</div>
 <div class="method"><h4 id="goback">
 <button class="show-code">Code</button>
-dynamic <strong>goback</strong>(f0) <a class="anchor-link" href="#goback"
+dynamic <strong>goback</strong>(<a href="ease/Ease.html">Ease</a> f0) <a class="anchor-link" href="#goback"
               title="Permalink to goback">#</a></h4>
 <div class="doc">
 <p>create a new ease function by chaining 2 ease function</p>
 <pre class="source">
-goback(f0) =&gt; (double ratio, num change, num baseValue) {
+goback(Ease f0) =&gt; (double ratio, num change, num baseValue) {
  ratio = ratio * 2.0;
  var c = change;
- return (ratio &lt; 1.0) ? f0(ratio, c, baseValue) : f0(ratio - 1.0, -c, baseValue + c);
+ return (ratio &lt; 1.0) ? f0(ratio, c, baseValue) : reverse(f0)(ratio - 1.0, c, baseValue);
+};
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="reverse">
+<button class="show-code">Code</button>
+dynamic <strong>reverse</strong>(<a href="ease/Ease.html">Ease</a> f0) <a class="anchor-link" href="#reverse"
+              title="Permalink to reverse">#</a></h4>
+<div class="doc">
+<pre class="source">
+reverse(Ease f0) =&gt; (double ratio, num change, num baseValue) {
+ return f0(ratio, -change, baseValue + change);
 };
 </pre>
 </div>
 </div>
 <div class="method"><h4 id="chain">
 <button class="show-code">Code</button>
-dynamic <strong>chain</strong>(f0, f1) <a class="anchor-link" href="#chain"
+dynamic <strong>chain</strong>(<a href="ease/Ease.html">Ease</a> f0, <a href="ease/Ease.html">Ease</a> f1) <a class="anchor-link" href="#chain"
               title="Permalink to chain">#</a></h4>
 <div class="doc">
 <p>create a new ease function by chaining 2 ease function</p>
 <pre class="source">
-chain(f0, f1) =&gt; (double ratio, num change, num baseValue) {
+chain(Ease f0, Ease f1) =&gt; (double ratio, num change, num baseValue) {
  ratio = ratio * 2.0;
  var c = change / 2;
  return (ratio &lt; 1.0) ? f0(ratio, c, baseValue) : f1(ratio - 1.0, c, baseValue) + c;
@@ -683,11 +731,20 @@ chain(f0, f1) =&gt; (double ratio, num change, num baseValue) {
 </div>
 </div>
 </div>
+<div>
+<h3>Typedefs</h3>
+          <div class="type">
+          <h4>
+            <a href="ease/Ease.html"><strong>Ease</strong></a>
+          </h4>
+          </div>
+          
+</div>
         </div>
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-05-05 23:33:04.462</div>
+          <div>This page was generated at 2013-05-20 19:09:48.118</div>
         </div>
         <script async src="client-live-nav.js"></script>
         </body></html>

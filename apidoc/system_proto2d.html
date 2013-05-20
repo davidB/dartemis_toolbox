@@ -1,0 +1,346 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>system_proto2d Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="favicon.ico">
+        
+        </head>
+        <body data-library="system_proto2d">
+        <div class="page">
+        <div class="header">
+          <a href="index.html"><div class="logo"></div></a>
+          <a href="index.html">Dart Documentation</a>
+         &rsaquo; <a href="system_proto2d.html">system_proto2d</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+<h2><strong>system_proto2d</strong> library</h2>
+<div class="doc"><p>Use to debug or to prototype display in canvas
+use it with prefix</p>
+<p>   import 'package:dartemis<em>toolbox/system</em>proto2d.dart' as proto;</p>
+<p>It's an unoptimize library (ex : failed 100% of the advices at
+<a href="https://developer.mozilla.org/en-US/docs/HTML/Canvas/Tutorial/Optimizing_canvas">Optimizing canvas - MDN</a></p>
+<p>the library include primitive DrawCanvas function (pseudo "function curring")</p></div>
+<div>
+<h3>Functions</h3>
+<div class="method"><h4 id="drawComponentType">
+<button class="show-code">Code</button>
+<a href="system_proto2d/DrawCanvas.html">DrawCanvas</a> <strong>drawComponentType</strong>(<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;<a href="system_proto2d/DrawComponentType.html">DrawComponentType</a>&gt; l) <a class="anchor-link" href="#drawComponentType"
+              title="Permalink to drawComponentType">#</a></h4>
+<div class="doc">
+<pre class="source">
+DrawCanvas drawComponentType(List&lt;DrawComponentType&gt; l) =&gt; (CanvasRenderingContext2D g, Entity e, area) {
+ l.forEach((i) {
+   if (e.getComponent(i.ct) != null) {
+     i.draw(g, e, area);
+   }
+ });
+};
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="drawConstraints">
+<button class="show-code">Code</button>
+<a href="system_proto2d/DrawCanvas.html">DrawCanvas</a> <strong>drawConstraints</strong>({pinStyle: "rgba(0,153,255,0.1)", distanceStyle: "#d8dde2", angleStyle: "rgba(255,255,0,0.2)"}) <a class="anchor-link" href="#drawConstraints"
+              title="Permalink to drawConstraints">#</a></h4>
+<div class="doc">
+<pre class="source">
+DrawCanvas drawConstraints({pinStyle : "rgba(0,153,255,0.1)", distanceStyle : "#d8dde2", angleStyle:"rgba(255,255,0,0.2)"}) =&gt; (CanvasRenderingContext2D g, Entity e, area) {
+ var cs = e.getComponent(Constraints.CT) as Constraints;
+ cs.l.forEach((x) {
+   if (distanceStyle != null &amp;&amp; x is Constraint_Distance)
+     drawCDistance(g, x, distanceStyle);
+   else if (pinStyle != null &amp;&amp; x is Constraint_Pin)
+     drawCPin(g, x, pinStyle);
+   else if (angleStyle != null &amp;&amp; x is Constraint_AngleXY)
+     drawCAngle(g, x, angleStyle);
+ });
+};
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="drawCAngle">
+<button class="show-code">Code</button>
+dynamic <strong>drawCAngle</strong>(g, <a href="system_verlet/Constraint_AngleXY.html">Constraint_AngleXY</a> x, strokeStyle) <a class="anchor-link" href="#drawCAngle"
+              title="Permalink to drawCAngle">#</a></h4>
+<div class="doc">
+<pre class="source">
+drawCAngle(g, Constraint_AngleXY x, strokeStyle) {
+ g.beginPath();
+ g.moveTo(x.a.x, x.a.y);
+ g.lineTo(x.b.x, x.b.y);
+ g.lineTo(x.c.x, x.c.y);
+ var tmp = g.lineWidth;
+ g.lineWidth = 5;
+ g.strokeStyle = strokeStyle;//;
+ g.stroke();
+ g.lineWidth = tmp;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="drawCPin">
+<button class="show-code">Code</button>
+dynamic <strong>drawCPin</strong>(g, <a href="system_verlet/Constraint_Pin.html">Constraint_Pin</a> x, fillStyle) <a class="anchor-link" href="#drawCPin"
+              title="Permalink to drawCPin">#</a></h4>
+<div class="doc">
+<pre class="source">
+drawCPin(g, Constraint_Pin x, fillStyle) {
+ g.beginPath();
+ g.arc(x.pin.x, x.pin.y, 6, 0, 2*math.PI);
+ g.fillStyle = fillStyle;//;
+ g.fill();
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="drawCDistance">
+<button class="show-code">Code</button>
+dynamic <strong>drawCDistance</strong>(g, <a href="system_verlet/Constraint_Distance.html">Constraint_Distance</a> x, strokeStyle) <a class="anchor-link" href="#drawCDistance"
+              title="Permalink to drawCDistance">#</a></h4>
+<div class="doc">
+<pre class="source">
+drawCDistance(g, Constraint_Distance x, strokeStyle) {
+ g.beginPath();
+ g.moveTo(x.a.x, x.a.y);
+ g.lineTo(x.b.x, x.b.y);
+ g.strokeStyle = strokeStyle; //
+ g.stroke();
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="particleInfo0s">
+<button class="show-code">Code</button>
+<a href="system_proto2d/DrawCanvas.html">DrawCanvas</a> <strong>particleInfo0s</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> radius, {fillStyle, strokeStyle, strokeLineWidth: 1, strokeLineDashOffset: 0}) <a class="anchor-link" href="#particleInfo0s"
+              title="Permalink to particleInfo0s">#</a></h4>
+<div class="doc">
+<pre class="source">
+DrawCanvas particleInfo0s(num radius, {fillStyle, strokeStyle, strokeLineWidth : 1, strokeLineDashOffset : 0}){
+ return (CanvasRenderingContext2D g, Entity entity, area) {
+   var particle0s = entity.getComponent(Particles.CT) as Particles;
+   if (particle0s == null || particle0s.l.isEmpty) return;
+   var particleInfo0s = entity.getComponent(ParticleInfo0s.CT) as ParticleInfo0s;
+   if (particleInfo0s == null || particleInfo0s.l.isEmpty) {
+     return particles(radius, fillStyle : fillStyle, strokeStyle : strokeStyle, strokeLineWidth : strokeLineWidth, strokeLineDashOffset : strokeLineDashOffset)(g, entity, area);
+   }
+   for(var i = particle0s.l.length - 1; i &gt; -1; --i){
+     var p = particle0s.l[i];
+     var pos = p.position3d;
+     if (pos != null) {
+       var p0 = particleInfo0s.l[i];
+       var radius0 = (p0 != null) ? p0.radius * p0.scale : radius;
+       var fillStyle0 = (p0 != null) ? irgba_rgbaString(p0.color) : fillStyle;
+       //g.moveTo(pos.x, pos.y);
+       g.beginPath();
+       //print('${pos.x} // ${pos.y}');
+       g.arc(pos.x, pos.y, radius0, 0, math.PI*2,true);
+       g.closePath();
+       if (fillStyle != null) {
+         g.fillStyle = fillStyle0;
+         g.fill();
+       }
+       if (strokeStyle != null) {
+         g.strokeStyle = strokeStyle;
+         g.lineWidth = strokeLineWidth;
+         g.lineDashOffset = strokeLineDashOffset;
+         g.stroke();
+       }
+     }
+   }
+   //TODO define the area
+//    area.x = radius.toDouble();
+//    area.y = radius.toDouble();
+ };
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="particles">
+<button class="show-code">Code</button>
+<a href="system_proto2d/DrawCanvas.html">DrawCanvas</a> <strong>particles</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> radius, {fillStyle, strokeStyle, strokeLineWidth: 1, strokeLineDashOffset: 0}) <a class="anchor-link" href="#particles"
+              title="Permalink to particles">#</a></h4>
+<div class="doc">
+<pre class="source">
+DrawCanvas particles(num radius, {fillStyle, strokeStyle, strokeLineWidth : 1, strokeLineDashOffset : 0}){
+ return (CanvasRenderingContext2D g, Entity entity, area) {
+   var particle0s = entity.getComponent(Particles.CT) as Particles;
+   if (particle0s == null || particle0s.l.isEmpty) return;
+   if (strokeStyle == null &amp;&amp; fillStyle == null) return;
+   g.beginPath();
+   particle0s.l.forEach((p) {
+     var pos = p.position3d;
+     if (pos != null) {
+       g.moveTo(pos.x + radius, pos.y);
+       //print('${pos.x} // ${pos.y}');
+       g.arc(pos.x, pos.y, radius, 0, math.PI*2,true);
+     }
+   });
+   g.closePath();
+   if (fillStyle != null) {
+     g.fillStyle = fillStyle;
+     g.fill();
+   }
+   if (strokeStyle != null) {
+     g.strokeStyle = strokeStyle;
+     g.lineWidth = strokeLineWidth;
+     g.lineDashOffset = strokeLineDashOffset;
+     g.stroke();
+   }
+   //TODO define the area
+//    area.x = radius.toDouble();
+//    area.y = radius.toDouble();
+ };
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="text">
+<button class="show-code">Code</button>
+<a href="system_proto2d/DrawCanvas.html">DrawCanvas</a> <strong>text</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> txt, {fillStyle, strokeStyle, strokeLineWidth: 1, strokeLineDashOffset: 0, textAlign: null, font: null}) <a class="anchor-link" href="#text"
+              title="Permalink to text">#</a></h4>
+<div class="doc">
+<pre class="source">
+DrawCanvas text(String txt, {fillStyle, strokeStyle, strokeLineWidth : 1, strokeLineDashOffset : 0, textAlign : null, font: null})  =&gt; (CanvasRenderingContext2D g, Entity e,area) {
+ if (strokeStyle == null &amp;&amp; fillStyle == null) return;
+ //if (textAlign != null) g.textAlign = textAlign;
+ if (fillStyle != null) {
+   g.fillStyle = fillStyle;
+   g.fillText(txt, 0, 0);
+ }
+ if (strokeStyle != null) {
+   g.strokeStyle = strokeStyle;
+   g.lineWidth = strokeLineWidth;
+   g.lineDashOffset = strokeLineDashOffset;
+   if (font != null) g.font = font;
+   g.strokeText(txt, 0, 0);
+ }
+ //TODO var m = g.measureText(txt);
+ //TODO area.x = m.width;
+ //TODO area.y = m.h;
+};
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="disc">
+<button class="show-code">Code</button>
+<a href="system_proto2d/DrawCanvas.html">DrawCanvas</a> <strong>disc</strong>(<a href="http://api.dartlang.org/dart_core/num.html">num</a> radius, {fillStyle, strokeStyle, strokeLineWidth: 1, strokeLineDashOffset: 0}) <a class="anchor-link" href="#disc"
+              title="Permalink to disc">#</a></h4>
+<div class="doc">
+<pre class="source">
+DrawCanvas disc(num radius, {fillStyle, strokeStyle, strokeLineWidth : 1, strokeLineDashOffset : 0})  =&gt; (CanvasRenderingContext2D g, Entity e, area) {
+ if (strokeStyle == null &amp;&amp; fillStyle == null) return;
+ g.beginPath();
+ g.arc(0, 0, radius,0, math.PI*2,true);
+ g.closePath();
+ if (fillStyle != null) {
+   g.fillStyle = fillStyle;
+   g.fill();
+ }
+ if (strokeStyle != null) {
+   g.strokeStyle = strokeStyle;
+   g.lineWidth = strokeLineWidth;
+   g.lineDashOffset = strokeLineDashOffset;
+   g.stroke();
+ }
+ area.x = radius.toDouble();
+ area.y = radius.toDouble();
+};
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="dot4">
+<button class="show-code">Code</button>
+<a href="system_proto2d/DrawCanvas.html">DrawCanvas</a> <strong>dot4</strong>({fillStyle}) <a class="anchor-link" href="#dot4"
+              title="Permalink to dot4">#</a></h4>
+<div class="doc">
+<pre class="source">
+DrawCanvas dot4({fillStyle}) =&gt; (CanvasRenderingContext2D g, Entity e, area) {
+ if (fillStyle != null) {
+   g.fillStyle = fillStyle;
+   g.fillRect(-2, -2, 4, 4);
+   area.x = 4.0;
+   area.y = 4.0;
+ }
+};
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="rect">
+<button class="show-code">Code</button>
+<a href="system_proto2d/DrawCanvas.html">DrawCanvas</a> <strong>rect</strong>(w, h, {fillStyle, strokeStyle, strokeLineWidth: 1, strokeLineDashOffset: 0}) <a class="anchor-link" href="#rect"
+              title="Permalink to rect">#</a></h4>
+<div class="doc">
+<pre class="source">
+DrawCanvas rect(w, h, {fillStyle, strokeStyle, strokeLineWidth : 1, strokeLineDashOffset : 0}) =&gt; (CanvasRenderingContext2D g, Entity e, area) {
+ if (strokeStyle == null &amp;&amp; fillStyle == null) return;
+ var rx = - w/2;
+ var ry = - h/2;
+ if (fillStyle != null) {
+   g.fillStyle = fillStyle;
+   g.fillRect(rx, ry, w, h);
+ }
+ if (strokeStyle != null) {
+   g.strokeStyle = strokeStyle;
+   g.lineWidth = strokeLineWidth;
+   g.lineDashOffset = strokeLineDashOffset;
+   g.strokeRect(rx, ry, w, h, strokeLineWidth);
+ }
+ area.x = w.toDouble();
+ area.y = h.toDouble();
+};
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Classes</h3>
+          <div class="type">
+          <h4>
+            <a href="system_proto2d/Drawable.html"><strong>Drawable</strong></a>
+          </h4>
+          </div>
+          
+          <div class="type">
+          <h4>
+            <a href="system_proto2d/DrawComponentType.html"><strong>DrawComponentType</strong></a>
+          </h4>
+          </div>
+          
+          <div class="type">
+          <h4>
+            <a href="system_proto2d/System_Renderer.html"><strong>System_Renderer</strong></a>
+          </h4>
+          </div>
+          
+</div>
+<div>
+<h3>Typedefs</h3>
+          <div class="type">
+          <h4>
+            <a href="system_proto2d/DrawCanvas.html"><strong>DrawCanvas</strong></a>
+          </h4>
+          </div>
+          
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-20 19:09:48.617</div>
+        </div>
+        <script async src="client-live-nav.js"></script>
+        </body></html>
+        

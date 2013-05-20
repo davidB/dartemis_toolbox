@@ -1,0 +1,152 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>ComponentProvider class / system_entity_state Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="system_entity_state" data-type="ComponentProvider">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../system_entity_state.html">system_entity_state</a> &rsaquo; <a href="../system_entity_state/ComponentProvider.html">ComponentProvider</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>ComponentProvider</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<pre class="source">
+class ComponentProvider {
+ static int _cnt = -1000000;
+ static alwaysNewId() =&gt; _cnt++;
+ static nullId() =&gt; null;
+
+ /// Type of the provided Component
+ final ComponentType type;
+
+ final CreateComponent createComponent;
+
+ final ComponentProviderId id;
+
+ /**
+  * Creates a new [ComponentProvider].
+  *
+  * The [createComponent] always has to create a [Component] that is returned
+  * using the factory constructor of that [Component]. Do not return the same
+  * instance for multiple calls, because it can return to [ObjectPool]
+  * when it gets removed from the entity on a state change
+  * if it extends [Poolable].
+  */
+ ComponentProvider(Type ctype, this.createComponent, [this.id = nullId]) : type = ComponentTypeManager.getTypeFor(ctype);
+}
+</pre>
+</div>
+<div>
+<h3>Static Methods</h3>
+<div class="method"><h4 id="alwaysNewId">
+<button class="show-code">Code</button>
+dynamic <strong>alwaysNewId</strong>() <a class="anchor-link" href="#alwaysNewId"
+              title="Permalink to ComponentProvider.alwaysNewId">#</a></h4>
+<div class="doc">
+<pre class="source">
+static alwaysNewId() =&gt; _cnt++;
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="nullId">
+<button class="show-code">Code</button>
+dynamic <strong>nullId</strong>() <a class="anchor-link" href="#nullId"
+              title="Permalink to ComponentProvider.nullId">#</a></h4>
+<div class="doc">
+<pre class="source">
+static nullId() =&gt; null;
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="ComponentProvider">
+<button class="show-code">Code</button>
+new <strong>ComponentProvider</strong>(<a href="http://api.dartlang.org/dart_core/Type.html">Type</a> ctype, <a href="../system_entity_state/CreateComponent.html">CreateComponent</a> createComponent, [<a href="../system_entity_state/ComponentProviderId.html">ComponentProviderId</a> id = nullId]) <a class="anchor-link" href="#ComponentProvider"
+              title="Permalink to ComponentProvider.ComponentProvider">#</a></h4>
+<div class="doc">
+<p>Creates a new <a class="crossref" href="../system_entity_state/ComponentProvider.html#ComponentProvider">ComponentProvider</a>.</p>
+<p>The 
+<span class="param">createComponent</span> always has to create a <code>Component</code> that is returned
+using the factory constructor of that <code>Component</code>. Do not return the same
+instance for multiple calls, because it can return to <code>ObjectPool</code>
+when it gets removed from the entity on a state change
+if it extends <code>Poolable</code>.</p>
+<pre class="source">
+ComponentProvider(Type ctype, this.createComponent, [this.id = nullId]) : type = ComponentTypeManager.getTypeFor(ctype);
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="createComponent">
+<button class="show-code">Code</button>
+final <a href="../system_entity_state/CreateComponent.html">CreateComponent</a>         <strong>createComponent</strong> <a class="anchor-link"
+            href="#createComponent"
+            title="Permalink to ComponentProvider.createComponent">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final CreateComponent createComponent
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="id">
+<button class="show-code">Code</button>
+final <a href="../system_entity_state/ComponentProviderId.html">ComponentProviderId</a>         <strong>id</strong> <a class="anchor-link"
+            href="#id"
+            title="Permalink to ComponentProvider.id">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final ComponentProviderId id
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="type">
+<button class="show-code">Code</button>
+final ComponentType         <strong>type</strong> <a class="anchor-link"
+            href="#type"
+            title="Permalink to ComponentProvider.type">#</a>
+        </h4>
+        <div class="doc">
+<p>Type of the provided Component</p>
+<pre class="source">
+final ComponentType type
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-20 19:09:48.568</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

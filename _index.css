@@ -1,0 +1,20 @@
+/* Auto-generated from style sheet href = index.css */
+/* DO NOT EDIT. */
+
+@font-face  {
+  font-family: "FFFTusjBold";
+  src: url("_vendors/fff_tusj/FFF_Tusj-webfont.eot");
+  src: url("_vendors/fff_tusj/FFF_Tusj-webfont.eot?#iefix") format("embedded-opentype"), url("_vendors/fff_tusj/FFF_Tusj-webfont.woff") format("woff"), url("_vendors/fff_tusj/FFF_Tusj-webfont.ttf") format("truetype"), url("_vendors/fff_tusj/FFF_Tusj-webfont.svg#FFFTusjBold") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+h1, h2, h3 {
+  font-family: "FFFTusjBold", "Josefin Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: normal;
+}
+.blueprint {
+  color: #E3E3F8;
+  background-color: #6a6ae5;
+  box-shadow: 0 8px 6px -6px #000;
+}
+

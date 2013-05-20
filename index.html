@@ -11,69 +11,86 @@
     <!--script src="_vendors/modernizr-2.6.2.min.js"></script-->
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/2.3.1/simplex/bootstrap.min.css"/>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-responsive.min.css">
-    <!--link rel="stylesheet" href="index.css"-->
+    <link rel="stylesheet" href="index.css">
     <link rel="stylesheet" href="http://weloveiconfonts.com/api/?family=fontawesome">
-    <title>Home : dartemis_addons</title>
+    <title>Home : dartemis_toolbox</title>
   </head>
 
 <body>
 
     <header>
       <div class="container">
-        <h1>Dartemis addons</h1>
-        <h2>A set of addons (Component, System, helper, ...) to use with dartemis or not</h2>
-
+        <h1>Dartemis ToolBox</h1>
       </div>
     </header>
 
     <div class="container">
       <section id="main_content">
 
-<h1>Overview</h1>
-
-<p><code>dartemis_addons</code> is a repository of various addons usable with <a href="https://github.com/denniskaselow/dartemis">dartemis</a>, like Systems, Components, helpers.
-Each addon is defined its own library (often single source file).
-Some libraries can be used without <a href="https://github.com/denniskaselow/dartemis">dartemis</a> like <a href="https://github.com/davidB/dartemis_addons/lib/ease.dart">ease</a>, <a href="https://github.com/davidB/dartemis_addons/lib/utils.dart">utils</a>.
-</p>
-<p>You don't need to embrace the dartemis framework in your application to use addons.</p>
-
-<p>Current addons :</p>
+<p><code>dartemis_toolbox</code> is a repository of libraries for gamedev (in dart) for 2D or 3D.</p>
 
 <ul>
-<li>
-<a href="https://github.com/davidB/dartemis_addons/lib/ease.dart">ease</a> is a set of common ease functions for interpolation, transition, animations, <strong>(no dependencies)</strong></li>
-<li>
-<a href="https://github.com/davidB/dartemis_addons/lib/transform.dart">transform</a> used to define the position of your entity in space (2D and/or 3D).</li>
-<li>
-<a href="https://github.com/davidB/dartemis_addons/lib/animator.dart">animator</a> components + system to manage animation (any update on entity, with a start, a duration (infinity) and a stop).</li>
-<li>
-<a href="https://github.com/davidB/dartemis_addons/lib/entity_state.dart">entity_state</a> a way to manage states (of a finite state machine) of your entity : state == group of component (to add, to remove, to modify).</li>
-<li>
-<a href="https://github.com/davidB/dartemis_addons/lib/entity_state.dart">simple_audio</a> a way to integrate simple_audio into your dartemis application to play sound, music.</li>
-<li>widgets (webcomponent) :
-
-<ul>
-<li>xfchart to display a function (eg: used in the <a href="ease_graphics.html">Graphics of the ease's functions</a>)</li>
-<li>xtchart to display chart of realtime data like time serie (via push) (see <a href="xtchart_demo.html">Demo</a>)<br>
-</li>
+<li><a href="apidoc/">API</a></li>
+<li>Examples :
+<ul><li><a href="demos.html">demonstrations</a> : animation, particle, verlet, ... in proto2d</li>
+<li><a href="ease_graphics.html">graphics of functions</a></li>
+<li><a href="colors_demo.html">color editor</a></li></ul></li>
 </ul>
-</li>
-</ul><h1>Dependencies</h1>
+
+<h2>Libraries :</h2>
+
+<h3>Lightweight</h3>
+
+<ul>
+<li><a href="apidoc/ease.html">ease</a> is a set of common ease functions for interpolation, transition, animations, </li>
+<li><a href="apidoc/colors.html">colors</a> functions to convert and modified colors (irgba, rgb, hsv, hsl, darken, lighten, triad, tetrad, ...)</li>
+<li>quadtree (WIP)</li>
+<li>collisions 2D (WIP)</li>
+</ul>
+
+<h3>Dartemis'brick</h3>
+
+<p>You don't need to embrace the dartemis framework in your application to use the brick in.</p>
+
+<ul>
+<li><a href="apidoc/system_transform.html">transform</a> used to define the position, rotation and scale of your entity in space (2D + 3D).</li>
+<li><a href="apidoc/system_animator.html">animator</a> components + system to manage animation (any update on entity, with a start, a duration (infinity) and a stop).</li>
+<li><a href="apidoc/system_entity_state.html">entity_state</a> a way to manage states (of a finite state machine) of your entity : state == group of component (to add, to remove, to modify).</li>
+<li><a href="apidoc/system_simple_audio.html">simple<em>audio</a> a way to integrate simple</em>audio into your dartemis application to play sound, music.</li>
+<li><a href="apidoc/system_proto2d.html">proto2d</a> used to debug or to prototype display in canvas (eg: as blueprint in <a href="demos.html">demonstrations</a>)</li>
+<li><a href="apidoc/system_emitter.html">emitter</a> used to create entity (regular or particles)</li>
+<li><a href="apidoc/system_particles.html">particles</a> basic definitions of particles <em>WIP</em></li>
+<li><a href="apidoc/system_verlet.html">verlet simulator</a> (~ physic engine) <em>WIP</em></li>
+<li>three.js integration <em>WIP</em></li>
+<li>box2d integration <em>WIP</em></li>
+</ul>
+
+<h3>Widgets (webcomponent)</h3>
+
+<ul>
+<li>xfchart to display a function (eg: used in the ease_graphics.html)</li>
+<li>xtchart to display chart of realtime data like time serie (via push)  </li>
+</ul>
+
+<h2>Dependencies</h2>
 
 <p>Every dependencies are defined as <code>dev_dependencies</code> so :</p>
 
 <ul>
 <li>users'project aren't pollute by not required thrid-party lib (if you use entity_state, you don't need box2d)</li>
 <li>users should explicitly list dependencies requeried by the dartemis addon (eg: box2d, vector_math) in its own project.</li>
-</ul><p>Contributions are welcome.</p>
+</ul>
+
+<p>Contributions are welcome.</p>
+
       </section>
 
         <section id="downloads">
-          <p><a href="https://drone.io/github.com/davidB/dartemis_addons/latest"><img src="https://drone.io/github.com/davidB/dartemis_addons/status.png" alt="Build Status"></a></p>
+          <p><a href="https://drone.io/github.com/davidB/dartemis_toolbox/latest"><img src="https://drone.io/github.com/davidB/dartemis_toolbox/status.png" alt="Build Status"></a></p>
           <a href="apidoc/index.html" class="btn">API</a>
-          <a href="https://github.com/davidB/dartemis_addons/zipball/master" class="btn">Download as .zip</a>
-          <a href="https://github.com/davidB/dartemis_addons/tarball/master" class="btn">Download as .tar.gz</a>
-          <a href="https://github.com/davidB/dartemis_addons" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+          <a href="https://github.com/davidB/dartemis_toolbox/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/davidB/dartemis_toolbox/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/davidB/dartemis_toolbox" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
         </section>
     </div>
 

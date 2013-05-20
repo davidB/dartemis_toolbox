@@ -1,0 +1,266 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>QuadTreeXY class / quadtreexy Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="quadtreexy" data-type="QuadTreeXY">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../quadtreexy.html">quadtreexy</a> &rsaquo; <a href="../quadtreexy/QuadTreeXY.html">QuadTreeXY</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>QuadTreeXY</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p>see
+<em> <a href="http://en.wikipedia.org/wiki/Quadtree">Quadtree</a> at wikipedia
+</em> <a href="http://www.mikechambers.com/blog/2011/03/21/javascript-quadtree-implementation/">JavaScript QuadTree Implementation</a>
+* <a href="http://gamedev.tutsplus.com/tutorials/implementation/quick-tip-use-quadtrees-to-detect-likely-collisions-in-2d-space/">Quick Tip: Use Quadtrees to Detect Likely Collisions in 2D Space</a></p>
+<pre class="source">
+class QuadTreeXY{
+ /// (x, y, width, height) bounds of the QuadTree
+ final int x, y, w, h;
+
+ /// Whether the QuadTree will contain points (true), or items with bounds (width / height)(false).
+ final int maxDepth;
+ /// The maximum number of children that a node can contain before it is split into sub-nodes.
+ final int maxChildren;
+
+ final _children = new List&lt;vec3&gt;();
+ //TODO optimize to reuse nodes (recycle, pool)
+ final _nodes = new List&lt;QuadTreeXY&gt;(4);
+ var _isLeaf = true;
+ var vec2 _splitPoint;
+
+ QuadTreeXY(this.x, this.y, this.w, this.h, [this.maxDepth = 4, this.maxChildren = 4]) {
+   _splitPoint = new vec2(w / 2, h / 2);
+ }
+
+ /// use [clear] to reset the instance isntead of create a new one with same bounds.
+ clear() {
+   _children.clear();
+   _nodes.forEach((i) =&gt; i.clear());
+   _isLeaf = true;
+ }
+
+ bool insert(vec3 v) {
+   var r = _findRegion(v);
+   if (r != null) {
+     r._insert(v);
+   }
+   return (r != null);
+ }
+
+ QuadTreeXY findRegion(vec3 v) {
+   if (v.x &lt; x || v.x &gt; (x + w) || (v.y &lt; y) || v.y &gt; (y + w)) {
+     return null;
+   }
+   return _findRegion(v);
+ }
+
+ _insert(vec3 v) {
+   _children.add(v);
+   if (_children.length &gt; maxChildren &amp;&amp; maxDepth &gt; 0) {
+     _split();
+     _children.forEach((v) =&gt; insert(v));
+     _children.clear();
+   }
+ }
+
+ _split() {
+   if(_nodes[0] == null) {
+     _nodes[0] = new QuadTreeXY(x                , y                , _splitPoint.x    , _splitPoint.y    , maxDepth - 1, maxChildren);
+     _nodes[1] = new QuadTreeXY(x + _splitPoint.x, y                , w - _splitPoint.x, _splitPoint.y    , maxDepth - 1, maxChildren);
+     _nodes[2] = new QuadTreeXY(x                , y + _splitPoint.y, _splitPoint.x    , h - _splitPoint.y, maxDepth - 1, maxChildren);
+     _nodes[3] = new QuadTreeXY(x + _splitPoint.x, y + _splitPoint.y, w - _splitPoint.x, h - _splitPoint.y, maxDepth - 1, maxChildren);
+   }
+   _isLeaf = false;
+ }
+
+ _findRegion(vec3 v) {
+   if (_isLeaf) return this;
+   var x0 = v.x - x;
+   var y0 = v.y - y;
+   var b = (x0 &lt;= _splitPoint.x) ?
+       ((y0 &lt;= _splitPoint.y) ? _nodes[0] : _nodes[2])
+       :((y0 &lt;= _splitPoint.y) ? _nodes[1] : _nodes[3])
+       ;
+   return b._findChild(v);
+ }
+}
+</pre>
+</div>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="QuadTreeXY">
+<button class="show-code">Code</button>
+new <strong>QuadTreeXY</strong>(<a href="http://api.dartlang.org/dart_core/int.html">int</a> x, <a href="http://api.dartlang.org/dart_core/int.html">int</a> y, <a href="http://api.dartlang.org/dart_core/int.html">int</a> w, <a href="http://api.dartlang.org/dart_core/int.html">int</a> h, [<a href="http://api.dartlang.org/dart_core/int.html">int</a> maxDepth = 4, <a href="http://api.dartlang.org/dart_core/int.html">int</a> maxChildren = 4]) <a class="anchor-link" href="#QuadTreeXY"
+              title="Permalink to QuadTreeXY.QuadTreeXY">#</a></h4>
+<div class="doc">
+<pre class="source">
+QuadTreeXY(this.x, this.y, this.w, this.h, [this.maxDepth = 4, this.maxChildren = 4]) {
+ _splitPoint = new vec2(w / 2, h / 2);
+}
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="h">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>h</strong> <a class="anchor-link"
+            href="#h"
+            title="Permalink to QuadTreeXY.h">#</a>
+        </h4>
+        <div class="doc">
+<p>(x, y, width, height) bounds of the QuadTree</p>
+<pre class="source">
+final int x, y, w, h
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="maxChildren">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>maxChildren</strong> <a class="anchor-link"
+            href="#maxChildren"
+            title="Permalink to QuadTreeXY.maxChildren">#</a>
+        </h4>
+        <div class="doc">
+<p>The maximum number of children that a node can contain before it is split into sub-nodes.</p>
+<pre class="source">
+final int maxChildren
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="maxDepth">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>maxDepth</strong> <a class="anchor-link"
+            href="#maxDepth"
+            title="Permalink to QuadTreeXY.maxDepth">#</a>
+        </h4>
+        <div class="doc">
+<p>Whether the QuadTree will contain points (true), or items with bounds (width / height)(false).</p>
+<pre class="source">
+final int maxDepth
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="w">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>w</strong> <a class="anchor-link"
+            href="#w"
+            title="Permalink to QuadTreeXY.w">#</a>
+        </h4>
+        <div class="doc">
+<p>(x, y, width, height) bounds of the QuadTree</p>
+<pre class="source">
+final int x, y, w
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="x">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>x</strong> <a class="anchor-link"
+            href="#x"
+            title="Permalink to QuadTreeXY.x">#</a>
+        </h4>
+        <div class="doc">
+<p>(x, y, width, height) bounds of the QuadTree</p>
+<pre class="source">
+final int x
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="y">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>y</strong> <a class="anchor-link"
+            href="#y"
+            title="Permalink to QuadTreeXY.y">#</a>
+        </h4>
+        <div class="doc">
+<p>(x, y, width, height) bounds of the QuadTree</p>
+<pre class="source">
+final int x, y
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="clear">
+<button class="show-code">Code</button>
+dynamic <strong>clear</strong>() <a class="anchor-link" href="#clear"
+              title="Permalink to QuadTreeXY.clear">#</a></h4>
+<div class="doc">
+<p>use <a class="crossref" href="../quadtreexy/QuadTreeXY.html#clear">clear</a> to reset the instance isntead of create a new one with same bounds.</p>
+<pre class="source">
+clear() {
+ _children.clear();
+ _nodes.forEach((i) =&gt; i.clear());
+ _isLeaf = true;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="findRegion">
+<button class="show-code">Code</button>
+<a href="../quadtreexy/QuadTreeXY.html">QuadTreeXY</a> <strong>findRegion</strong>(vec3 v) <a class="anchor-link" href="#findRegion"
+              title="Permalink to QuadTreeXY.findRegion">#</a></h4>
+<div class="doc">
+<pre class="source">
+QuadTreeXY findRegion(vec3 v) {
+ if (v.x &lt; x || v.x &gt; (x + w) || (v.y &lt; y) || v.y &gt; (y + w)) {
+   return null;
+ }
+ return _findRegion(v);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="insert">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>insert</strong>(vec3 v) <a class="anchor-link" href="#insert"
+              title="Permalink to QuadTreeXY.insert">#</a></h4>
+<div class="doc">
+<pre class="source">
+bool insert(vec3 v) {
+ var r = _findRegion(v);
+ if (r != null) {
+   r._insert(v);
+ }
+ return (r != null);
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-20 19:09:48.146</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

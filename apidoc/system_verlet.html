@@ -1,0 +1,214 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>system_verlet Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="favicon.ico">
+        
+        </head>
+        <body data-library="system_verlet">
+        <div class="page">
+        <div class="header">
+          <a href="index.html"><div class="logo"></div></a>
+          <a href="index.html">Dart Documentation</a>
+         &rsaquo; <a href="system_verlet.html">system_verlet</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+<h2><strong>system_verlet</strong> library</h2>
+<div class="doc"><p>TODO lot of test (unit, ...)
+TODO benchmark, profiling, optimisation</p></div>
+<div>
+<h3>Functions</h3>
+<div class="method"><h4 id="makeCloth">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;Component&gt; <strong>makeCloth</strong>(vec3 origin, vec3 width, vec3 height, <a href="http://api.dartlang.org/dart_core/int.html">int</a> segments, <a href="http://api.dartlang.org/dart_core/int.html">int</a> pinMod, <a href="http://api.dartlang.org/dart_core/double.html">double</a> stiffness) <a class="anchor-link" href="#makeCloth"
+              title="Permalink to makeCloth">#</a></h4>
+<div class="doc">
+<pre class="source">
+Iterable&lt;Component&gt; makeCloth(vec3 origin, vec3 width, vec3 height, int segments, int pinMod, double stiffness) {
+ var xStride = width / segments.toDouble();
+ var yStride = height / segments.toDouble();
+
+ var ps = new Particles();
+ var cs = new Constraints();
+ for (var y=0; y &lt; segments; ++y) {
+   var x0 = new Particle(origin + yStride * y.toDouble());
+   ps.l.add(x0);
+   if (y &gt; 0)
+     cs.l.add(new Constraint_Distance(x0.position3d, ps.l[(y-1)*segments].position3d, stiffness));
+   for (var x = 1; x &lt; segments; ++x) {
+//      var px = origin.x + x*xStride - width/2 + xStride/2;
+//      var py = origin.y + y*yStride - height/2 + yStride/2;
+     var xi = new Particle(x0.position3d + xStride * x.toDouble());
+     ps.l.add(xi);
+     cs.l.add(new Constraint_Distance(xi.position3d, ps.l[y*segments+x-1].position3d, stiffness));
+     if (y &gt; 0)
+       cs.l.add(new Constraint_Distance(xi.position3d, ps.l[(y-1)*segments+x].position3d, stiffness));
+   }
+ }
+
+ for (var x=0; x&lt; segments; ++x) {
+   if ( x % pinMod == 0)
+     pinVec3(ps.l[x].position3d, cs);
+ }
+
+ return [ps, cs];
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="makeParallelogram">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;Component&gt; <strong>makeParallelogram</strong>(vec3 origin, vec3 width, vec3 height, <a href="http://api.dartlang.org/dart_core/double.html">double</a> stiffness) <a class="anchor-link" href="#makeParallelogram"
+              title="Permalink to makeParallelogram">#</a></h4>
+<div class="doc">
+<pre class="source">
+Iterable&lt;Component&gt;  makeParallelogram(vec3 origin, vec3 width, vec3 height, double stiffness) {
+ return makeLineSegments([origin, origin + width, origin + width + height, origin + height], stiffness, true);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="makeLineSegments">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;Component&gt; <strong>makeLineSegments</strong>(<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;vec3&gt; vertices, <a href="http://api.dartlang.org/dart_core/double.html">double</a> stiffness, <a href="http://api.dartlang.org/dart_core/bool.html">bool</a> closed) <a class="anchor-link" href="#makeLineSegments"
+              title="Permalink to makeLineSegments">#</a></h4>
+<div class="doc">
+<pre class="source">
+Iterable&lt;Component&gt; makeLineSegments(List&lt;vec3&gt; vertices, double stiffness, bool closed) {
+ var ps = new Particles();
+ ps.l.addAll(vertices.map((x) =&gt; new Particle(x)));
+ var cs = new Constraints();
+ for (var i = 1; i &lt; ps.l.length; ++i) {
+   cs.l.add(new Constraint_Distance(ps.l[i].position3d, ps.l[i-1].position3d, stiffness));
+ }
+ if (closed) {
+   cs.l.add(new Constraint_Distance(ps.l[0].position3d, ps.l[ps.l.length - 1].position3d, stiffness));
+ }
+ return [ps, cs];
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="pinVec3">
+<button class="show-code">Code</button>
+dynamic <strong>pinVec3</strong>(vec3 v, <a href="system_verlet/Constraints.html">Constraints</a> cs) <a class="anchor-link" href="#pinVec3"
+              title="Permalink to pinVec3">#</a></h4>
+<div class="doc">
+<pre class="source">
+pinVec3(vec3 v, Constraints cs) {
+ cs.l.add(new Constraint_Pin(v));
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="pinParticle">
+<button class="show-code">Code</button>
+dynamic <strong>pinParticle</strong>(Entity e, <a href="http://api.dartlang.org/dart_core/int.html">int</a> index) <a class="anchor-link" href="#pinParticle"
+              title="Permalink to pinParticle">#</a></h4>
+<div class="doc">
+<pre class="source">
+pinParticle(Entity e, int index) {
+ pinVec3(
+   (e.getComponent(Particles.CT) as Particles).l[index].position3d,
+   e.getComponent(Constraints.CT)
+ );
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="makeTireXY">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;Component&gt; <strong>makeTireXY</strong>(vec3 origin, <a href="http://api.dartlang.org/dart_core/double.html">double</a> radius, <a href="http://api.dartlang.org/dart_core/int.html">int</a> segments, <a href="http://api.dartlang.org/dart_core/double.html">double</a> spokeStiffness, <a href="http://api.dartlang.org/dart_core/double.html">double</a> treadStiffness) <a class="anchor-link" href="#makeTireXY"
+              title="Permalink to makeTireXY">#</a></h4>
+<div class="doc">
+<pre class="source">
+Iterable&lt;Component&gt; makeTireXY(vec3 origin, double radius, int segments, double spokeStiffness, double treadStiffness) {
+ var stride = (2 * math.PI) / segments;
+
+ // particles
+ var ps = new Particles(segments + 1);
+ for (var i=0; i &lt; segments; ++i) {
+   var theta = i * stride;
+   var v = ps.l[i].position3d.setFrom(origin);
+   v.x = v.x + math.cos(theta) * radius;
+   v.y = v.y + math.sin(theta) * radius;
+ }
+ ps.l[segments].position3d.setFrom(origin);
+
+ // constraints
+ var cs = new Constraints();
+ for (var i=0; i &lt; segments; ++i) {
+   cs.l.add(new Constraint_Distance(ps.l[i].position3d, ps.l[(i + 1) % segments].position3d, treadStiffness));
+   cs.l.add(new Constraint_Distance(ps.l[i].position3d, origin, spokeStiffness));
+   cs.l.add(new Constraint_Distance(ps.l[i].position3d, ps.l[(i + 5) % segments].position3d, treadStiffness));
+ }
+ return [ps,cs];
+}
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Abstract Classes</h3>
+          <div class="type">
+          <h4>
+            <a href="system_verlet/Constraint.html"><strong>Constraint</strong></a>
+          </h4>
+          </div>
+          
+</div>
+<div>
+<h3>Classes</h3>
+          <div class="type">
+          <h4>
+            <a href="system_verlet/Constraint_AngleXY.html"><strong>Constraint_AngleXY</strong></a>
+          </h4>
+          </div>
+          
+          <div class="type">
+          <h4>
+            <a href="system_verlet/Constraint_Distance.html"><strong>Constraint_Distance</strong></a>
+          </h4>
+          </div>
+          
+          <div class="type">
+          <h4>
+            <a href="system_verlet/Constraint_Pin.html"><strong>Constraint_Pin</strong></a>
+          </h4>
+          </div>
+          
+          <div class="type">
+          <h4>
+            <a href="system_verlet/Constraints.html"><strong>Constraints</strong></a>
+          </h4>
+          </div>
+          
+          <div class="type">
+          <h4>
+            <a href="system_verlet/System_Simulator.html"><strong>System_Simulator</strong></a>
+          </h4>
+          </div>
+          
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-20 19:09:48.695</div>
+        </div>
+        <script async src="client-live-nav.js"></script>
+        </body></html>
+        

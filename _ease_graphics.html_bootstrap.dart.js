@@ -13,6 +13,159 @@ var $ = Isolate.$isolateProperties;
 var $$ = {};
 
 // Classes
+$$.ListIterable = {"": "IterableBase;",
+  get$iterator: function(_) {
+    return $.ListIterator$(this);
+  },
+  forEach$1: function(_, action) {
+    var $length, i;
+    $length = this.get$length(this);
+    for (i = 0; i < $length; ++i) {
+      action.call$1(this.elementAt$1(this, i));
+      if ($length !== this.get$length(this))
+        throw $.wrapException($.ConcurrentModificationError$(this));
+    }
+  },
+  contains$1: function(_, element) {
+    var $length, i;
+    $length = this.get$length(this);
+    for (i = 0; i < $length; ++i) {
+      if ($.$eq(this.elementAt$1(this, i), element) === true)
+        return true;
+      if ($length !== this.get$length(this))
+        throw $.wrapException($.ConcurrentModificationError$(this));
+    }
+    return false;
+  },
+  where$1: function(_, test) {
+    return $.IterableBase.prototype.where$1.call(this, this, test);
+  },
+  toList$1$growable: function(_, growable) {
+    var result, i, t1;
+    if (growable) {
+      result = $.List_List($, $.getRuntimeTypeArgument(this, this.$asListIterable, 0));
+      $.setRuntimeTypeInfo(result, [$.getRuntimeTypeArgument(this, this.$asListIterable, 0)]);
+      $.JSArray_methods.set$length(result, this.get$length(this));
+    } else {
+      result = $.List_List(this.get$length(this), $.getRuntimeTypeArgument(this, this.$asListIterable, 0));
+      $.setRuntimeTypeInfo(result, [$.getRuntimeTypeArgument(this, this.$asListIterable, 0)]);
+    }
+    for (i = 0; i < this.get$length(this); ++i) {
+      t1 = this.elementAt$1(this, i);
+      if (i >= result.length)
+        throw $.ioore(i);
+      result[i] = t1;
+    }
+    return result;
+  },
+  toList$0: function($receiver) {
+    return this.toList$1$growable($receiver, true);
+  },
+  $asIterableBase: null,
+  $asIterable: null
+};
+
+$$.SubListIterable = {"": "ListIterable;_iterable,_start,_endOrLength",
+  get$_endIndex: function() {
+    var $length, t1;
+    $length = $.get$length$asx(this._iterable);
+    t1 = this._endOrLength;
+    if (t1 == null || $.$gt$n(t1, $length))
+      return $length;
+    return t1;
+  },
+  get$_startIndex: function() {
+    var $length, t1;
+    $length = $.get$length$asx(this._iterable);
+    t1 = this._start;
+    if ($.$gt$n(t1, $length))
+      return $length;
+    return t1;
+  },
+  get$length: function(_) {
+    var $length, t1, t2;
+    $length = $.get$length$asx(this._iterable);
+    if (typeof $length !== "number")
+      return this.get$length$bailout2(1, $length);
+    t1 = this._start;
+    if (typeof t1 !== "number")
+      throw t1.$ge();
+    if (t1 >= $length)
+      return 0;
+    t2 = this._endOrLength;
+    if (typeof t2 !== "number")
+      return this.get$length$bailout2(2, $length, t2, t1);
+    if (t2 >= $length)
+      return $length - t1;
+    return t2 - t1;
+  },
+  get$length$bailout2: function(state0, $length, t2, t1) {
+    switch (state0) {
+      case 0:
+        $length = $.get$length$asx(this._iterable);
+      case 1:
+        state0 = 0;
+        t1 = this._start;
+        if (typeof t1 !== "number")
+          throw t1.$ge();
+        if ($.$ge$n(t1, $length))
+          return 0;
+        t2 = this._endOrLength;
+      case 2:
+        state0 = 0;
+        if (t2 == null || $.$ge$n(t2, $length))
+          return $.$sub$n($length, t1);
+        return $.$sub$n(t2, t1);
+    }
+  },
+  elementAt$1: function(_, index) {
+    var t1, realIndex;
+    if (typeof index !== "number")
+      return this.elementAt$1$bailout2(1, index);
+    t1 = this.get$_startIndex();
+    if (typeof t1 !== "number")
+      return this.elementAt$1$bailout2(2, index, t1);
+    realIndex = t1 + index;
+    if (!(index < 0)) {
+      t1 = this.get$_endIndex();
+      if (typeof t1 !== "number")
+        return this.elementAt$1$bailout2(3, index, t1, realIndex);
+      t1 = realIndex >= t1;
+    } else
+      t1 = true;
+    if (t1)
+      throw $.wrapException($.RangeError$range(index, 0, this.get$length(this)));
+    return $.elementAt$1$ax(this._iterable, realIndex);
+  },
+  elementAt$1$bailout2: function(state0, index, t1, realIndex) {
+    switch (state0) {
+      case 0:
+      case 1:
+        state0 = 0;
+        t1 = this.get$_startIndex();
+      case 2:
+        state0 = 0;
+        realIndex = $.$add$ns(t1, index);
+      case 3:
+        if (state0 === 3 || state0 === 0 && !$.$lt$n(index, 0))
+          switch (state0) {
+            case 0:
+              t1 = this.get$_endIndex();
+            case 3:
+              state0 = 0;
+              t1 = $.$ge$n(realIndex, t1);
+          }
+        else
+          t1 = true;
+        if (t1)
+          throw $.wrapException($.RangeError$range(index, 0, this.get$length(this)));
+        return $.elementAt$1$ax(this._iterable, realIndex);
+    }
+  },
+  $asListIterable: null,
+  $asIterable: null
+};
+
 $$.ListIterator = {"": "Object;_iterable,_liblib$_length,_index,_liblib$_current",
   get$current: function() {
     return this._liblib$_current;
@@ -42,22 +195,45 @@ $$.WhereIterable = {"": "IterableBase;_iterable,_f",
   $asIterable: null
 };
 
-$$.WhereIterator = {"": "Iterator;_iterator,_f",
+$$.WhereIterator = {"": "Iterator;_liblib$_iterator,_f",
   _f$1: function(arg0) {
     return this._f.call$1(arg0);
   },
   moveNext$0: function() {
-    for (var t1 = this._iterator; t1.moveNext$0() === true;)
+    for (var t1 = this._liblib$_iterator; t1.moveNext$0() === true;)
       if (this._f$1(t1.get$current()) === true)
         return true;
     return false;
   },
   get$current: function() {
-    return this._iterator.get$current();
+    return this._liblib$_iterator.get$current();
   }
 };
 
-$$.ToString__emitPair_anon = {"": "Closure;box_0,result_1,visiting_2",
+$$.SkipIterable = {"": "IterableBase;_iterable,_skipCount",
+  get$iterator: function(_) {
+    return $.SkipIterator$($.get$iterator$ax(this._iterable), this._skipCount);
+  },
+  $asIterableBase: null,
+  $asIterable: null
+};
+
+$$.SkipIterator = {"": "Iterator;_liblib$_iterator,_skipCount",
+  moveNext$0: function() {
+    var t1, i;
+    for (t1 = this._liblib$_iterator, i = 0; $.JSNumber_methods.$lt(i, this._skipCount); ++i)
+      t1.moveNext$0();
+    this._skipCount = 0;
+    return t1.moveNext$0();
+  },
+  get$current: function() {
+    return this._liblib$_iterator.get$current();
+  },
+  SkipIterator$2: function(_iterator, _skipCount) {
+  }
+};
+
+$$.ToString__emitPair_closure = {"": "Closure;box_0,result_1,visiting_2",
   call$2: function(k, v) {
     var t1, t2;
     t1 = this.box_0;
@@ -73,7 +249,7 @@ $$.ToString__emitPair_anon = {"": "Closure;box_0,result_1,visiting_2",
   $isFunction: true
 };
 
-$$.HashMap_addAll_anon = {"": "Closure;this_0",
+$$.HashMap_addAll_closure = {"": "Closure;this_0",
   call$2: function(key, value) {
     $.$indexSet$ax(this.this_0, key, value);
   },
@@ -87,6 +263,9 @@ $$.HashMapKeyIterable = {"": "IterableBase;_map",
   get$iterator: function(_) {
     var t1 = this._map;
     return $.HashMapKeyIterator$(t1, t1._computeKeys$0());
+  },
+  contains$1: function(_, element) {
+    return this._map.containsKey$1(element);
   },
   forEach$1: function(_, f) {
     var t1, keys, $length, i;
@@ -124,7 +303,7 @@ $$.HashMapKeyIterator = {"": "Object;_map,_keys,_offset,_liblib1$_current",
   }
 };
 
-$$.LinkedHashMap_addAll_anon = {"": "Closure;this_0",
+$$.LinkedHashMap_addAll_closure = {"": "Closure;this_0",
   call$2: function(key, value) {
     $.$indexSet$ax(this.this_0, key, value);
   },
@@ -140,6 +319,9 @@ $$.LinkedHashMapKeyIterable = {"": "IterableBase;_map",
   get$iterator: function(_) {
     var t1 = this._map;
     return $.LinkedHashMapKeyIterator$(t1, t1._modifications);
+  },
+  contains$1: function(_, element) {
+    return this._map.containsKey$1(element);
   },
   forEach$1: function(_, f) {
     var t1, cell, modifications;
@@ -194,7 +376,7 @@ $$.ConstantMap = {"": "Object;length>,_jsObject,_liblib5$_keys",
     return this._jsObject[key];
   },
   forEach$1: function(_, f) {
-    $.forEach$1$ax(this._liblib5$_keys, new $.ConstantMap_forEach_anon(this, f));
+    $.forEach$1$ax(this._liblib5$_keys, new $.ConstantMap_forEach_closure(this, f));
   },
   get$keys: function() {
     return $._ConstantMapKeyIterable$(this);
@@ -216,21 +398,36 @@ $$.ConstantMap = {"": "Object;length>,_jsObject,_liblib5$_keys",
   $asMap: function (V) { return [$.JSString, V]; }
 };
 
-$$.ConstantMap_forEach_anon = {"": "Closure;this_0,f_1",
+$$.ConstantMap_forEach_closure = {"": "Closure;this_0,f_1",
   call$1: function(key) {
     return this.f_1.call$2(key, $.$index$asx(this.this_0, key));
   },
   $isFunction: true
 };
 
+$$.ConstantProtoMap = {"": "ConstantMap;_protoValue,length,_jsObject,_liblib5$_keys",
+  containsKey$1: function(key) {
+    if ($.$eq(key, "__proto__") === true)
+      return true;
+    return $.ConstantMap.prototype.containsKey$1.call(this, key);
+  },
+  $index: function(_, key) {
+    if ($.$eq(key, "__proto__") === true)
+      return this._protoValue;
+    return $.ConstantMap.prototype.$index.call(this, this, key);
+  },
+  $asConstantMap: null,
+  $asMap: function (V) { return [$.JSString, V]; }
+};
+
 $$._ConstantMapKeyIterable = {"": "IterableBase;_liblib5$_map",
   get$iterator: function(_) {
     return $.get$iterator$ax(this._liblib5$_map._liblib5$_keys);
   },
-  $asIterable: function () { return [$.JSString]; }
+  $asIterable: function() { return [$.JSString]; }
 };
 
-$$.NoSuchMethodError_toString_anon = {"": "Closure;box_0",
+$$.NoSuchMethodError_toString_closure = {"": "Closure;box_0",
   call$2: function(key, value) {
     var t1, t2, str;
     t1 = this.box_0;
@@ -334,6 +531,8 @@ $$.JSArray = {"": "List/Interceptor;",
       $.throwExpression($.ArgumentError$(null));
     if (typeof start !== "number" || Math.floor(start) !== start)
       throw $.wrapException($.ArgumentError$(start));
+    else
+      start;
     if (start < 0 || start > receiver.length)
       throw $.wrapException($.RangeError$range(start, 0, receiver.length));
     if (end < start || end > receiver.length)
@@ -409,7 +608,7 @@ $$.JSArray = {"": "List/Interceptor;",
   $isIterable: true
 };
 
-$$.JSMutableArray = {"": "JSArray;", $asList: function () { return [null]; }, $asIterable: function () { return [null]; }};
+$$.JSMutableArray = {"": "JSArray;", $asList: function() { return [null]; }, $asIterable: function() { return [null]; }};
 
 $$.JSFixedArray = {"": "JSMutableArray;"};
 
@@ -439,21 +638,21 @@ $$._StackTrace = {"": "Object;_stack",
   }
 };
 
-$$.invokeClosure_anon = {"": "Closure;closure_0",
+$$.invokeClosure_closure = {"": "Closure;closure_0",
   call$0: function() {
     return this.closure_0.call$0();
   },
   $isFunction: true
 };
 
-$$.invokeClosure_anon0 = {"": "Closure;closure_1,arg1_2",
+$$.invokeClosure_closure0 = {"": "Closure;closure_1,arg1_2",
   call$0: function() {
     return this.closure_1.call$1(this.arg1_2);
   },
   $isFunction: true
 };
 
-$$.invokeClosure_anon1 = {"": "Closure;closure_3,arg1_4,arg2_5",
+$$.invokeClosure_closure1 = {"": "Closure;closure_3,arg1_4,arg2_5",
   call$0: function() {
     return this.closure_3.call$2(this.arg1_4, this.arg2_5);
   },
@@ -467,11 +666,29 @@ $$.Closure = {"": "Object;",
   $isFunction: true
 };
 
+$$.Creates = {"": "Object;types"};
+
+$$.Returns = {"": "Object;types"};
+
+$$.JSName = {"": "Object;name"};
+
 $$.Null = {"": "Object;"};
+
+$$.TypeErrorImplementation = {"": "Object;message",
+  toString$0: function(_) {
+    return this.message;
+  }
+};
 
 $$.CastErrorImplementation = {"": "Object;message",
   toString$0: function(_) {
     return this.message;
+  }
+};
+
+$$.FallThroughErrorImplementation = {"": "Object;",
+  toString$0: function(_) {
+    return "Switch case fall-through.";
   }
 };
 
@@ -480,6 +697,8 @@ $$.JSNumber = {"": "num/Interceptor;",
     var bIsNegative;
     if (typeof b !== "number")
       throw $.wrapException($.ArgumentError$(b));
+    else
+      b;
     if (receiver < b)
       return -1;
     else if (receiver > b)
@@ -556,6 +775,8 @@ $$.JSNumber = {"": "num/Interceptor;",
     return receiver > other;
   },
   $ge: function(receiver, other) {
+    if (typeof other !== "number")
+      throw $.wrapException($.ArgumentError$(other));
     return receiver >= other;
   },
   $isnum: true
@@ -564,6 +785,23 @@ $$.JSNumber = {"": "num/Interceptor;",
 $$.JSInt = {"": "int/JSNumber;", $isint: true, $isnum: true};
 
 $$.JSDouble = {"": "double/JSNumber;", $isdouble: true, $isnum: true};
+
+$$.TypeImpl = {"": "Object;typeName",
+  toString$0: function(_) {
+    return this.typeName;
+  },
+  get$hashCode: function(_) {
+    return $.get$hashCode$(this.typeName);
+  },
+  $eq: function(_, other) {
+    if (other == null)
+      return false;
+    if (typeof other !== "object" || other === null || !$.getInterceptor(other).$isTypeImpl)
+      return false;
+    return $.$eq(this.typeName, other.typeName);
+  },
+  $isTypeImpl: true
+};
 
 $$.JSString = {"": "String/Interceptor;",
   codeUnitAt$1: function(receiver, index) {
@@ -619,6 +857,8 @@ $$.JSString = {"": "String/Interceptor;",
       $.throwExpression($.ArgumentError$(null));
     if (typeof start !== "number" || Math.floor(start) !== start)
       throw $.wrapException($.ArgumentError$(start));
+    else
+      start;
     if (typeof other !== "string")
       throw $.wrapException($.ArgumentError$(other));
     if (start < 0)
@@ -630,8 +870,8 @@ $$.JSString = {"": "String/Interceptor;",
       $.throwExpression($.ArgumentError$(null));
     return $.stringContainsUnchecked(receiver, other, startIndex);
   },
-  get$isEmpty: function(receiver) {
-    return receiver.length === 0;
+  contains$1: function($receiver, other) {
+    return this.contains$2($receiver, other, 0);
   },
   compareTo$1: function(receiver, other) {
     var t1;
@@ -719,7 +959,7 @@ $$._AllMatchesIterable = {"": "IterableBase;_re,_str",
   get$iterator: function(_) {
     return $._AllMatchesIterator$(this._re, this._str);
   },
-  $asIterable: function () { return [$.Match]; }
+  $asIterable: function() { return [$.Match]; }
 };
 
 $$._AllMatchesIterator = {"": "Object;_re,_str,_liblib5$_current",
@@ -749,21 +989,21 @@ $$.HashMap = {"": "Object;_liblib1$_length,_strings,_nums,_rest,_keys",
   },
   containsKey$1: function(key) {
     var strings, nums, rest;
-    if (false) {
+    if (typeof key === "string" && key !== "__proto__") {
       strings = this._strings;
       return strings == null ? false : strings[key] != null;
-    } else if (false) {
+    } else if (typeof key === "number" && (key & 0x3ffffff) === key) {
       nums = this._nums;
       return nums == null ? false : nums[key] != null;
     } else {
       rest = this._rest;
       if (rest == null)
         return false;
-      return $.HashMap__findBucketIndex(rest[key.hashCode & 0x3ffffff], key) >= 0;
+      return $.HashMap__findBucketIndex(rest[$.get$hashCode$(key) & 0x3ffffff], key) >= 0;
     }
   },
   addAll$1: function(_, other) {
-    $.forEach$1$ax(other, new $.HashMap_addAll_anon(this));
+    $.forEach$1$ax(other, new $.HashMap_addAll_closure(this));
   },
   $index: function(_, key) {
     var strings, t1, entry, nums, rest, bucket, index;
@@ -950,6 +1190,13 @@ $$.IterableBase = {"": "Object;",
   where$1: function(_, f) {
     return $.WhereIterable$(this, f, $.getRuntimeTypeArgument(this, this.$asIterableBase, 0));
   },
+  contains$1: function(_, element) {
+    var t1;
+    for (t1 = this.get$iterator(this); t1.moveNext$0() === true;)
+      if ($.$eq(t1.get$current(), element) === true)
+        return true;
+    return false;
+  },
   forEach$1: function(_, f) {
     var t1;
     for (t1 = this.get$iterator(this); t1.moveNext$0() === true;)
@@ -970,6 +1217,8 @@ $$.IterableBase = {"": "Object;",
   },
   elementAt$1: function(_, index) {
     var t1, remaining, element;
+    if (typeof index !== "number")
+      return this.elementAt$1$bailout(1, index);
     if (typeof index !== "number" || Math.floor(index) !== index || index < 0)
       throw $.wrapException($.RangeError$value(index));
     for (t1 = this.get$iterator(this), remaining = index; t1.moveNext$0() === true;) {
@@ -980,13 +1229,44 @@ $$.IterableBase = {"": "Object;",
     }
     throw $.wrapException($.RangeError$value(index));
   },
+  elementAt$1$bailout: function(state0, index) {
+    var t1, remaining, element;
+    if (typeof index !== "number" || Math.floor(index) !== index || index < 0)
+      throw $.wrapException($.RangeError$value(index));
+    for (t1 = this.get$iterator(this), remaining = index; t1.moveNext$0() === true;) {
+      element = t1.get$current();
+      if (remaining === 0)
+        return element;
+      remaining = $.$sub$n(remaining, 1);
+    }
+    throw $.wrapException($.RangeError$value(index));
+  },
   $isIterable: true,
   $asIterable: null
 };
 
 $$.LinkedHashMap = {"": "Object;_liblib1$_length,_strings,_nums,_rest,_first,_last,_modifications",
+  containsKey$1: function(key) {
+    var strings, nums, rest;
+    if (key !== "__proto__") {
+      strings = this._strings;
+      if (strings == null)
+        return false;
+      return strings[key] != null;
+    } else if (false) {
+      nums = this._nums;
+      if (nums == null)
+        return false;
+      return nums[key] != null;
+    } else {
+      rest = this._rest;
+      if (rest == null)
+        return false;
+      return $.LinkedHashMap__findBucketIndex(rest[$.JSString_methods.get$hashCode(key) & 0x3ffffff], key) >= 0;
+    }
+  },
   addAll$1: function(_, other) {
-    $.forEach$1$ax(other, new $.LinkedHashMap_addAll_anon(this));
+    $.forEach$1$ax(other, new $.LinkedHashMap_addAll_closure(this));
   },
   $index: function(_, key) {
     var strings, cell, nums, rest, bucket, index;
@@ -1120,51 +1400,74 @@ $$.LinkedHashMap = {"": "Object;_liblib1$_length,_strings,_nums,_rest,_first,_la
 $$.ListBase = {"": "Object+ListMixin;", $isList: true, $asList: null, $isIterable: true, $asIterable: null};
 
 $$.ListMixin = {"": "Object;",
-  get$iterator: function(_) {
-    return $.ListIterator$(this);
+  get$iterator: function(receiver) {
+    return $.ListIterator$(receiver);
   },
-  elementAt$1: function(_, index) {
-    return this.$index(this, index);
+  elementAt$1: function(receiver, index) {
+    return this.$index(receiver, index);
   },
-  forEach$1: function(_, action) {
+  forEach$1: function(receiver, action) {
     var $length, i;
-    $length = this.get$length(this);
+    $length = this.get$length(receiver);
     if (typeof $length !== "number")
-      return this.forEach$1$bailout(1, action, $length);
+      return this.forEach$1$bailout(1, action, receiver, $length);
     for (i = 0; i < $length; ++i) {
-      action.call$1(this.$index(this, i));
-      if ($length !== this.get$length(this))
-        throw $.wrapException($.ConcurrentModificationError$(this));
+      action.call$1(this.$index(receiver, i));
+      if ($length !== this.get$length(receiver))
+        throw $.wrapException($.ConcurrentModificationError$(receiver));
     }
   },
-  forEach$1$bailout: function(state0, action, $length) {
+  forEach$1$bailout: function(state0, action, receiver, $length) {
     var t1, i;
     for (t1 = $.getInterceptor($length), i = 0; $.JSNumber_methods.$lt(i, $length); ++i) {
-      action.call$1(this.$index(this, i));
-      if (t1.$eq($length, this.get$length(this)) !== true)
-        throw $.wrapException($.ConcurrentModificationError$(this));
+      action.call$1(this.$index(receiver, i));
+      if (t1.$eq($length, this.get$length(receiver)) !== true)
+        throw $.wrapException($.ConcurrentModificationError$(receiver));
     }
   },
-  get$last: function(_) {
-    if ($.$eq(this.get$length(this), 0) === true)
+  get$last: function(receiver) {
+    if ($.$eq(this.get$length(receiver), 0) === true)
       throw $.wrapException($.StateError$("No elements"));
-    return this.$index(this, $.$sub$n(this.get$length(this), 1));
+    return this.$index(receiver, $.$sub$n(this.get$length(receiver), 1));
   },
-  where$1: function(_, test) {
-    return $.WhereIterable$(this, test, $.getRuntimeTypeArgument(this, this.$asListMixin, 0));
+  contains$1: function(receiver, element) {
+    var $length, i;
+    $length = this.get$length(receiver);
+    if (typeof $length !== "number")
+      return this.contains$1$bailout(1, element, receiver, $length);
+    for (i = 0; i < $length; ++i) {
+      if ($.$eq(this.$index(receiver, i), element) === true)
+        return true;
+      if ($length !== this.get$length(receiver))
+        throw $.wrapException($.ConcurrentModificationError$(receiver));
+    }
+    return false;
   },
-  toList$1$growable: function(_, growable) {
+  contains$1$bailout: function(state0, element, receiver, $length) {
+    var t1, i;
+    for (t1 = $.getInterceptor($length), i = 0; $.JSNumber_methods.$lt(i, $length); ++i) {
+      if ($.$eq(this.$index(receiver, i), element) === true)
+        return true;
+      if (t1.$eq($length, this.get$length(receiver)) !== true)
+        throw $.wrapException($.ConcurrentModificationError$(receiver));
+    }
+    return false;
+  },
+  where$1: function(receiver, test) {
+    return $.WhereIterable$(receiver, test, $.getRuntimeTypeArgument(receiver, receiver.$asListMixin, 0));
+  },
+  toList$1$growable: function(receiver, growable) {
     var result, i, t1;
     if (growable) {
-      result = $.List_List($, $.getRuntimeTypeArgument(this, this.$asListMixin, 0));
-      $.setRuntimeTypeInfo(result, [$.getRuntimeTypeArgument(this, this.$asListMixin, 0)]);
-      $.JSArray_methods.set$length(result, this.get$length(this));
+      result = $.List_List($, $.getRuntimeTypeArgument(receiver, receiver.$asListMixin, 0));
+      $.setRuntimeTypeInfo(result, [$.getRuntimeTypeArgument(receiver, receiver.$asListMixin, 0)]);
+      $.JSArray_methods.set$length(result, this.get$length(receiver));
     } else {
-      result = $.List_List(this.get$length(this), $.getRuntimeTypeArgument(this, this.$asListMixin, 0));
-      $.setRuntimeTypeInfo(result, [$.getRuntimeTypeArgument(this, this.$asListMixin, 0)]);
+      result = $.List_List(this.get$length(receiver), $.getRuntimeTypeArgument(receiver, receiver.$asListMixin, 0));
+      $.setRuntimeTypeInfo(result, [$.getRuntimeTypeArgument(receiver, receiver.$asListMixin, 0)]);
     }
-    for (i = 0; $.JSNumber_methods.$lt(i, this.get$length(this)); ++i) {
-      t1 = this.$index(this, i);
+    for (i = 0; $.JSNumber_methods.$lt(i, this.get$length(receiver)); ++i) {
+      t1 = this.$index(receiver, i);
       if (i >= result.length)
         throw $.ioore(i);
       result[i] = t1;
@@ -1174,34 +1477,34 @@ $$.ListMixin = {"": "Object;",
   toList$0: function($receiver) {
     return this.toList$1$growable($receiver, true);
   },
-  add$1: function(_, element) {
-    var t1 = this.get$length(this);
-    this.set$length(this, $.$add$ns(t1, 1));
-    this.$indexSet(this, t1, element);
+  add$1: function(receiver, element) {
+    var t1 = this.get$length(receiver);
+    this.set$length(receiver, $.$add$ns(t1, 1));
+    this.$indexSet(receiver, t1, element);
   },
-  addAll$1: function(_, iterable) {
+  addAll$1: function(receiver, iterable) {
     var t1, element, t2;
     for (t1 = $.get$iterator$ax(iterable); t1.moveNext$0() === true;) {
       element = t1.get$current();
-      t2 = this.get$length(this);
-      this.set$length(this, $.$add$ns(t2, 1));
-      this.$indexSet(this, t2, element);
+      t2 = this.get$length(receiver);
+      this.set$length(receiver, $.$add$ns(t2, 1));
+      this.$indexSet(receiver, t2, element);
     }
   },
-  clear$0: function(_) {
-    this.set$length(this, 0);
+  clear$0: function(receiver) {
+    this.set$length(receiver, 0);
   },
-  removeLast$0: function(_) {
+  removeLast$0: function(receiver) {
     var result;
-    if ($.$eq(this.get$length(this), 0) === true)
+    if ($.$eq(this.get$length(receiver), 0) === true)
       throw $.wrapException($.StateError$("No elements"));
-    result = this.$index(this, $.$sub$n(this.get$length(this), 1));
-    this.set$length(this, $.$sub$n(this.get$length(this), 1));
+    result = this.$index(receiver, $.$sub$n(this.get$length(receiver), 1));
+    this.set$length(receiver, $.$sub$n(this.get$length(receiver), 1));
     return result;
   },
-  toString$0: function(_) {
+  toString$0: function(receiver) {
     var result = $.StringBuffer$("");
-    $.ToString__emitValue(this, result, $.List_List($, null));
+    $.ToString__emitValue(receiver, result, $.List_List($, null));
     return result._contents;
   },
   $isList: true,
@@ -1281,21 +1584,20 @@ $$._SplayTree = {"": "Object;",
     return comp;
   },
   _addNewRoot$2: function(node, comp) {
-    var t1, t2;
+    var t1;
     this._count = this._count + 1;
     this._modificationCount = this._modificationCount + 1;
-    if (this._root == null) {
+    t1 = this._root;
+    if (t1 == null) {
       this._root = node;
       return;
     }
-    t1 = $.$lt$n(comp, 0);
-    t2 = this._root;
-    if (t1) {
-      node.left = t2;
+    if ($.$lt$n(comp, 0)) {
+      node.left = t1;
       node.right = $.get$right$x(this._root);
       $.set$right$x(this._root, null);
     } else {
-      node.right = t2;
+      node.right = t1;
       node.left = $.get$left$x(this._root);
       $.set$left$x(this._root, null);
     }
@@ -1436,6 +1738,14 @@ $$._SplayTreeNodeIterator = {"": "_SplayTreeIterator;_tree,_workList,_modificati
   }
 };
 
+$$.Error = {"": "Object;"};
+
+$$.AssertionError = {"": "Object;"};
+
+$$.TypeError = {"": "Object;"};
+
+$$.CastError = {"": "Object;"};
+
 $$.NullThrownError = {"": "Object;",
   toString$0: function(_) {
     return "Throw of null.";
@@ -1457,6 +1767,14 @@ $$.RangeError = {"": "ArgumentError;message",
   }
 };
 
+$$.FallThroughError = {"": "Object;"};
+
+$$.AbstractClassInstantiationError = {"": "Object;_className",
+  toString$0: function(_) {
+    return "Cannot instantiate abstract class: '" + $.S(this._className) + "'";
+  }
+};
+
 $$.NoSuchMethodError = {"": "Object;_receiver,_memberName,_arguments,_namedArguments,_existingArgumentNames",
   toString$0: function(_) {
     var t1, t2, t3, t4, str, actualParameters, i, formalParameters;
@@ -1464,8 +1782,8 @@ $$.NoSuchMethodError = {"": "Object;_receiver,_memberName,_arguments,_namedArgum
     t1.sb_0 = $.StringBuffer$("");
     t1.i_1 = 0;
     t2 = this._arguments;
-    for (; $.$lt$n(t1.i_1, t2.length); t1.i_1 = $.$add$ns(t1.i_1, 1)) {
-      if ($.$gt$n(t1.i_1, 0)) {
+    for (; t3 = t1.i_1, t4 = $.getInterceptor$n(t3), t4.$lt(t3, t2.length); t1.i_1 = $.$add$ns(t1.i_1, 1)) {
+      if (t4.$gt(t3, 0)) {
         t3 = t1.sb_0;
         t3._contents = t3._contents + ", ";
       }
@@ -1478,7 +1796,7 @@ $$.NoSuchMethodError = {"": "Object;_receiver,_memberName,_arguments,_namedArgum
       t3._contents = t3._contents + str;
     }
     t2 = this._namedArguments;
-    t2.forEach$1(t2, new $.NoSuchMethodError_toString_anon(t1));
+    t2.forEach$1(t2, new $.NoSuchMethodError_toString_closure(t1));
     t2 = this._existingArgumentNames;
     if (t2 == null)
       return "NoSuchMethodError : method not found: '" + $.S(this._memberName) + "'\nReceiver: " + $.S($.Error_safeToString(this._receiver)) + "\nArguments: [" + $.S(t1.sb_0) + "]";
@@ -1507,6 +1825,13 @@ $$.NoSuchMethodError = {"": "Object;_receiver,_memberName,_arguments,_namedArgum
 $$.UnsupportedError = {"": "Object;message",
   toString$0: function(_) {
     return "Unsupported operation: " + this.message;
+  }
+};
+
+$$.UnimplementedError = {"": "Object;message",
+  toString$0: function(_) {
+    var t1 = this.message;
+    return t1 != null ? "UnimplementedError: " + $.S(t1) : "UnimplementedError";
   }
 };
 
@@ -1552,8 +1877,6 @@ $$.FormatException = {"": "Object;message",
   }
 };
 
-$$.Function = {"": "Object;", $isFunction: true};
-
 $$.Iterator = {"": "Object;"};
 
 $$.Object = {"": ";",
@@ -1583,29 +1906,6 @@ $$.StringBuffer = {"": "Object;_contents",
     var str = typeof obj === "string" ? obj : $.S(obj);
     this._contents = this._contents + str;
   },
-  writeAll$2: function(objects, separator) {
-    var iterator, str;
-    iterator = $.get$iterator$ax(objects);
-    if (!iterator.moveNext$0())
-      return;
-    if ($.JSString_methods.get$isEmpty(separator))
-      do {
-        str = iterator.get$current();
-        str = $.S(str);
-        this._contents = this._contents + str;
-      } while (iterator.moveNext$0());
-    else {
-      str = iterator.get$current();
-      str = $.S(str);
-      this._contents = this._contents + str;
-      for (; iterator.moveNext$0();) {
-        this._contents = this._contents + separator;
-        str = iterator.get$current();
-        str = $.S(str);
-        this._contents = this._contents + str;
-      }
-    }
-  },
   clear$0: function(_) {
     this._contents = "";
   },
@@ -1618,6 +1918,9 @@ $$.StringBuffer = {"": "Object;_contents",
 };
 
 $$._ChildrenElementList = {"": "ListBase;_element,_childElements",
+  contains$1: function(_, element) {
+    return $.contains$1$asx(this._childElements, element);
+  },
   get$length: function(_) {
     return this._childElements.length;
   },
@@ -1665,8 +1968,8 @@ $$._ChildrenElementList = {"": "ListBase;_element,_childElements",
       throw $.wrapException($.StateError$("No elements"));
     return result;
   },
-  $asList: function () { return [$.Element]; },
-  $asIterable: function () { return [$.Element]; }
+  $asList: function() { return [$.Element]; },
+  $asIterable: function() { return [$.Element]; }
 };
 
 $$._FrozenElementList = {"": "ListBase;_nodeList",
@@ -1687,15 +1990,21 @@ $$._FrozenElementList = {"": "ListBase;_nodeList",
   },
   $asListBase: null,
   $asList: null,
-  $asIterable: null
+  $asIterable: null,
+  $isList: true,
+  $isIterable: true
 };
 
-$$._ElementFactoryProvider__getColgroup_anon = {"": "Closure;",
+$$._ElementFactoryProvider__getColgroup_closure = {"": "Closure;",
   call$1: function(n) {
     return $.$eq($.get$tagName$x(n), "COLGROUP");
   },
   $isFunction: true
 };
+
+$$.Object_ListMixin = {"": "Object+ListMixin;", $isList: true, $asList: function() { return [$.Node]; }, $isIterable: true, $asIterable: function() { return [$.Node]; }};
+
+$$.Object_ListMixin_ImmutableListMixin = {"": "Object_ListMixin+ImmutableListMixin;", $isList: true, $asList: function() { return [$.Node]; }, $isIterable: true, $asIterable: function() { return [$.Node]; }};
 
 $$._ChildNodeListLazy = {"": "ListBase;_this",
   get$last: function(_) {
@@ -1783,9 +2092,17 @@ $$._ChildNodeListLazy = {"": "ListBase;_this",
     return t1[index];
   },
   $is_ChildNodeListLazy: true,
-  $asList: function () { return [$.Node]; },
-  $asIterable: function () { return [$.Node]; }
+  $asList: function() { return [$.Node]; },
+  $asIterable: function() { return [$.Node]; }
 };
+
+$$.Object_ListMixin0 = {"": "Object+ListMixin;", $isList: true, $asList: function() { return [$.Node]; }, $isIterable: true, $asIterable: function() { return [$.Node]; }};
+
+$$.Object_ListMixin_ImmutableListMixin0 = {"": "Object_ListMixin0+ImmutableListMixin;", $isList: true, $asList: function() { return [$.Node]; }, $isIterable: true, $asIterable: function() { return [$.Node]; }};
+
+$$.Object_ListMixin1 = {"": "Object+ListMixin;", $isList: true, $asList: function() { return [$.Node]; }, $isIterable: true, $asIterable: function() { return [$.Node]; }};
+
+$$.Object_ListMixin_ImmutableListMixin1 = {"": "Object_ListMixin1+ImmutableListMixin;", $isList: true, $asList: function() { return [$.Node]; }, $isIterable: true, $asIterable: function() { return [$.Node]; }};
 
 $$._AttributeMap = {"": "Object;",
   clear$0: function(_) {
@@ -1801,23 +2118,21 @@ $$._AttributeMap = {"": "Object;",
     }
   },
   get$keys: function() {
-    var attributes, keys, len, i;
+    var attributes, keys, len, i, t1;
     attributes = this._element.attributes;
     keys = $.List_List($, $.JSString);
     $.setRuntimeTypeInfo(keys, [$.JSString]);
     for (len = attributes.length, i = 0; i < len; ++i) {
       if (i >= attributes.length)
         throw $.ioore(i);
-      if (this._matches$1(attributes[i])) {
-        if (i >= attributes.length)
-          throw $.ioore(i);
-        keys.push(attributes[i].localName);
-      }
+      t1 = attributes[i];
+      if (this._matches$1(t1))
+        keys.push(t1.localName);
     }
     return keys;
   },
   $isMap: true,
-  $asMap: function () { return [$.JSString, $.JSString]; }
+  $asMap: function() { return [$.JSString, $.JSString]; }
 };
 
 $$._ElementAttributeMap = {"": "_AttributeMap;_element",
@@ -1842,6 +2157,25 @@ $$._ElementAttributeMap = {"": "_AttributeMap;_element",
   }
 };
 
+$$.ImmutableListMixin = {"": "Object;",
+  get$iterator: function(receiver) {
+    return $.FixedSizeListIterator$(receiver);
+  },
+  add$1: function(receiver, value) {
+    throw $.wrapException($.UnsupportedError$("Cannot add to immutable List."));
+  },
+  addAll$1: function(receiver, iterable) {
+    throw $.wrapException($.UnsupportedError$("Cannot add to immutable List."));
+  },
+  removeLast$0: function(receiver) {
+    throw $.wrapException($.UnsupportedError$("Cannot remove from immutable List."));
+  },
+  $isList: true,
+  $asList: null,
+  $isIterable: true,
+  $asIterable: null
+};
+
 $$._WrappedList = {"": "ListBase;_liblib4$_list",
   get$iterator: function(_) {
     return $._WrappedIterator$($.get$iterator$ax(this._liblib4$_list));
@@ -1850,10 +2184,10 @@ $$._WrappedList = {"": "ListBase;_liblib4$_list",
     return this._liblib4$_list.length;
   },
   add$1: function(_, element) {
-    $.throwExpression($.UnsupportedError$("Cannot add to immutable List."));
+    $.add$1$ax(this._liblib4$_list, element);
   },
   clear$0: function(_) {
-    $.throwExpression($.UnsupportedError$("Cannot clear immutable List."));
+    $.clear$0$ax(this._liblib4$_list);
   },
   $index: function(_, index) {
     var t1 = this._liblib4$_list;
@@ -1875,12 +2209,12 @@ $$._WrappedList = {"": "ListBase;_liblib4$_list",
   $asIterable: null
 };
 
-$$._WrappedIterator = {"": "Object;_liblib4$_iterator",
+$$._WrappedIterator = {"": "Object;_iterator",
   moveNext$0: function() {
-    return this._liblib4$_iterator.moveNext$0();
+    return this._iterator.moveNext$0();
   },
   get$current: function() {
-    return this._liblib4$_iterator.get$current();
+    return this._iterator.get$current();
   }
 };
 
@@ -1892,46 +2226,17 @@ $$._DOMWindowCrossFrame = {"": "Object;_window",
 
 $$.FixedSizeListIterator = {"": "Object;_array,_length,_position,_current",
   moveNext$0: function() {
-    var t1, nextPosition;
-    t1 = this._position;
-    if (t1 !== (t1 | 0))
-      return this.moveNext$0$bailout(1, t1);
-    nextPosition = t1 + 1;
+    var nextPosition, t1;
+    nextPosition = $.$add$ns(this._position, 1);
     t1 = this._length;
-    if (nextPosition < t1) {
-      t1 = this._array;
-      if (nextPosition < 0 || nextPosition >= t1.length)
-        throw $.ioore(nextPosition);
-      this._current = t1[nextPosition];
+    if ($.$lt$n(nextPosition, t1)) {
+      this._current = $.$index$asx(this._array, nextPosition);
       this._position = nextPosition;
       return true;
     }
     this._current = null;
     this._position = t1;
     return false;
-  },
-  moveNext$0$bailout: function(state0, t1, nextPosition) {
-    switch (state0) {
-      case 0:
-        t1 = this._position;
-      case 1:
-        state0 = 0;
-        nextPosition = $.$add$ns(t1, 1);
-      case 2:
-        state0 = 0;
-        t1 = this._length;
-        if ($.$lt$n(nextPosition, t1)) {
-          t1 = this._array;
-          if (nextPosition >>> 0 !== nextPosition || nextPosition >= t1.length)
-            throw $.ioore(nextPosition);
-          this._current = t1[nextPosition];
-          this._position = nextPosition;
-          return true;
-        }
-        this._current = null;
-        this._position = t1;
-        return false;
-    }
   },
   get$current: function() {
     return this._current;
@@ -1941,7 +2246,7 @@ $$.FixedSizeListIterator = {"": "Object;_array,_length,_position,_current",
 $$.FilteredElementList = {"": "ListBase;_node,_childNodes",
   get$_filtered: function() {
     var t1 = this._childNodes;
-    return $.List_List$from(t1.where$1(t1, new $.FilteredElementList__filtered_anon()), true, $.Element);
+    return $.List_List$from(t1.where$1(t1, new $.FilteredElementList__filtered_closure()), true, $.Element);
   },
   forEach$1: function(_, f) {
     $.JSArray_methods.forEach$1(this.get$_filtered(), f);
@@ -1981,8 +2286,11 @@ $$.FilteredElementList = {"": "ListBase;_node,_childNodes",
     for (t1 = $.get$iterator$ax(iterable), t2 = this._childNodes._this; t1.moveNext$0() === true;)
       t2.appendChild(t1.get$current());
   },
+  contains$1: function(_, element) {
+    return $.$eq($.JSString_methods.get$parentNode(element), this._node) === true;
+  },
   removeRange$2: function(_, start, end) {
-    $.JSArray_methods.forEach$1($.JSArray_methods.sublist$2(this.get$_filtered(), start, end), new $.FilteredElementList_removeRange_anon());
+    $.JSArray_methods.forEach$1($.JSArray_methods.sublist$2(this.get$_filtered(), start, end), new $.FilteredElementList_removeRange_closure());
   },
   clear$0: function(_) {
     this._childNodes._this.textContent = "";
@@ -2010,19 +2318,23 @@ $$.FilteredElementList = {"": "ListBase;_node,_childNodes",
   $asIterable: null
 };
 
-$$.FilteredElementList__filtered_anon = {"": "Closure;",
+$$.FilteredElementList__filtered_closure = {"": "Closure;",
   call$1: function(n) {
     return typeof n === "object" && n !== null && !!$.getInterceptor(n).$isElement;
   },
   $isFunction: true
 };
 
-$$.FilteredElementList_removeRange_anon = {"": "Closure;",
+$$.FilteredElementList_removeRange_closure = {"": "Closure;",
   call$1: function(el) {
     return $.remove$0$ax(el);
   },
   $isFunction: true
 };
+
+$$.SupportedBrowser = {"": "Object;browserName,minimumVersion"};
+
+$$.DomName = {"": "Object;name"};
 
 $$.Uri = {"": "Object;scheme,userInfo,domain,port,path,query,fragment",
   query$1: function($receiver, arg0) {
@@ -2053,7 +2365,13 @@ $$.Uri = {"": "Object;scheme,userInfo,domain,port,path,query,fragment",
         sb._contents = sb._contents + t1;
       }
       t1 = this.domain;
-      str = t1 == null ? "null" : t1;
+      if (t1 == null)
+        str = "null";
+      else {
+        if ($.contains$1$asx(t1, ":") === true)
+          t1 = "[" + $.S(t1) + "]";
+        str = t1;
+      }
       str = typeof str === "string" ? str : $.S(str);
       sb._contents = sb._contents + str;
       t1 = this.port;
@@ -2091,6 +2409,8 @@ $$.Uri = {"": "Object;scheme,userInfo,domain,port,path,query,fragment",
       return false;
     if (typeof other !== "object" || other === null || !$.getInterceptor(other).$isUri)
       return false;
+    else
+      other;
     return $.$eq(this.scheme, other.scheme) === true && $.$eq(this.userInfo, other.userInfo) === true && $.$eq(this.domain, other.domain) === true && $.$eq(this.port, other.port) === true && $.$eq(this.path, other.path) === true && $.$eq(this.query, other.query) === true && $.$eq(this.fragment, other.fragment) === true;
   },
   get$hashCode: function(_) {
@@ -2112,7 +2432,7 @@ $$.Uri_hashCode_combine = {"": "Closure;",
   $isFunction: true
 };
 
-$$.init_autogenerated_anon = {"": "Closure;",
+$$.init_autogenerated_closure = {"": "Closure;",
   call$0: function() {
     if ($.observeReads() === true)
       $.notifyRead($.get$__changes(), 1, "eases");
@@ -2121,7 +2441,7 @@ $$.init_autogenerated_anon = {"": "Closure;",
   $isFunction: true
 };
 
-$$.init_autogenerated_anon0 = {"": "Closure;__html0_1",
+$$.init_autogenerated_closure0 = {"": "Closure;__html0_1",
   call$3: function($$list, $$index, __t) {
     var t1, k, __e6, t2, __e1, __binding0, t3, __e4, __binding3;
     t1 = {};
@@ -2131,18 +2451,18 @@ $$.init_autogenerated_anon0 = {"": "Closure;__html0_1",
     __e6 = $.clone$1$x(this.__html0_1, true);
     t2 = $.getInterceptor$x(__e6);
     __e1 = $.$index$asx(t2.get$nodes(__e6), 1);
-    __binding0 = __t.contentBind$2(new $.init_autogenerated__anon(k), false);
+    __binding0 = __t.contentBind$2(new $.init_autogenerated__closure(k), false);
     $.add$1$ax($.get$nodes$x(__e1), __binding0);
     t1.__e2_0 = $.$index$asx(t2.get$nodes(__e6), 3);
-    __t.oneWayBind$4(new $.init_autogenerated__anon0(k), new $.init_autogenerated__anon1(t1), false, false);
+    __t.oneWayBind$4(new $.init_autogenerated__closure0(k), new $.init_autogenerated__closure1(t1), false, false);
     t3 = $.XFchart$();
     t3.set$host(t3, t1.__e2_0);
     __t.component$1(t3);
     __e4 = $.$index$asx($.get$nodes$x($.$index$asx(t2.get$nodes(__e6), 5)), 1);
-    __binding3 = __t.contentBind$2(new $.init_autogenerated__anon2(k), false);
+    __binding3 = __t.contentBind$2(new $.init_autogenerated__closure2(k), false);
     $.addAll$1$ax($.get$nodes$x(__e4), [document.createTextNode("("), __binding3, document.createTextNode(")")]);
     t1.__e5_1 = $.$index$asx(t2.get$nodes(__e6), 7);
-    __t.oneWayBind$4(new $.init_autogenerated__anon3(k), new $.init_autogenerated__anon4(t1), false, false);
+    __t.oneWayBind$4(new $.init_autogenerated__closure3(k), new $.init_autogenerated__closure4(t1), false, false);
     t2 = $.XFchart$();
     t2.set$host(t2, t1.__e5_1);
     __t.component$1(t2);
@@ -2151,14 +2471,14 @@ $$.init_autogenerated_anon0 = {"": "Closure;__html0_1",
   $isFunction: true
 };
 
-$$.init_autogenerated__anon = {"": "Closure;k_2",
+$$.init_autogenerated__closure = {"": "Closure;k_2",
   call$0: function() {
     return this.k_2;
   },
   $isFunction: true
 };
 
-$$.init_autogenerated__anon0 = {"": "Closure;k_3",
+$$.init_autogenerated__closure0 = {"": "Closure;k_3",
   call$0: function() {
     if ($.observeReads() === true)
       $.notifyRead($.get$__changes(), 1, "eases");
@@ -2167,7 +2487,7 @@ $$.init_autogenerated__anon0 = {"": "Closure;k_3",
   $isFunction: true
 };
 
-$$.init_autogenerated__anon1 = {"": "Closure;box_0",
+$$.init_autogenerated__closure1 = {"": "Closure;box_0",
   call$1: function(e) {
     var t1 = this.box_0;
     if ($.$eq($.get$xtag$x(t1.__e2_0).get$fct(), e) !== true)
@@ -2176,14 +2496,14 @@ $$.init_autogenerated__anon1 = {"": "Closure;box_0",
   $isFunction: true
 };
 
-$$.init_autogenerated__anon2 = {"": "Closure;k_4",
+$$.init_autogenerated__closure2 = {"": "Closure;k_4",
   call$0: function() {
     return this.k_4;
   },
   $isFunction: true
 };
 
-$$.init_autogenerated__anon3 = {"": "Closure;k_5",
+$$.init_autogenerated__closure3 = {"": "Closure;k_5",
   call$0: function() {
     if ($.observeReads() === true)
       $.notifyRead($.get$__changes(), 1, "eases");
@@ -2192,7 +2512,7 @@ $$.init_autogenerated__anon3 = {"": "Closure;k_5",
   $isFunction: true
 };
 
-$$.init_autogenerated__anon4 = {"": "Closure;box_0",
+$$.init_autogenerated__closure4 = {"": "Closure;box_0",
   call$1: function(e) {
     var t1 = this.box_0;
     if ($.$eq($.get$xtag$x(t1.__e5_1).get$fct(), e) !== true)
@@ -2201,11 +2521,14 @@ $$.init_autogenerated__anon4 = {"": "Closure;box_0",
   $isFunction: true
 };
 
-$$.XFchart = {"": "WebComponent;_liblib6$_root,__t,fct@,_host,_shadowRoots",
+$$.XFchart = {"": "WebComponent;__t,fct@,_host,_shadowRoots,_generatedRoots",
   created_autogenerated$0: function() {
-    this._liblib6$_root = this.createShadowRoot$0(this);
-    this.__t = $.Template$(this._liblib6$_root);
-    $.add$1$ax($.get$nodes$x(this._liblib6$_root), $.clone$1$x($.get$XFchart___shadowTemplate(), true));
+    var root, t1;
+    root = this._createShadowRoot$0();
+    t1 = this._generatedRoots;
+    t1.$indexSet(t1, "x-fchart", root);
+    this.__t = $.Template$(root);
+    $.add$1$ax($.get$nodes$x(root), $.clone$1$x($.get$XFchart___shadowTemplate(), true));
     this.__t.create$0();
   },
   inserted_autogenerated$0: function() {
@@ -2217,23 +2540,19 @@ $$.XFchart = {"": "WebComponent;_liblib6$_root,__t,fct@,_host,_shadowRoots",
     t1.remove$0(t1);
     this.__t = null;
   },
-  composeChildren$0: function() {
-    $.WebComponent.prototype.composeChildren$0.call(this);
-    var t1 = this._liblib6$_root;
-    if (typeof t1 !== "object" || t1 === null || !$.getInterceptor(t1).$isShadowRoot)
-      this._liblib6$_root = this;
-  },
   fct$3: function(arg0, arg1, arg2) {
     return this.fct.call$3(arg0, arg1, arg2);
   },
   printChart$0: function() {
-    var c, g, ymargin, y0, w0, h0, t1, t2, i, ratio;
+    var c, g, t1, t2, ymargin, y0, w0, h0, i, ratio;
     c = $.interceptedTypeCast($.query$1$x(this.get$host(this), "canvas"), "$isCanvasElement");
     g = $.get$context2d$x(c);
-    ymargin = $.$mul$n(c.height, 0.25);
+    t1 = c.height;
+    t2 = $.getInterceptor$n(t1);
+    ymargin = t2.$mul(t1, 0.25);
     y0 = 0.5 + ymargin;
     w0 = $.$sub$n(c.width, 1);
-    h0 = $.$sub$n(c.height, 1) - 2 * ymargin;
+    h0 = t2.$sub(t1, 1) - 2 * ymargin;
     g.rect(0.5, y0, w0, h0);
     g.lineWidth = 1;
     g.strokeStyle = "rgb(100,100,100)";
@@ -2258,7 +2577,7 @@ $$.XFchart = {"": "WebComponent;_liblib6$_root,__t,fct@,_host,_shadowRoots",
   }
 };
 
-$$.chain_anon = {"": "Closure;f0_0,f1_1",
+$$.chain_closure = {"": "Closure;f0_0,f1_1",
   call$3: function(ratio, change, baseValue) {
     var c;
     ratio = $.$mul$n(ratio, 2);
@@ -2268,12 +2587,19 @@ $$.chain_anon = {"": "Closure;f0_0,f1_1",
   $isFunction: true
 };
 
-$$.goback_anon = {"": "Closure;f0_0",
+$$.reverse_closure = {"": "Closure;f0_0",
+  call$3: function(ratio, change, baseValue) {
+    return this.f0_0.call$3(ratio, $.$negate$n(change), $.$add$ns(baseValue, change));
+  },
+  $isFunction: true
+};
+
+$$.goback_closure = {"": "Closure;f0_0",
   call$3: function(ratio, change, baseValue) {
     var t1;
     ratio = $.$mul$n(ratio, 2);
     t1 = this.f0_0;
-    return ratio < 1 ? t1.call$3(ratio, change, baseValue) : t1.call$3(ratio - 1, $.$negate$n(change), $.$add$ns(baseValue, change));
+    return ratio < 1 ? t1.call$3(ratio, change, baseValue) : $.reverse(t1).call$3(ratio - 1, change, baseValue);
   },
   $isFunction: true
 };
@@ -2283,9 +2609,10 @@ $$.ChangeNotification = {"": "Object;oldValue,newValue<,changes",
     var t1;
     if (other == null)
       return false;
-    if (typeof other === "object" && other !== null && !!$.getInterceptor(other).$isChangeNotification)
+    if (typeof other === "object" && other !== null && !!$.getInterceptor(other).$isChangeNotification) {
+      other;
       t1 = $.$eq(this.oldValue, other.oldValue) === true && $.$eq(this.newValue, other.newValue) === true && $.$eq(this.changes, other.changes) === true;
-    else
+    } else
       t1 = false;
     return t1;
   },
@@ -2301,12 +2628,10 @@ $$.ChangeNotification = {"": "Object;oldValue,newValue<,changes",
   $isChangeNotification: true
 };
 
-$$.observe_anon = {"": "Closure;callback_0,obs_1",
+$$.observe_closure = {"": "Closure;callback_0,obs_1",
   call$1: function(changes) {
-    var t1, t2;
-    t1 = this.callback_0;
-    t2 = this.obs_1;
-    t1.call$1($.ChangeNotification$(t2, t2, changes));
+    var t1 = this.obs_1;
+    this.callback_0.call$1($.ChangeNotification$(t1, t1, changes));
   },
   $isFunction: true
 };
@@ -2369,20 +2694,21 @@ $$._ExpressionObserver = {"": "Object;_id<,_expression,_callback,_debugName,_rea
 
   },
   _observeValue$0: function() {
-    var value, t1, t2, node;
+    var value, t1, node;
     value = this._liblib2$_value;
     if (typeof value !== "object" || value === null || !$.getInterceptor(value).$isObservable)
       return;
-    t1 = new $._ExpressionObserver__observeValue_anon(this, value);
+    else
+      value;
     if (value.$$_observers == null)
       value.$$_observers = $.LinkedList$(null);
-    t2 = value.$$_observers;
-    node = t2.add$1(t2, t1);
+    t1 = value.$$_observers;
+    node = t1.add$1(t1, new $._ExpressionObserver__observeValue_closure(this, value));
     this._unobservers.push(node.get$remove(node));
   },
   _addRead$3: function(target, type, key) {
     var reads, mask, e, trace, exception, t1;
-    reads = this._reads.putIfAbsent$2(target, new $._ExpressionObserver__addRead_anon());
+    reads = this._reads.putIfAbsent$2(target, new $._ExpressionObserver__addRead_closure());
     try {
       mask = $.$index$asx(reads, key);
       if (mask == null)
@@ -2397,12 +2723,11 @@ $$._ExpressionObserver = {"": "Object;_id<,_expression,_callback,_debugName,_rea
 
   },
   _watchForChange$2: function(target, reads) {
-    var t1, t2, node;
-    t1 = new $._ExpressionObserver__watchForChange_anon(this, reads);
+    var t1, node;
     if (target.get$$$_observers() == null)
       target.set$$$_observers($.LinkedList$(null));
-    t2 = target.get$$$_observers();
-    node = t2.add$1(t2, t1);
+    t1 = target.get$$$_observers();
+    node = t1.add$1(t1, new $._ExpressionObserver__watchForChange_closure(this, reads));
     this._unobservers.push(node.get$remove(node));
   },
   get$_watchForChange: function() {
@@ -2418,24 +2743,22 @@ $$._ExpressionObserver = {"": "Object;_id<,_expression,_callback,_debugName,_rea
   }
 };
 
-$$._ExpressionObserver__observeValue_anon = {"": "Closure;this_0,value_1",
+$$._ExpressionObserver__observeValue_closure = {"": "Closure;this_0,value_1",
   call$1: function(changes) {
-    var t1, t2;
-    t1 = this.this_0;
-    t2 = this.value_1;
-    t1._runCallback$1($.ChangeNotification$(t2, t2, changes));
+    var t1 = this.value_1;
+    this.this_0._runCallback$1($.ChangeNotification$(t1, t1, changes));
   },
   $isFunction: true
 };
 
-$$._ExpressionObserver__addRead_anon = {"": "Closure;",
+$$._ExpressionObserver__addRead_closure = {"": "Closure;",
   call$0: function() {
     return $.HashMap$(null, null);
   },
   $isFunction: true
 };
 
-$$._ExpressionObserver__watchForChange_anon = {"": "Closure;this_0,reads_1",
+$$._ExpressionObserver__watchForChange_closure = {"": "Closure;this_0,reads_1",
   call$1: function(changes) {
     var t1, t2, t3, change, t4, mask;
     t1 = this.this_0;
@@ -2597,17 +2920,16 @@ $$.LinkedListIterator = {"": "Object;_copy,_list<,_liblib0$_current,_pos",
     }
   },
   LinkedListIterator$1: function(_list) {
-    var t1, node, i, i0;
+    var t1, node, t2, i, i0;
     t1 = this._list;
     t1 = $.List_List(t1.get$length(t1), $.LinkedListNode);
     $.setRuntimeTypeInfo(t1, [$.LinkedListNode]);
     this._copy = t1;
     t1 = this._list;
     node = t1.get$head(t1);
-    for (i = 0; node != null; i = i0) {
-      t1 = this._copy;
+    for (t1 = this._copy, t2 = t1.length, i = 0; node != null; i = i0) {
       i0 = i + 1;
-      if (i >= t1.length)
+      if (i >= t2)
         throw $.ioore(i);
       t1[i] = node;
       node = node.get$next();
@@ -2664,7 +2986,7 @@ $$.DomPropertyBinding = {"": "TemplateItem;setter,getter,isUrl<,isFinal,stopper"
     } else if (this.stopper != null)
       throw $.wrapException($.StateError$("data binding already attached."));
     else
-      this.stopper = $.watchAndInvoke(this.getter, new $.DomPropertyBinding_insert_anon(this), "dom-property-binding");
+      this.stopper = $.watchAndInvoke(this.getter, new $.DomPropertyBinding_insert_closure(this), "dom-property-binding");
   },
   remove$0: function(_) {
     if (!this.isFinal) {
@@ -2674,7 +2996,7 @@ $$.DomPropertyBinding = {"": "TemplateItem;setter,getter,isUrl<,isFinal,stopper"
   }
 };
 
-$$.DomPropertyBinding_insert_anon = {"": "Closure;this_0",
+$$.DomPropertyBinding_insert_closure = {"": "Closure;this_0",
   call$1: function(e) {
     var t1, t2;
     t1 = this.this_0;
@@ -2711,7 +3033,7 @@ $$.Template = {"": "TemplateItem;node<,children>,nodes>",
   contentBind$2: function(exp, isFinal) {
     var t1 = {};
     t1.bindNode_0 = document.createTextNode("");
-    this.children.push($.Binding$(new $.Template_contentBind_anon(exp), new $.Template_contentBind_anon0(t1, exp), isFinal));
+    this.children.push($.Binding$(new $.Template_contentBind_closure(exp), new $.Template_contentBind_closure0(t1, exp), isFinal));
     return t1.bindNode_0;
   },
   oneWayBind$4: function(exp, setter, isFinal, isUrl) {
@@ -2753,19 +3075,17 @@ $$.Template = {"": "TemplateItem;node<,children>,nodes>",
   }
 };
 
-$$.Template_contentBind_anon = {"": "Closure;exp_1",
+$$.Template_contentBind_closure = {"": "Closure;exp_1",
   call$0: function() {
     return $.S(this.exp_1.call$0());
   },
   $isFunction: true
 };
 
-$$.Template_contentBind_anon0 = {"": "Closure;box_0,exp_2",
+$$.Template_contentBind_closure0 = {"": "Closure;box_0,exp_2",
   call$1: function(e) {
-    var t1, t2;
-    t1 = this.exp_2.call$0();
-    t2 = this.box_0;
-    t2.bindNode_0 = $.updateBinding(t1, t2.bindNode_0, e.get$newValue());
+    var t1 = this.box_0;
+    t1.bindNode_0 = $.updateBinding(this.exp_2.call$0(), t1.bindNode_0, e.get$newValue());
   },
   $isFunction: true
 };
@@ -2780,7 +3100,7 @@ $$.LoopTemplateInAttribute = {"": "Template;iterSetup,exp,stopper,node,children,
   create$0: function() {
   },
   insert$0: function(_) {
-    this.stopper = $.watchAndInvoke(this.exp, new $.LoopTemplateInAttribute_insert_anon(this), "loop-attribute-binding");
+    this.stopper = $.watchAndInvoke(this.exp, new $.LoopTemplateInAttribute_insert_closure(this), "loop-attribute-binding");
   },
   remove$0: function(_) {
     $.Template.prototype.remove$0.call(this, this);
@@ -2791,45 +3111,45 @@ $$.LoopTemplateInAttribute = {"": "Template;iterSetup,exp,stopper,node,children,
   }
 };
 
-$$.LoopTemplateInAttribute_insert_anon = {"": "Closure;this_0",
+$$.LoopTemplateInAttribute_insert_closure = {"": "Closure;this_0",
   call$1: function(e) {
     var t1, t2, list, i;
     t1 = this.this_0;
-    $.Template.prototype.remove$0.call(t1, t1);
+    t2 = $.getInterceptor$ax(t1);
+    $.Template.prototype.remove$0.call(t2, t1);
     $.clear$0$ax($.get$nodes$x(t1.get$node()));
-    t2 = $.getInterceptor$x(t1);
     $.clear$0$ax(t2.get$nodes(t1));
     list = e.get$newValue();
     for (i = 0; $.JSNumber_methods.$lt(i, $.get$length$asx(list)); ++i)
       t1.iterSetup$3(list, i, t1);
     $.Template.prototype.create$0.call(t1);
-    $.addAll$1$ax($.get$nodes$x(t1.get$node()), t2.get$nodes(t1));
-    $.Template.prototype.insert$0.call(t1, t1);
+    $.addAll$1$ax($.get$nodes$x(t1.get$node()), $.get$nodes$x(t1));
+    $.Template.prototype.insert$0.call($.getInterceptor$ax(t1), t1);
   },
   $isFunction: true
 };
 
-$$.watch_anon4 = {"": "Closure;",
+$$.watch_closure4 = {"": "Closure;",
   call$0: function() {
   },
   $isFunction: true
 };
 
-$$.watch_anon = {"": "Closure;target_0",
+$$.watch_closure = {"": "Closure;target_0",
   call$0: function() {
     return $.toList$0$ax(this.target_0.call$0());
   },
   $isFunction: true
 };
 
-$$.watch_anon0 = {"": "Closure;target_1",
+$$.watch_closure0 = {"": "Closure;target_1",
   call$0: function() {
     return this.target_1;
   },
   $isFunction: true
 };
 
-$$.watch_anon1 = {"": "Closure;target_2",
+$$.watch_closure1 = {"": "Closure;target_2",
   call$0: function() {
     var t1 = this.target_2;
     return t1.toList$0(t1);
@@ -2837,14 +3157,14 @@ $$.watch_anon1 = {"": "Closure;target_2",
   $isFunction: true
 };
 
-$$.watch_anon2 = {"": "Closure;target_3",
+$$.watch_closure2 = {"": "Closure;target_3",
   call$0: function() {
     return this.target_3;
   },
   $isFunction: true
 };
 
-$$.watch_anon3 = {"": "Closure;target_4",
+$$.watch_closure3 = {"": "Closure;target_4",
   call$0: function() {
     return this.target_4;
   },
@@ -2935,7 +3255,19 @@ $$.WebComponent = {"": "Object;",
     t1.set$xtag(value, this);
     this._host = value;
   },
-  createShadowRoot$0: function(_) {
+  createShadowRoot$1: function(_, componentName) {
+    var root, t1;
+    root = this._createShadowRoot$0();
+    if (componentName != null) {
+      t1 = this._generatedRoots;
+      t1.$indexSet(t1, componentName, root);
+    }
+    return root;
+  },
+  createShadowRoot$0: function($receiver) {
+    return this.createShadowRoot$1($receiver, null);
+  },
+  _createShadowRoot$0: function() {
     if ($.useShadowDom && $.ShadowRoot_supported())
       return $.createShadowRoot$0$x(this.get$host(this));
     if (this._shadowRoots == null)
@@ -2950,7 +3282,7 @@ $$.WebComponent = {"": "Object;",
   removed$0: function() {
   },
   composeChildren$0: function() {
-    var t1, t2, tree, pool, shadowInsertionPoints, shadowInsertionTrees, tree0, point, t3, i;
+    var t1, t2, tree, pool, shadowInsertionPoints, shadowInsertionTrees, tree0, point, t3, i, componentName;
     if ($.useShadowDom && $.ShadowRoot_supported())
       return;
     t1 = this._shadowRoots;
@@ -2989,6 +3321,13 @@ $$.WebComponent = {"": "Object;",
     }
     $.clear$0$ax(this.get$nodes(this));
     $.addAll$1$ax(this.get$nodes(this), $.get$nodes$x(tree));
+    for (t1 = this._generatedRoots, t2 = t1.get$keys(), t2 = t2.get$iterator(t2); t2.moveNext$0();) {
+      componentName = t2.get$current();
+      if ($.$eq(t1.$index(t1, componentName), tree) === true) {
+        t1.$indexSet(t1, componentName, this);
+        break;
+      }
+    }
   },
   _distributeNodes$2: function(tree, pool) {
     var t1, insertionPoint, t2, select, matching, notMatching, t3, node;
@@ -3082,6 +3421,9 @@ $$.WebComponent = {"": "Object;",
   },
   set$text: function(_, v) {
     $.set$text$x(this.get$host(this), v);
+  },
+  contains$1: function(_, other) {
+    return $.contains$1$asx(this.get$host(this), other);
   },
   insertAllBefore$2: function(_, newChild, refChild) {
     return $.insertAllBefore$2$x(this.get$host(this), newChild, refChild);
@@ -3255,7 +3597,7 @@ $$.DocumentFragment = {"": "Node;",
     e = $.Element_Element$tag("div");
     t1 = $.getInterceptor$x(e);
     t1.set$innerHtml(e, value);
-    nodes = $.List_List$from(t1.get$nodes(e), true, null);
+    nodes = $.List_List$from(t1.get$nodes(e), false, null);
     t1 = this.get$nodes(receiver);
     t1.addAll$1(t1, nodes);
   }
@@ -3334,7 +3676,7 @@ $$.HeadElement = {"": "Element;"};
 
 $$.HeadingElement = {"": "Element;"};
 
-$$.HtmlCollection = {"": "Interceptor;",
+$$.HtmlCollection = {"": "Object_ListMixin_ImmutableListMixin;",
   get$length: function(receiver) {
     return receiver.length;
   },
@@ -3344,51 +3686,13 @@ $$.HtmlCollection = {"": "Interceptor;",
   $indexSet: function(receiver, index, value) {
     throw $.wrapException($.UnsupportedError$("Cannot assign element of immutable List."));
   },
-  get$iterator: function(receiver) {
-    return $.FixedSizeListIterator$(receiver);
-  },
-  forEach$1: function(receiver, f) {
-    return $.IterableMixinWorkaround_forEach(receiver, f);
-  },
-  where$1: function(receiver, f) {
-    return $.WhereIterable$(receiver, f, null);
-  },
-  toList$1$growable: function(receiver, growable) {
-    return $.List_List$from(receiver, growable, $.Node);
-  },
-  toList$0: function($receiver) {
-    return this.toList$1$growable($receiver, true);
-  },
-  elementAt$1: function(receiver, index) {
-    if (index >>> 0 !== index || index >= receiver.length)
-      throw $.ioore(index);
-    return receiver[index];
-  },
-  add$1: function(receiver, value) {
-    throw $.wrapException($.UnsupportedError$("Cannot add to immutable List."));
-  },
-  addAll$1: function(receiver, iterable) {
-    throw $.wrapException($.UnsupportedError$("Cannot add to immutable List."));
-  },
   set$length: function(receiver, value) {
     throw $.wrapException($.UnsupportedError$("Cannot resize immutable List."));
   },
-  clear$0: function(receiver) {
-    throw $.wrapException($.UnsupportedError$("Cannot clear immutable List."));
-  },
-  removeLast$0: function(receiver) {
-    throw $.wrapException($.UnsupportedError$("Cannot remove from immutable List."));
-  },
-  toString$0: function(receiver) {
-    var buffer = $.StringBuffer$("[");
-    buffer.writeAll$2(receiver, ", ");
-    buffer._contents = buffer._contents + "]";
-    return buffer._contents;
-  },
   $isList: true,
-  $asList: function () { return [$.Node]; },
+  $asList: function() { return [$.Node]; },
   $isIterable: true,
-  $asIterable: function () { return [$.Node]; },
+  $asIterable: function() { return [$.Node]; },
   $isJavaScriptIndexingBehavior: true,
   $asJavaScriptIndexingBehavior: null
 };
@@ -3505,12 +3809,15 @@ $$.Node = {"": "EventTarget;parent:parentElement=,text:textContent}",
     if (t1 == null) {
       t1 = receiver.nodeValue;
       if (t1 == null)
-        t1 = $.Interceptor.prototype.toString$0.call(receiver, receiver);
+        t1 = $.Interceptor.prototype.toString$0.call(this, receiver);
     }
     return t1;
   },
   clone$1: function(receiver, deep) {
     return receiver.cloneNode(deep);
+  },
+  contains$1: function(receiver, other) {
+    return receiver.contains(other);
   },
   $$dom_removeChild$1: function(receiver, oldChild) {
     return receiver.removeChild(oldChild);
@@ -3520,7 +3827,7 @@ $$.Node = {"": "EventTarget;parent:parentElement=,text:textContent}",
   }
 };
 
-$$.NodeList = {"": "Interceptor;",
+$$.NodeList = {"": "Object_ListMixin_ImmutableListMixin0;",
   get$length: function(receiver) {
     return receiver.length;
   },
@@ -3530,48 +3837,13 @@ $$.NodeList = {"": "Interceptor;",
   $indexSet: function(receiver, index, value) {
     throw $.wrapException($.UnsupportedError$("Cannot assign element of immutable List."));
   },
-  get$iterator: function(receiver) {
-    return $.FixedSizeListIterator$(receiver);
-  },
-  forEach$1: function(receiver, f) {
-    return $.IterableMixinWorkaround_forEach(receiver, f);
-  },
-  where$1: function(receiver, f) {
-    return $.WhereIterable$(receiver, f, null);
-  },
-  toList$1$growable: function(receiver, growable) {
-    return $.List_List$from(receiver, growable, $.Node);
-  },
-  toList$0: function($receiver) {
-    return this.toList$1$growable($receiver, true);
-  },
-  elementAt$1: function(receiver, index) {
-    if (index >>> 0 !== index || index >= receiver.length)
-      throw $.ioore(index);
-    return receiver[index];
-  },
-  add$1: function(receiver, value) {
-    throw $.wrapException($.UnsupportedError$("Cannot add to immutable List."));
-  },
-  addAll$1: function(receiver, iterable) {
-    throw $.wrapException($.UnsupportedError$("Cannot add to immutable List."));
-  },
-  clear$0: function(receiver) {
-    throw $.wrapException($.UnsupportedError$("Cannot clear immutable List."));
-  },
-  removeLast$0: function(receiver) {
-    throw $.wrapException($.UnsupportedError$("Cannot remove from immutable List."));
-  },
-  toString$0: function(receiver) {
-    var buffer = $.StringBuffer$("[");
-    buffer.writeAll$2(receiver, ", ");
-    buffer._contents = buffer._contents + "]";
-    return buffer._contents;
+  set$length: function(receiver, value) {
+    throw $.wrapException($.UnsupportedError$("Cannot resize immutable List."));
   },
   $isList: true,
-  $asList: function () { return [$.Node]; },
+  $asList: function() { return [$.Node]; },
   $isIterable: true,
-  $asIterable: function () { return [$.Node]; },
+  $asIterable: function() { return [$.Node]; },
   $isJavaScriptIndexingBehavior: true,
   $asJavaScriptIndexingBehavior: null
 };
@@ -3617,9 +3889,7 @@ $$.ShadowElement = {"": "Element;"};
 $$.ShadowRoot = {"": "DocumentFragment;innerHtml:innerHTML}",
   clone$1: function(receiver, deep) {
     return receiver.cloneNode(deep);
-  },
-  $isShadowRoot: true,
-  $asShadowRoot: null
+  }
 };
 
 $$.SourceElement = {"": "Element;type="};
@@ -3688,7 +3958,7 @@ $$.XPathException = {"": "Interceptor;",
   }
 };
 
-$$._NamedNodeMap = {"": "Interceptor;",
+$$._NamedNodeMap = {"": "Object_ListMixin_ImmutableListMixin1;",
   get$length: function(receiver) {
     return receiver.length;
   },
@@ -3698,48 +3968,13 @@ $$._NamedNodeMap = {"": "Interceptor;",
   $indexSet: function(receiver, index, value) {
     throw $.wrapException($.UnsupportedError$("Cannot assign element of immutable List."));
   },
-  get$iterator: function(receiver) {
-    return $.FixedSizeListIterator$(receiver);
-  },
-  forEach$1: function(receiver, f) {
-    return $.IterableMixinWorkaround_forEach(receiver, f);
-  },
-  where$1: function(receiver, f) {
-    return $.WhereIterable$(receiver, f, null);
-  },
-  toList$1$growable: function(receiver, growable) {
-    return $.List_List$from(receiver, growable, $.Node);
-  },
-  toList$0: function($receiver) {
-    return this.toList$1$growable($receiver, true);
-  },
-  elementAt$1: function(receiver, index) {
-    if (index >>> 0 !== index || index >= receiver.length)
-      throw $.ioore(index);
-    return receiver[index];
-  },
-  add$1: function(receiver, value) {
-    throw $.wrapException($.UnsupportedError$("Cannot add to immutable List."));
-  },
-  addAll$1: function(receiver, iterable) {
-    throw $.wrapException($.UnsupportedError$("Cannot add to immutable List."));
-  },
-  clear$0: function(receiver) {
-    throw $.wrapException($.UnsupportedError$("Cannot clear immutable List."));
-  },
-  removeLast$0: function(receiver) {
-    throw $.wrapException($.UnsupportedError$("Cannot remove from immutable List."));
-  },
-  toString$0: function(receiver) {
-    var buffer = $.StringBuffer$("[");
-    buffer.writeAll$2(receiver, ", ");
-    buffer._contents = buffer._contents + "]";
-    return buffer._contents;
+  set$length: function(receiver, value) {
+    throw $.wrapException($.UnsupportedError$("Cannot resize immutable List."));
   },
   $isList: true,
-  $asList: function () { return [$.Node]; },
+  $asList: function() { return [$.Node]; },
   $isIterable: true,
-  $asIterable: function () { return [$.Node]; },
+  $asIterable: function() { return [$.Node]; },
   $isJavaScriptIndexingBehavior: true,
   $asJavaScriptIndexingBehavior: null
 };
@@ -3959,9 +4194,15 @@ $.WhereIterator$ = function(_iterator, _f) {
   return new $.WhereIterator(_iterator, _f);
 };
 
+$.SkipIterator$ = function(_iterator, _skipCount) {
+  var t1 = new $.SkipIterator(_iterator, _skipCount);
+  t1.SkipIterator$2(_iterator, _skipCount);
+  return t1;
+};
+
 $.IterableMixinWorkaround_forEach = function(iterable, f) {
   var t1;
-  for (t1 = $.get$iterator$ax(iterable); t1.moveNext$0() === true;)
+  for (t1 = $.JSArray_methods.get$iterator(iterable); t1.moveNext$0();)
     f.call$1(t1.get$current());
 };
 
@@ -3982,12 +4223,13 @@ $.ToString__emitValue = function(i, result, visiting) {
 };
 
 $.ToString__emitObject = function(o, result, visiting) {
-  if (typeof o === "object" && o !== null && (o.constructor === Array || !!$.getInterceptor(o).$isIterable))
+  if (typeof o === "object" && o !== null && (o.constructor === Array || !!$.getInterceptor(o).$isIterable)) {
+    o;
     if ($.ToString__containsRef(visiting, o))
       result.write$1(typeof o === "object" && o !== null && (o.constructor === Array || !!$.getInterceptor(o).$isList) ? "[...]" : "{...}");
     else
       $.ToString__emitValue(o, result, visiting);
-  else if (typeof o === "object" && o !== null && !!$.getInterceptor(o).$isMap)
+  } else if (typeof o === "object" && o !== null && !!$.getInterceptor(o).$isMap)
     if ($.ToString__containsRef(visiting, o))
       result.write$1("{...}");
     else
@@ -4011,7 +4253,7 @@ $.ToString__emitPair = function(m, result, visiting) {
   t2.add$1(visiting, m);
   result.write$1("{");
   t1.first_0 = true;
-  m.forEach$1(m, new $.ToString__emitPair_anon(t1, result, visiting));
+  m.forEach$1(m, new $.ToString__emitPair_closure(t1, result, visiting));
   result.write$1("}");
   t2.removeLast$0(visiting);
 };
@@ -4076,7 +4318,7 @@ $.getDispatchProperty = function(object) {
 };
 
 $.setDispatchProperty = function(object, value) {
-  object[$.dispatchPropertyName] = value;
+  Object.defineProperty(object, $.dispatchPropertyName, {value: value, enumerable: false, writable: true, configurable: true});
 };
 
 $.getNativeInterceptor = function(object) {
@@ -4097,6 +4339,39 @@ $.getNativeInterceptor = function(object) {
   record = $.lookupDispatchRecord(object);
   $.setDispatchProperty(Object.getPrototypeOf(object), record);
   return $.getNativeInterceptor(object);
+};
+
+$.initializeDispatchProperty = function(setGetDispatchPropertyFn, rootProperty, jsObjectInterceptor) {
+  var objectProto, i, property;
+  if (typeof rootProperty !== "string")
+    return $.initializeDispatchProperty$bailout(1, setGetDispatchPropertyFn, rootProperty, jsObjectInterceptor);
+  objectProto = Object.prototype;
+  for (i = 0; true; ++i) {
+    if (i > 0)
+      property = rootProperty + "_" + i;
+    else
+      property = rootProperty;
+    if (typeof objectProto[property] === "undefined") {
+      $.dispatchPropertyName = property;
+      setGetDispatchPropertyFn(new Function("a", "return a." + property));
+      $.setDispatchProperty(objectProto, {i: jsObjectInterceptor, p: objectProto, e: null});
+      return;
+    }
+  }
+};
+
+$.initializeDispatchProperty$bailout = function(state0, setGetDispatchPropertyFn, rootProperty, jsObjectInterceptor) {
+  var objectProto, i, property;
+  objectProto = Object.prototype;
+  for (i = 0; true; ++i) {
+    property = i > 0 ? rootProperty + "_" + i : rootProperty;
+    if (typeof objectProto[property] === "undefined") {
+      $.dispatchPropertyName = property;
+      setGetDispatchPropertyFn(new Function("a", "return a." + property));
+      $.setDispatchProperty(objectProto, {i: jsObjectInterceptor, p: objectProto, e: null});
+      return;
+    }
+  }
 };
 
 $.checkGrowable = function(list, reason) {
@@ -4281,7 +4556,8 @@ $.unwrapException = function(ex) {
     ieErrorCode = ex.number & 0xffff;
     ieFacilityNumber = ex.number >> 16 & 0x1FFF;
     t1 = typeof message === "string";
-    if (t1)
+    if (t1) {
+      message;
       if (message === "null has no properties" || message === "'null' is not an object" || message === "'undefined' is not an object" || $.JSString_methods.endsWith$1(message, "is null") || $.JSString_methods.endsWith$1(message, "is undefined") || $.JSString_methods.endsWith$1(message, "is null or undefined") || $.JSString_methods.endsWith$1(message, "of undefined") || $.JSString_methods.endsWith$1(message, "of null"))
         return $.NoSuchMethodError$(null, "<unknown>", [], $.makeLiteralMap([]), null);
       else {
@@ -4295,6 +4571,7 @@ $.unwrapException = function(ex) {
         if (t2)
           return $.NoSuchMethodError$("", "<unknown>", [], $.makeLiteralMap([]), null);
       }
+    }
     t1 = t1 ? message : "";
     return $._ExceptionImplementation$(t1);
   }
@@ -4332,11 +4609,11 @@ $.makeLiteralMap = function(keyValuePairs) {
 $.invokeClosure = function(closure, isolate, numberOfArguments, arg1, arg2) {
   var t1 = $.getInterceptor(numberOfArguments);
   if (t1.$eq(numberOfArguments, 0) === true)
-    return new $.invokeClosure_anon(closure).call$0();
+    return new $.invokeClosure_closure(closure).call$0();
   else if (t1.$eq(numberOfArguments, 1) === true)
-    return new $.invokeClosure_anon0(closure, arg1).call$0();
+    return new $.invokeClosure_closure0(closure, arg1).call$0();
   else if (t1.$eq(numberOfArguments, 2) === true)
-    return new $.invokeClosure_anon1(closure, arg1, arg2).call$0();
+    return new $.invokeClosure_closure1(closure, arg1, arg2).call$0();
   else
     throw $.wrapException($._ExceptionImplementation$("Unsupported number of arguments for wrapped closure"));
 };
@@ -4496,9 +4773,10 @@ $.constructorNameFallback = function(object) {
   $constructor = object.constructor;
   if (typeof $constructor === "function") {
     $name = $constructor.name;
-    if (typeof $name === "string")
+    if (typeof $name === "string") {
+      $name;
       t1 = $name !== "" && $name !== "Object" && $name !== "Function.prototype";
-    else
+    } else
       t1 = false;
     if (t1)
       return $name;
@@ -4758,7 +5036,7 @@ $.RangeError$value = function(value) {
 };
 
 $.RangeError$range = function(value, start, end) {
-  return new $.RangeError("value " + value + " not in range " + start + ".." + end);
+  return new $.RangeError("value " + $.S(value) + " not in range " + start + ".." + $.S(end));
 };
 
 $.NoSuchMethodError$ = function(_receiver, _memberName, _arguments, _namedArguments, existingArgumentNames) {
@@ -4941,7 +5219,7 @@ $._ElementFactoryProvider__createTableForIE = function(html, tag) {
 };
 
 $._ElementFactoryProvider__getColgroup = function(table) {
-  var t1 = $.where$1$ax($.get$children$x(table), new $._ElementFactoryProvider__getColgroup_anon());
+  var t1 = $.where$1$ax($.get$children$x(table), new $._ElementFactoryProvider__getColgroup_closure());
   return $._ElementFactoryProvider__singleNode($.List_List$from(t1, true, $.getRuntimeTypeArgument(t1, t1.$asIterableBase, 0)));
 };
 
@@ -4990,7 +5268,7 @@ $._DOMWindowCrossFrame__createSafe = function(w) {
 };
 
 $.FixedSizeListIterator$ = function(array) {
-  return new $.FixedSizeListIterator(array, array.length, -1, null);
+  return new $.FixedSizeListIterator(array, $.get$length$asx(array), -1, null);
 };
 
 $.Device_userAgent = function() {
@@ -5015,7 +5293,7 @@ $.Random_Random = function(seed) {
 
 $.Uri$ = function(uri) {
   var t1 = $.get$Uri__splitRe().firstMatch$1(uri);
-  return new $.Uri($.Uri__emptyIfNull(t1.$index(t1, 1)), $.Uri__emptyIfNull(t1.$index(t1, 2)), $.Uri__emptyIfNull(t1.$index(t1, 3)), $.Uri__parseIntOrZero(t1.$index(t1, 4)), $.Uri__emptyIfNull(t1.$index(t1, 5)), $.Uri__emptyIfNull(t1.$index(t1, 6)), $.Uri__emptyIfNull(t1.$index(t1, 7)));
+  return new $.Uri($.Uri__emptyIfNull(t1.$index(t1, 1)), $.Uri__emptyIfNull(t1.$index(t1, 2)), $.Uri__eitherOf(t1.$index(t1, 3), t1.$index(t1, 4)), $.Uri__parseIntOrZero(t1.$index(t1, 5)), $.Uri__emptyIfNull(t1.$index(t1, 6)), $.Uri__emptyIfNull(t1.$index(t1, 7)), $.Uri__emptyIfNull(t1.$index(t1, 8)));
 };
 
 $.Uri__emptyIfNull = function(val) {
@@ -5029,15 +5307,23 @@ $.Uri__parseIntOrZero = function(val) {
     return 0;
 };
 
+$.Uri__eitherOf = function(val1, val2) {
+  if (val1 != null)
+    return val1;
+  if (val2 != null)
+    return val2;
+  return "";
+};
+
 $.init_autogenerated = function() {
-  var _root, __html0, __t, t1;
-  _root = document.body;
+  var __root, __html0, __t, t1;
+  __root = document.body;
   __html0 = $._ElementFactoryProvider_createElement_html("<div class=\"span3\">\n          <h3></h3>\n          <div is=\"x-fchart\"></div>\n          <h3>goback<sub></sub></h3>\n          <div is=\"x-fchart\"></div>\n        </div>");
-  __t = $.Template$(_root);
-  t1 = $.get$nodes$x(_root)._this.childNodes;
+  __t = $.Template$(__root);
+  t1 = $.get$nodes$x(__root)._this.childNodes;
   if (1 >= t1.length)
     throw $.ioore(1);
-  __t.children.push($.LoopTemplateInAttribute$($.$index$asx($.get$nodes$x(t1[1]), 5), new $.init_autogenerated_anon(), new $.init_autogenerated_anon0(__html0)));
+  __t.children.push($.LoopTemplateInAttribute$($.$index$asx($.get$nodes$x(t1[1]), 9), new $.init_autogenerated_closure(), new $.init_autogenerated_closure0(__html0)));
   __t.create$0();
   __t.insert$0(__t);
 };
@@ -5048,15 +5334,19 @@ $.main = function() {
 };
 
 $.XFchart$ = function() {
-  return new $.XFchart(null, null, null, null, null);
+  return new $.XFchart(null, null, null, null, $.makeLiteralMap([]));
 };
 
 $.chain = function(f0, f1) {
-  return new $.chain_anon(f0, f1);
+  return new $.chain_closure(f0, f1);
+};
+
+$.reverse = function(f0) {
+  return new $.reverse_closure(f0);
 };
 
 $.goback = function(f0) {
-  return new $.goback_anon(f0);
+  return new $.goback_closure(f0);
 };
 
 $.linear = function(ratio, change, baseValue) {
@@ -5237,8 +5527,9 @@ $.inElastic = function(ratio, change, baseValue) {
   if (!(t1.$eq(ratio, 0) === true || t1.$eq(ratio, 1) === true)) {
     ratio = t1.$sub(ratio, 1);
     t1 = 10 * ratio;
+    t1 = Math.pow(2, t1);
     t2 = (ratio - 0.075) * 6.283185307179586 / 0.3;
-    r = -Math.pow(2, t1) * Math.sin(t2);
+    r = -t1 * Math.sin(t2);
   } else
     r = ratio;
   t1 = $.$mul$n(r, change);
@@ -5439,7 +5730,7 @@ $.watch = function(target, callback, debugName) {
         t1 = val;
         if (typeof t1 === "object" && t1 !== null && (t1.constructor === Array || !!$.getInterceptor(t1).$isIterable)) {
           watcherType = $._WatcherType_LIST;
-          exp = new $.watch_anon(target);
+          exp = new $.watch_closure(target);
         } else {
           t1 = val;
           if (typeof t1 !== "object" || t1 === null || !$.getInterceptor(t1).$isLinkedHashMap) {
@@ -5466,12 +5757,12 @@ $.watch = function(target, callback, debugName) {
   } else {
     t1 = target;
     if (typeof t1 === "object" && t1 !== null && (t1.constructor === Array || !!$.getInterceptor(t1).$isList)) {
-      exp = new $.watch_anon0(target);
+      exp = new $.watch_closure0(target);
       watcherType = $._WatcherType_LIST;
     } else {
       t1 = target;
       if (typeof t1 === "object" && t1 !== null && (t1.constructor === Array || !!$.getInterceptor(t1).$isIterable)) {
-        exp = new $.watch_anon1(target);
+        exp = new $.watch_closure1(target);
         watcherType = $._WatcherType_LIST;
       } else {
         t1 = target;
@@ -5481,12 +5772,12 @@ $.watch = function(target, callback, debugName) {
         } else
           t1 = true;
         if (t1) {
-          exp = new $.watch_anon2(target);
+          exp = new $.watch_closure2(target);
           watcherType = $._WatcherType_ORDERED_MAP;
         } else {
           t1 = target;
           if (typeof t1 === "object" && t1 !== null && !!$.getInterceptor(t1).$isMap) {
-            exp = new $.watch_anon3(target);
+            exp = new $.watch_closure3(target);
             watcherType = $._WatcherType_HASH_MAP;
           }
         }
@@ -5690,8 +5981,6 @@ $.defaultObserveUnhandledError.call$4 = $.defaultObserveUnhandledError;
 $.defaultObserveUnhandledError.$name = "defaultObserveUnhandledError";
 $.C_NullThrownError = new $.NullThrownError();
 $.JSInt_methods = $.JSInt.prototype;
-$._WatcherType_LIST = new $._WatcherType("LIST");
-$._WatcherType_HASH_MAP = new $._WatcherType("HASH_MAP");
 Isolate.makeConstantList = function(list) {
   list.immutable$list = true;
   list.fixed$length = true;
@@ -5699,19 +5988,20 @@ Isolate.makeConstantList = function(list) {
 };
 $.List_Aia = Isolate.makeConstantList(["caption", "col", "colgroup", "tbody", "td", "tfoot", "th", "thead", "tr"]);
 $.Map_Ai46y = new $.ConstantMap(9, {caption: null, col: null, colgroup: null, tbody: null, td: null, tfoot: null, th: null, thead: null, tr: null}, $.List_Aia);
-$.NodeList_methods = $.NodeList.prototype;
-$.JSNull_methods = $.JSNull.prototype;
 $.List_8h5 = Isolate.makeConstantList(["body", "head", "caption", "td", "th", "colgroup", "col", "tr", "tbody", "tfoot", "thead", "track"]);
+$.JSNull_methods = $.JSNull.prototype;
+$.C__Random = new $._Random();
 $.Map_8h6qb = new $.ConstantMap(12, {body: "html", head: "html", caption: "table", td: "tr", th: "tr", colgroup: "table", col: "colgroup", tr: "tbody", tbody: "table", tfoot: "table", thead: "table", track: "audio"}, $.List_8h5);
-$._NamedNodeMap_methods = $._NamedNodeMap.prototype;
-$._WatcherType_OTHER = new $._WatcherType("OTHER");
 $._WatcherType_ORDERED_MAP = new $._WatcherType("ORDERED_MAP");
-$.JSArray_methods = $.JSArray.prototype;
+$._WatcherType_OTHER = new $._WatcherType("OTHER");
 $.List_http_https_ftp_mailto = Isolate.makeConstantList(["http", "https", "ftp", "mailto"]);
+$.JSArray_methods = $.JSArray.prototype;
 $.JSNumber_methods = $.JSNumber.prototype;
 $.JSString_methods = $.JSString.prototype;
-$.C__Random = new $._Random();
-$.dispatchPropertyName = "_zzyzx";
+$._WatcherType_LIST = new $._WatcherType("LIST");
+$.NodeList_methods = $.NodeList.prototype;
+$._WatcherType_HASH_MAP = new $._WatcherType("HASH_MAP");
+$.dispatchPropertyName = null;
 $.Primitives_hashCodeSeed = 0;
 $._getTypeNameOf = null;
 $.interceptorsByTag = null;
@@ -5753,6 +6043,11 @@ $.$eq = function(receiver, a0) {
   if (typeof receiver != "object")
     return a0 != null && receiver === a0;
   return $.getInterceptor(receiver).$eq(receiver, a0);
+};
+$.$ge$n = function(receiver, a0) {
+  if (typeof receiver == "number" && typeof a0 == "number")
+    return receiver >= a0;
+  return $.getInterceptor$n(receiver).$ge(receiver, a0);
 };
 $.$gt$n = function(receiver, a0) {
   if (typeof receiver == "number" && typeof a0 == "number")
@@ -5812,6 +6107,9 @@ $.clone$1$x = function(receiver, a0) {
 };
 $.compareTo$1$ns = function(receiver, a0) {
   return $.getInterceptor$ns(receiver).compareTo$1(receiver, a0);
+};
+$.contains$1$asx = function(receiver, a0) {
+  return $.getInterceptor$asx(receiver).contains$1(receiver, a0);
 };
 $.contains$2$asx = function(receiver, a0, a1) {
   return $.getInterceptor$asx(receiver).contains$2(receiver, a0, a1);
@@ -6035,7 +6333,7 @@ Isolate.$lazy($, "_START_TAG_REGEXP", "_START_TAG_REGEXP", "get$_START_TAG_REGEX
   return $.RegExp_RegExp("<(\\w+)", true, false);
 });
 Isolate.$lazy($, "_splitRe", "Uri__splitRe", "get$Uri__splitRe", function() {
-  return $.RegExp_RegExp("^(?:([^:/?#.]+):)?(?://(?:([^/?#]*)@)?([\\w\\d\\-\\u0100-\\uffff.%]*)(?::([0-9]+))?)?([^?#]+)?(?:\\?([^#]*))?(?:#(.*))?$", true, false);
+  return $.RegExp_RegExp("^(?:([^:/?#.]+):)?(?://(?:([^/?#]*)@)?(?:([\\w\\d\\-\\u0100-\\uffff.%]*)|\\[([A-Fa-f0-9:.]*)\\])(?::([0-9]+))?)?([^?#[]+)?(?:\\?([^#]*))?(?:#(.*))?$", true, false);
 });
 Isolate.$lazy($, "__changes", "__changes", "get$__changes", function() {
   return $.Observable$();
@@ -6047,7 +6345,7 @@ Isolate.$lazy($, "__shadowTemplate", "XFchart___shadowTemplate", "get$XFchart___
   return $.DocumentFragment_DocumentFragment$html("        <canvas style=\"width:100%;height:100%\"></canvas>\n      ");
 });
 Isolate.$lazy($, "all", "all", "get$all", function() {
-  var t1 = $.LinkedHashMap$($.JSString, $.Function);
+  var t1 = $.LinkedHashMap$($.JSString, {func: true, ret: $.JSNumber, args: [$.JSDouble, $.JSNumber, $.JSNumber]});
   t1.$indexSet(t1, "linear", $.linear);
   t1.$indexSet(t1, "random", $.random);
   t1.$indexSet(t1, "inQuad", $.inQuad);
@@ -6526,6 +6824,9 @@ $.defineNativeMethods("SQLException", $.SqlException);
 var $ = null;
 Isolate = Isolate.$finishIsolateConstructor(Isolate);
 var $ = new Isolate();
+$.initializeDispatchProperty(function(a) {
+  $.getDispatchProperty = a;
+}, "___dart_dispatch_record_ZxYxX_0_", $.Interceptor.prototype);
 // BEGIN invoke [main].
 if (typeof document !== "undefined" && document.readyState !== "complete") {
   document.addEventListener("readystatechange", function () {
@@ -6599,7 +6900,7 @@ function init() {
     return constructor;
   }
   var supportsProto = false;
-  var tmp = defineClass("c", "c", ["f?"], {}).prototype;
+  var tmp = defineClass("c", "c", ["f<"], {}).prototype;
   if (tmp.__proto__) {
     tmp.__proto__ = {};
     if (typeof tmp.get$f != "undefined")

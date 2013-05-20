@@ -1,0 +1,119 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>EntityState class / system_entity_state Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="system_entity_state" data-type="EntityState">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../system_entity_state.html">system_entity_state</a> &rsaquo; <a href="../system_entity_state/EntityState.html">EntityState</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>EntityState</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<pre class="source">
+class EntityState {
+ final _componentProviderByType = new Bag&lt;ComponentProvider&gt;();
+ final _indicesP = new Set&lt;int&gt;();
+
+ final modifiers = new List&lt;ComponentModifier&gt;();
+
+ void add(ComponentProvider provider) {
+   int index = provider.type.id;
+   _componentProviderByType[index] = provider;
+   _indicesP.add(index);
+ }
+
+ void forEach(void f(ComponentProvider)) {
+   _indicesP.forEach((index) =&gt; f(_componentProviderByType[index]));
+ }
+
+ ComponentProvider getByType(ComponentType type) =&gt; _componentProviderByType[type.id];
+
+}
+</pre>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="modifiers">
+<button class="show-code">Code</button>
+final         <strong>modifiers</strong> <a class="anchor-link"
+            href="#modifiers"
+            title="Permalink to EntityState.modifiers">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final modifiers = new List&lt;ComponentModifier&gt;()
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="add">
+<button class="show-code">Code</button>
+void <strong>add</strong>(<a href="../system_entity_state/ComponentProvider.html">ComponentProvider</a> provider) <a class="anchor-link" href="#add"
+              title="Permalink to EntityState.add">#</a></h4>
+<div class="doc">
+<pre class="source">
+void add(ComponentProvider provider) {
+ int index = provider.type.id;
+ _componentProviderByType[index] = provider;
+ _indicesP.add(index);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="forEach">
+<button class="show-code">Code</button>
+void <strong>forEach</strong>(void f(ComponentProvider)) <a class="anchor-link" href="#forEach"
+              title="Permalink to EntityState.forEach">#</a></h4>
+<div class="doc">
+<pre class="source">
+void forEach(void f(ComponentProvider)) {
+ _indicesP.forEach((index) =&gt; f(_componentProviderByType[index]));
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="getByType">
+<button class="show-code">Code</button>
+<a href="../system_entity_state/ComponentProvider.html">ComponentProvider</a> <strong>getByType</strong>(ComponentType type) <a class="anchor-link" href="#getByType"
+              title="Permalink to EntityState.getByType">#</a></h4>
+<div class="doc">
+<pre class="source">
+ComponentProvider getByType(ComponentType type) =&gt; _componentProviderByType[type.id];
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-20 19:09:48.275</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

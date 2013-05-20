@@ -1,0 +1,164 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>Animatable class / system_animator Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="system_animator" data-type="Animatable">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../system_animator.html">system_animator</a> &rsaquo; <a href="../system_animator/Animatable.html">Animatable</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>Animatable</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p>Component use to store a bag of <a class="crossref" href="../system_animator/Animation.html">Animation</a> to play.</p>
+<p>Because Animation are a bag of "callback" function, it doesn't follow
+the philosofy of EntitySystem (Component should be only primitive).</p>
+<pre class="source">
+class Animatable extends ComponentPoolable {
+ final l = new LinkedBag&lt;Animation&gt;();
+
+ Animatable._();
+ static _ctor() =&gt; new Animatable._();
+ factory Animatable() {
+   var c = new Poolable.of(Animatable, _ctor);
+   c.cleanUp();
+   return c;
+ }
+
+ void cleanUp() {
+   l.clear();
+ }
+
+ /// this is a sugar method for [l].add([a])
+ /// sugar because you can write
+ ///
+ ///    new Animatable()
+ ///      ..add(new Animation())
+ ///      ..add(new Animation())
+ ///
+ Animatable add(Animation a) {
+   l.add(a);
+   return this;
+ }
+}
+</pre>
+</div>
+<h3>Extends</h3>
+<p>
+<span class="type-box"><span class="icon-class"></span><a href="../dartemis/Component.html">Component</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><a href="../dartemis/Component_Poolable.html">Component_Poolable</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><a href="../dartemis/ComponentPoolable.html">ComponentPoolable</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><strong>Animatable</strong></span></p>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="Animatable">
+<button class="show-code">Code</button>
+factory <strong>Animatable</strong>() <a class="anchor-link" href="#Animatable"
+              title="Permalink to Animatable.Animatable">#</a></h4>
+<div class="doc">
+<pre class="source">
+factory Animatable() {
+ var c = new Poolable.of(Animatable, _ctor);
+ c.cleanUp();
+ return c;
+}
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="l">
+<button class="show-code">Code</button>
+final         <strong>l</strong> <a class="anchor-link"
+            href="#l"
+            title="Permalink to Animatable.l">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final l = new LinkedBag&lt;Animation&gt;()
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="add">
+<button class="show-code">Code</button>
+<a href="../system_animator/Animatable.html">Animatable</a> <strong>add</strong>(<a href="../system_animator/Animation.html">Animation</a> a) <a class="anchor-link" href="#add"
+              title="Permalink to Animatable.add">#</a></h4>
+<div class="doc">
+<p>this is a sugar method for <a class="crossref" href="../system_animator/Animatable.html#l">l</a>.add(
+<span class="param">a</span>)
+sugar because you can write</p>
+<p>   new Animatable()</p>
+<pre><code> ..add(new Animation())
+ ..add(new Animation())
+</code></pre>
+<pre class="source">
+Animatable add(Animation a) {
+ l.add(a);
+ return this;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="cleanUp">
+<button class="show-code">Code</button>
+void <strong>cleanUp</strong>() <a class="anchor-link" href="#cleanUp"
+              title="Permalink to Animatable.cleanUp">#</a></h4>
+<div class="doc">
+<div class="inherited">
+<p>If you need to do some cleanup when removing this component override this
+method.</p>
+<div class="docs-inherited-from">docs inherited from ComponentPoolable </div></div>
+<pre class="source">
+void cleanUp() {
+ l.clear();
+}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="moveToPool">
+<button class="show-code">Code</button>
+void <strong>moveToPool</strong>() <a class="anchor-link" href="#moveToPool"
+              title="Permalink to Animatable.moveToPool">#</a></h4>
+<div class="inherited-from">inherited from Component_Poolable </div><div class="doc">
+<p>Calls the cleanup function and moves this object to the <code>ObjectPool</code>.</p>
+<pre class="source">
+void moveToPool() {
+ cleanUp();
+ ObjectPool.add(this);
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-20 19:09:48.226</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

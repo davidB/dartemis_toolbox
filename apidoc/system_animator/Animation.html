@@ -1,0 +1,121 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>Animation class / system_animator Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="system_animator" data-type="Animation">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../system_animator.html">system_animator</a> &rsaquo; <a href="../system_animator/Animation.html">Animation</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>Animation</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p><a class="crossref" href="../system_animator/Animation.html">Animation</a> is a set of action to execute <a class="crossref" href="../system_animator/Animation.html#onBegin">onBegin</a>, <a class="crossref" href="../system_animator/Animation.html#onTick">onTick</a>, <a class="crossref" href="../system_animator/Animation.html#onEnd">onEnd</a>.</p>
+<p>It can be used to playe some action based on time :</p><ul><li>animate visual Entity (eg: onTick rotate an 3D object)</li><li>countdown to trigger some action <a class="crossref" href="../system_animator/Animation.html#onEnd">onEnd</a>, or update value <a class="crossref" href="../system_animator/Animation.html#onTick">onTick</a></li><li>run periodic action on the idem (without using a dedicated <code>EntitySystem</code>)</li></ul>
+<pre class="source">
+class Animation {
+ /// set by System_Animator when it start playing
+ double _t0 = -1.0;
+
+ /// Callback before first call of [onTick] (same tick)
+ OnStart onBegin = onNoop;
+
+ /// Callback each tick of the [System_Animator],
+ /// the animation is ended when onUpdate return false
+ OnUpdate onTick = onNoop;
+
+ /// Callback when animation is ended (after last [onTick], same tick)
+ OnComplete onEnd = onNoop;
+
+ /// [Animation] to chain (to animate when this is completed)
+ Animation next = null;
+}
+</pre>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="next">
+<button class="show-code">Code</button>
+<a href="../system_animator/Animation.html">Animation</a>         <strong>next</strong> <a class="anchor-link"
+            href="#next"
+            title="Permalink to Animation.next">#</a>
+        </h4>
+        <div class="doc">
+<p><a class="crossref" href="../system_animator/Animation.html">Animation</a> to chain (to animate when this is completed)</p>
+<pre class="source">
+Animation next = null
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="onBegin">
+<button class="show-code">Code</button>
+<a href="../system_animator/OnStart.html">OnStart</a>         <strong>onBegin</strong> <a class="anchor-link"
+            href="#onBegin"
+            title="Permalink to Animation.onBegin">#</a>
+        </h4>
+        <div class="doc">
+<p>Callback before first call of <a class="crossref" href="../system_animator/Animation.html#onTick">onTick</a> (same tick)</p>
+<pre class="source">
+OnStart onBegin = onNoop
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="onEnd">
+<button class="show-code">Code</button>
+<a href="../system_animator/OnComplete.html">OnComplete</a>         <strong>onEnd</strong> <a class="anchor-link"
+            href="#onEnd"
+            title="Permalink to Animation.onEnd">#</a>
+        </h4>
+        <div class="doc">
+<p>Callback when animation is ended (after last <a class="crossref" href="../system_animator/Animation.html#onTick">onTick</a>, same tick)</p>
+<pre class="source">
+OnComplete onEnd = onNoop
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="onTick">
+<button class="show-code">Code</button>
+<a href="../system_animator/OnUpdate.html">OnUpdate</a>         <strong>onTick</strong> <a class="anchor-link"
+            href="#onTick"
+            title="Permalink to Animation.onTick">#</a>
+        </h4>
+        <div class="doc">
+<p>Callback each tick of the <a class="crossref" href="../system_animator/System_Animator.html">System_Animator</a>,
+the animation is ended when onUpdate return false</p>
+<pre class="source">
+OnUpdate onTick = onNoop
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-20 19:09:48.197</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

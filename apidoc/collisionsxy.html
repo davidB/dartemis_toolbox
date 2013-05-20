@@ -1,0 +1,191 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>collisionsxy Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="favicon.ico">
+        
+        </head>
+        <body data-library="collisionsxy">
+        <div class="page">
+        <div class="header">
+          <a href="index.html"><div class="logo"></div></a>
+          <a href="index.html">Dart Documentation</a>
+         &rsaquo; <a href="collisionsxy.html">collisionsxy</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+<h2><strong>collisionsxy</strong> library</h2>
+<div>
+<h3>Functions</h3>
+<div class="method"><h4 id="calculateCenter">
+<button class="show-code">Code</button>
+vec3 <strong>calculateCenter</strong>(<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;vec3&gt; shape) <a class="anchor-link" href="#calculateCenter"
+              title="Permalink to calculateCenter">#</a></h4>
+<div class="doc">
+<pre class="source">
+vec3 calculateCenter(List&lt;vec3&gt; shape) {
+
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="updateCollisionInfo">
+<button class="show-code">Code</button>
+void <strong>updateCollisionInfo</strong>(<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;vec3&gt; shapeA, <a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;vec3&gt; shapeB, <a href="collisionsxy/CollisionInfo.html">CollisionInfo</a> out, vec3 center1, vec3 center2) <a class="anchor-link" href="#updateCollisionInfo"
+              title="Permalink to updateCollisionInfo">#</a></h4>
+<div class="doc">
+<pre class="source">
+void updateCollisionInfo(List&lt;vec3&gt; shapeA, List&lt;vec3&gt; shapeB, CollisionInfo out, vec3 center1, vec3 center2) {
+ // int Sign = SGN( CollisionInfo.Normal.multiplyVal( shapeA.Center.minus(shapeB.Center) ) ); //This is needed to make sure that the collision normal is pointing at shapeA
+ var xx = center2.x - center1.x;
+ var yy = center2.y - center1.y;
+ var mult = out.normal.x * xx + out.normal.y * yy;
+
+ // Remember that the line equation is N*( R - R0 ). We choose shapeB-&gt;Center as R0; the normal N is given by the collision normal
+
+ if (mult &lt; 0) {
+   // Revert the collision normal if it points away from shapeA
+   out.normal.x = 0 - out.normal.x;
+   out.normal.y = 0 - out.normal.y;
+ }
+
+ var smallestD = double.MAX_FINITE; //Initialize the smallest distance to a large value
+
+ for (int i = 0; i &lt; shapeB.length; i++) {
+   // Measure the distance of the vertex from the line using the line equation
+   // float Distance = CollisionInfo.Normal.multiplyVal( shapeA.Vertices[I].Position.minus(shapeB.Center) );
+   xx = shapeB[i].x - center1.x;
+   yy = shapeB[i].y - center1.y;
+   var distance = out.normal.x * xx + out.normal.y * yy;
+
+   if (distance &lt; smallestD) { //If the measured distance is smaller than the smallest distance reported so far, set the smallest distance and the collision vertex
+     smallestD = distance;
+     out.v = shapeB[i];
+   }
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="detectCollision_sat">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>detectCollision_sat</strong>(<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;vec3&gt; shapeA, <a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;vec3&gt; shapeB, <a href="collisionsxy/CollisionInfo.html">CollisionInfo</a> out, vec3 axis) <a class="anchor-link" href="#detectCollision_sat"
+              title="Permalink to detectCollision_sat">#</a></h4>
+<div class="doc">
+<p>source port from
+<em> <a href="http://www.gamedev.net/page/resources/_/technical/math-and-physics/a-verlet-based-approach-for-2d-game-physics-r2714">A Verlet based approach for 2D game physics</a>
+</em> <a href="https://code.google.com/p/verlet/source/browse/VerletDemo/src/com/gmail/craigmit/verletdemo/Physics.java">java port</a></p>
+<pre class="source">
+bool detectCollision_sat( List&lt;vec3&gt; shapeA, List&lt;vec3&gt; shapeB, CollisionInfo out, vec3 axis ) {
+ var m1 = new MinMax();
+ var m2 = new MinMax();
+ return _detectCollision_satEdge1(shapeA, shapeB, out, axis, m1, m2)
+     || _detectCollision_satEdge1(shapeB, shapeA, out, axis, m1, m2)
+     ;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="detectCollision_aabb">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>detectCollision_aabb</strong>(vec4 shapeA, vec4 shapeB) <a class="anchor-link" href="#detectCollision_aabb"
+              title="Permalink to detectCollision_aabb">#</a></h4>
+<div class="doc">
+<p>Used for optimization to test if the bounding boxes (aabb) of two bodies overlap.
+bounding boxes are vec4(minX, minY, width, height)</p>
+<pre class="source">
+bool detectCollision_aabb(vec4 shapeA, vec4 shapeB) {
+ return ( shapeA.x &lt;= (shapeB.x + shapeB.z)) &amp;&amp; ( shapeA.y &lt;= (shapeB.y + shapeB.w)) &amp;&amp; ((shapeA.x + shapeA.z) &gt;= shapeB.x ) &amp;&amp; (( shapeB.y + shapeB.w) &gt;= shapeA.y);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="intervalDistanceOnAxis">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a> <strong>intervalDistanceOnAxis</strong>(<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;vec3&gt; shapeA, <a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;vec3&gt; shapeB, vec3 axis, <a href="collisionsxy/MinMax.html">MinMax</a> m1, <a href="collisionsxy/MinMax.html">MinMax</a> m2) <a class="anchor-link" href="#intervalDistanceOnAxis"
+              title="Permalink to intervalDistanceOnAxis">#</a></h4>
+<div class="doc">
+<pre class="source">
+double intervalDistanceOnAxis(List&lt;vec3&gt; shapeA, List&lt;vec3&gt; shapeB, vec3 axis, MinMax m1, MinMax m2) {
+ // Project both bodies onto the perpendicular
+ projectToAxis(shapeA, axis, m1);
+ projectToAxis(shapeB, axis, m2);
+
+ return intervalDistance( m1.min, m1.max, m2.min, m2.max );
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="intervalDistance">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a> <strong>intervalDistance</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> minA, <a href="http://api.dartlang.org/dart_core/double.html">double</a> maxA, <a href="http://api.dartlang.org/dart_core/double.html">double</a> minB, <a href="http://api.dartlang.org/dart_core/double.html">double</a> maxB) <a class="anchor-link" href="#intervalDistance"
+              title="Permalink to intervalDistance">#</a></h4>
+<div class="doc">
+<p>Calculate the distance between the two intervals</p>
+<pre class="source">
+double intervalDistance( double minA, double maxA, double minB, double maxB ) {
+ return ( minA &lt; minB ) ? minB - maxA : minA - maxB;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="projectToAxis">
+<button class="show-code">Code</button>
+void <strong>projectToAxis</strong>(<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;vec3&gt; vertices, vec3 axis, <a href="collisionsxy/MinMax.html">MinMax</a> out) <a class="anchor-link" href="#projectToAxis"
+              title="Permalink to projectToAxis">#</a></h4>
+<div class="doc">
+<pre class="source">
+void projectToAxis( List&lt;vec3&gt; vertices, vec3 axis, MinMax out) {
+ var dotP = axis.dot(vertices[0]);
+
+ //Set the minimum and maximum values to the projection of the first vertex
+ out.min = out.max = dotP;
+
+ for( int i = vertices.length - 1 ; i &gt; 1 ; --i) {
+   //Project the rest of the vertices onto the axis and extend
+   //the interval to the left/right if necessary
+   dotP = axis.dot(vertices[i]);
+   out.min = math.min( dotP, out.min );
+   out.max = math.max( dotP, out.max );
+ }
+}
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Classes</h3>
+          <div class="type">
+          <h4>
+            <a href="collisionsxy/CollisionInfo.html"><strong>CollisionInfo</strong></a>
+          </h4>
+          </div>
+          
+          <div class="type">
+          <h4>
+            <a href="collisionsxy/MinMax.html"><strong>MinMax</strong></a>
+          </h4>
+          </div>
+          
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-05-20 19:09:47.994</div>
+        </div>
+        <script async src="client-live-nav.js"></script>
+        </body></html>
+        
