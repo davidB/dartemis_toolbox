@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+  <head>
+  <body>
+    <element name="x-colorselector" extends="div">
+      <style>
+        .cs_samplebox {
+          width: 3em;
+          height: 1em;
+          border: 1px solid;
+          display: inline-block;
+          cursor: pointer;
+        }
+        .cs_sampletxt {
+          height: 1em;
+          width: 5em;
+          display: inline-block;
+        }
+      </style>
+      <template>
+        <div class="container-fluid">
+          <div class="span3">
+            <canvas class="cs_sv" width="104" height="104"></canvas>
+            <canvas class="cs_h" width="14" height="104"></canvas>
+          </div>
+          <fieldset class="span3">
+            <legend>RGB</legend>
+            <div><label>R : {{rStr}}</label><div class="controls"><input type="range" min="0" max="255" step="1" bind-value="rStr"/></div>
+            <div><label>G : {{gStr}}</label><input type="range" min="0" max="255" step="1" bind-value="gStr"/></div>
+            <div><label>B : {{bStr}}</label><input type="range" min="0" max="255" step="1" bind-value="bStr"/></div>
+            <div><label>html : </label><input type="text" bind-value="hex_html"/></div>
+            <div><label>irgba : </label><input type="text" bind-value="hex_irgba"/></div>
+          </fieldset>
+          <fieldset class="span3">
+            <legend>HSV</legend>
+            <div><label>H : {{hStr}}°</label><input type="range" min="0" max="360" step="1" bind-value="hStr"/></div>
+            <div><label>S : {{sStr}}%</label><input type="range" min="0" max="100" step="1"  bind-value="sStr"/></div>
+            <div><label>V : {{vStr}}%</label><input type="range" min="0" max="100" step="1"  bind-value="vStr"/></div>
+          </fieldset>
+          <fieldset class="span3">
+            <legend>split complement</legend>
+            <div>
+             <button class="btn" on-click="complement()">complement</button>
+             <button class="btn" on-click="greyscale()">greyscale</button>
+            </div>
+            <div>
+              <button class="btn" on-click="lighten()">lighten 10%</button>
+              <button class="btn" on-click="darken()">darken 10%</button>
+            </div>
+            <div>
+              <button class="btn" on-click="saturate()">saturate 10%</button>
+              <button class="btn" on-click="desaturate()">desaturate 10%</button>
+            </div>
+            <div>
+              <button class="btn" on-click="random()">random</button>
+            </div>
+          </fieldset>
+          <fieldset class="span3">
+            <legend>triad</legend>
+            <div template iterate='c in triad'>
+              <span class="cs_sampletxt">{{irgba_hexString(c)}}</span>
+              <span class="cs_samplebox" style="background-color:{{irgba_hexHtml(c)}}" on-click="color = c"></span>
+              <br>
+            </div>
+          </fieldset>
+          <fieldset class="span3">
+            <legend>tetrad</legend>
+            <div template iterate='c in tetrad'>
+              <span class="cs_sampletxt">{{irgba_hexString(c)}}</span>
+              <span class="cs_samplebox" style="background-color:{{irgba_hexHtml(c)}}" on-click="color = c"></span>
+              <br>
+            </div>
+          </fieldset>
+          <fieldset class="span3">
+            <legend>split complement</legend>
+            <div template iterate='c in splitcomplement'>
+              <span class="cs_sampletxt">{{irgba_hexString(c)}}</span>
+              <span class="cs_samplebox" style="background-color:{{irgba_hexHtml(c)}}" on-click="color = c"></span>
+              <br>
+            </div>
+          </fieldset>
+          <fieldset class="span3">
+            <legend>analogous</legend>
+            <div template iterate='c in analogous'>
+              <span class="cs_sampletxt">{{irgba_hexString(c)}}</span>
+              <span class="cs_samplebox" style="background-color:{{irgba_hexHtml(c)}}" on-click="color = c"></span>
+              <br>
+            </div>
+          </fieldset>
+          <fieldset class="span3">
+            <legend>monochromatic</legend>
+            <div template iterate='c in monochromatic'>
+              <span class="cs_sampletxt">{{irgba_hexString(c)}}</span>
+              <span class="cs_samplebox" style="background-color:{{irgba_hexHtml(c)}}" on-click="color = c"></span>
+              <br>
+            </div>
+          </fieldset>
+        </div>
+      </template>
+      <script type="application/dart" src='xcolorselector.dart'></script>
+    </element>
+  </body>
+</html>
