@@ -6,6 +6,9 @@
   <body>
     <element name="x-colorselector" extends="div">
       <style>
+        .cs_h, .cs_sv {
+          cursor: pointer;
+        }
         .cs_samplebox {
           width: 3em;
           height: 1em;
@@ -22,8 +25,8 @@
       <template>
         <div class="container-fluid">
           <div class="span3">
-            <canvas class="cs_sv" width="104" height="104"></canvas>
-            <canvas class="cs_h" width="14" height="104"></canvas>
+            <canvas class="cs_sv" width="104" height="104" on-click="sv_setColorFromEvt($event)"></canvas>
+            <canvas class="cs_h" width="14" height="104" on-click="h_setColorFromEvt($event)"></canvas>
           </div>
           <fieldset class="span3">
             <legend>RGB</legend>
@@ -40,7 +43,7 @@
             <div><label>V : {{vStr}}%</label><input type="range" min="0" max="100" step="1"  bind-value="vStr"/></div>
           </fieldset>
           <fieldset class="span3">
-            <legend>split complement</legend>
+            <legend>Modifier</legend>
             <div>
              <button class="btn" on-click="complement()">complement</button>
              <button class="btn" on-click="greyscale()">greyscale</button>
