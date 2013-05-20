@@ -340,7 +340,7 @@ hexHtml_irgba(String s) {
 
 irgba_hexString(int c) {
   var x = (c >> 8) | 0x1000000; //0x100000000 is too bigger on js
-  return "0x" + x.toRadixString(16).substring(1) + (c & 0xff).toRadixString(16);
+  return "0x" + x.toRadixString(16).substring(1) + (c & 0xff | 0x100).toRadixString(16).substring(1);
 }
 
 hexString_irgba(String s) {
