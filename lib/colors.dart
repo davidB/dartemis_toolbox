@@ -24,20 +24,23 @@
 // For more information, please refer to <http://unlicense.org/>
 
 /// Very primitive colors utilities
-///
+///  [HSL and HSV](http://en.wikipedia.org/wiki/HSL_color_space) at wikipedia
 /// TODO to include more functions (adapted/copied from [TinyColor](http://bgrins.github.io/TinyColor/))
 /// TODO more test
 /// TODO a demo, a color tool (picker + display other, like [agave color scheme](http://home.gna.org/colorscheme/))
+/// TODO add a parser (String to irgba)
 library colors;
 
 import 'dart:math' as math;
-import 'package:vector_math/vector_math.dart';
 
 irgba_r255(int c) => ((c & 0xff000000) >> 24);
+irgba_r255_set(int c, int r) => ((c & 0x00ffffff) | (r << 24));
 irgba_r1(int c) => ((c & 0xff000000) >> 24) / 255.0;
 irgba_g255(int c) => ((c & 0x00ff0000) >> 16);
+irgba_g255_set(int c, int g) => ((c & 0xff00ffff) | (g << 16));
 irgba_g1(int c) => ((c & 0x00ff0000) >> 16) / 255.0;
 irgba_b255(int c) => ((c & 0x0000ff00) >> 8);
+irgba_b255_set(int c, int b) => ((c & 0xffff00ff) | (b << 8));
 irgba_b1(int c) => ((c & 0x0000ff00) >> 8) / 255.0;
 irgba_a255(int c) => ((c & 0x000000ff));
 irgba_a1(int c) => ((c & 0x000000ff)) / 255.0;
@@ -46,12 +49,20 @@ int rgb1_irgba(double r, double g, double b) {
   return 0x000000ff | ((r * 255).toInt() << 24) | ((g * 255).toInt() << 16) | ((b * 255).toInt() << 8);
 }
 
+// Converts an rgba (int) color value to [r, g, b] each value in [0.0, 1.0].
+List<double> irgba_rgb(int c) {
+  return [irgba_r1(c), irgba_g1(c), irgba_b1(c)];
+}
+
+int rgb_irgba(List<double> rgb)  => rgb1_irgba(rgb[0], rgb[1], rgb[2]);
+
+int random_irgba() => (new math.Random().nextInt(0x1000000) << 8) | 0xff;
 
 // Converts an rgba (int) color value to [h, s, l] each value in [0.0, 1.0].
 List<double> irgba_hsl(int c) {
   var r = irgba_r1(c);
   var g = irgba_g1(c);
-  var b = irgba_r1(c);
+  var b = irgba_b1(c);
 
   var max = math.max(math.max(r, g), b);
   var min = math.min(math.min(r, g), b);
@@ -62,7 +73,7 @@ List<double> irgba_hsl(int c) {
   } else {
     var d = max - min;
     s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    h = (max = r) ?
+    h = (max == r) ?
       (g - b) / d + (g < b ? 6 : 0)
       : (max == g) ?
           (b - r) / d + 2
@@ -105,17 +116,17 @@ int hsl_irgba(List<double> hsl) {
 irgba_hsv(int c) {
   var r = irgba_r1(c);
   var g = irgba_g1(c);
-  var b = irgba_r1(c);
+  var b = irgba_b1(c);
 
   var max = math.max(math.max(r, g), b);
   var min = math.min(math.min(r, g), b);
   var h, s, v = max;
 
   var d = max - min;
-  s = (max == 0) ? 0 : d / max;
+  s = (max == 0.0) ? 0.0 : d / max;
 
   if(max == min) {
-    h = 0; // achromatic
+    h = 0.0; // achromatic
   } else {
     h = (max == r) ?
       (g - b) / d + (g < b ? 6 : 0)
@@ -130,21 +141,48 @@ irgba_hsv(int c) {
 
 hsv_irgba(List<double> hsv) {
 
-  var h = hsv[0] * 6;
+  var h2 = hsv[0] * 6;
   var s = hsv[1];
   var v = hsv[2];
 
-  var i = h.floor(),
-      f = h - i,
-      p = v * (1 - s),
-      q = v * (1 - f * s),
-      t = v * (1 - (1 - f) * s),
-      mod = i % 6,
-      r = [v, q, p, p, t, v][mod],
-      g = [t, v, v, q, p, p][mod],
-      b = [p, p, t, v, v, q][mod];
-
-  return rgb1_irgba(r, g, b);
+  var c = v * s;
+  var x = c * ( 1 - (h2 % 2 - 1).abs());
+  var i = h2.floor() % 6;
+  var r = 0.0;
+  var g = 0.0;
+  var b = 0.0;
+  switch(i) {
+    case 0 :
+      r = c  ; g = x  ; b = 0.0;
+      break;
+    case 1 :
+      r = x  ; g = c  ; b = 0.0;
+      break;
+    case 2 :
+      r = 0.0; g = c  ; b = x;
+      break;
+    case 3 :
+      r = 0.0; g = x  ; b = c  ;
+      break;
+    case 4 :
+      r = x  ; g = 0.0; b = c  ;
+      break;
+    case 5 :
+      r = c  ; g = 0.0; b = x  ;
+      break;
+  }
+  var m = v - c;
+  return rgb1_irgba(r + m, g + m, b + m);
+//  var i = h.floor(),
+//      f = h - i,
+//      p = v * (1 - s),
+//      q = v * (1 - f * s),
+//      t = v * (1 - (1 - f) * s),
+//      mod = i % 6,
+//      r = [v, q, p, p, t, v][mod],
+//      g = [t, v, v, q, p, p][mod],
+//      b = [p, p, t, v, v, q][mod];
+//  return rgb1_irgba(r, g, b);
 }
 
 /// [hsl] is modified and return
@@ -217,7 +255,7 @@ hsl_splitcomplement(List<double> hsl) {
 }
 
 List<List<double>> hsl_analogous(List<double> hsl, [int results = 6, int slices = 30]) {
-  var part = 360 / slices;
+  var part = 360 ~/ slices;
   var ret = new List<List<double>>(results);
   ret[0] = hsl;
   var h = ((hsl[0] * 360 - (part * results >> 1)) + 720) % 360,
@@ -277,17 +315,37 @@ irgba_rgbaString(int c) {
 /// Converts an RGB color to hex
 /// Returns a 6 character hex (no prefix)
 ///
-///    test('irgba_hexString',(){
-///      expect(irgba_hexString(0xff000000), 'ff0000');
-///      expect(irgba_hexString(0x00ff0000), '00ff00');
-///      expect(irgba_hexString(0x0000ff00), '0000ff');
-///      expect(irgba_hexString(0xffffff00), 'ffffff');
-///      expect(irgba_hexString(0x00000000), '000000');
-///      expect(irgba_hexString(0x000000ff), '000000');
+///    test('irgba_hex3String',(){
+///      expect(irgba_hex3String(0xff000000), 'ff0000');
+///      expect(irgba_hex3String(0x00ff0000), '00ff00');
+///      expect(irgba_hex3String(0x0000ff00), '0000ff');
+///      expect(irgba_hex3String(0xffffff00), 'ffffff');
+///      expect(irgba_hex3String(0x00000000), '000000');
+///      expect(irgba_hex3String(0x000000ff), '000000');
 ///    });
-irgba_hexString(int c) {
+irgba_hex3String(int c) {
   var x = (c >> 8) | 0x1000000; // start with 1 for padding with 0
   return x.toRadixString(16).substring(1);
+}
+
+irgba_hexHtml(int c) {
+  var x = (c >> 8) | 0x1000000; // start with 1 for padding with 0
+  return '#' + x.toRadixString(16).substring(1);
+}
+
+hexHtml_irgba(String s) {
+  if (s == null || s.length < 2) s = "#0";
+  return int.parse(s.substring(1), radix : 16) << 8 | 0x000000ff;
+}
+
+irgba_hexString(int c) {
+  var x = c | 0x100000000; // start with 1 for padding with 0
+  return "0x" + x.toRadixString(16).substring(1);
+}
+
+hexString_irgba(String s) {
+  if (s == null || s.length < 3) s = "0x0";
+  return int.parse(s.substring(2), radix : 16);
 }
 
 // [Big List of Colors](http://www.w3.org/TR/css3-color/#svg-color)

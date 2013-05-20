@@ -2,7 +2,6 @@ library colors_test;
 
 import 'package:unittest/unittest.dart';
 import 'package:dartemis_addons/colors.dart';
-import 'package:vector_math/vector_math.dart';
 
 main() {
   group("colors", () {
@@ -50,33 +49,54 @@ main() {
       expect(irgba_a1(0x000000ff), 1.0);
       expect(irgba_a1(0xffffff00), 0.0);
     });
+    test('irgba_rgb always in range',(){
+      for(var i = 0x000000; i < 0x1000000; ++i) {
+        var c = (i << 8 | 0xff);
+        var rgb = irgba_rgb(c);
+        expect(rgb[0], inInclusiveRange(0.0, 1.0));//, '0.0 <= r <= 1.0');
+        expect(rgb[1], inInclusiveRange(0.0, 1.0));//, '0.0 <= g <= 1.0');
+        expect(rgb[2], inInclusiveRange(0.0, 1.0));//, '0.0 <= b <= 1.0');
+      }
+    });
+    test('irgba_rgb symetric with rgb_irgba',(){
+      for(var i = 0x000000; i < 0x1000000; ++i) {
+        var c = (i << 8 | 0xff);
+        var rgb = irgba_rgb(c);
+        expect(rgb_irgba(rgb), c);
+      }
+    });
+    test('irgba_hsl always in range',(){
+      for(var i = 0x000000; i < 0x1000000; ++i) {
+        var c = (i << 8 | 0xff);
+        var hsl = irgba_hsl(c);
+        expect(hsl[0], inInclusiveRange(0.0, 1.0));//, '0.0 <= h <= 1.0');
+        expect(hsl[1], inInclusiveRange(0.0, 1.0));//, '0.0 <= s <= 1.0');
+        expect(hsl[2], inInclusiveRange(0.0, 1.0));//, '0.0 <= l <= 1.0');
+      }
+    });
+//    test('irgba_hsl symetric with hsl_irgba',(){
+//      for(var i = 0x000000; i < 0x1000000; ++i) {
+//        var c = (i << 8 | 0xff);
+//        var hsl = irgba_hsl(c);
+//        expect(hsl_irgba(hsl), c);
+//      }
+//    });
+    test('irgba_hsv always in range',(){
+      for(var i = 0x000000; i < 0x1000000; ++i) {
+        var c = (i << 8 | 0xff);
+        var hsv = irgba_hsv(c);
+        expect(hsv[0], inInclusiveRange(0.0, 1.0));//, '0.0 <= h <= 1.0');
+        expect(hsv[1], inInclusiveRange(0.0, 1.0));//, '0.0 <= s <= 1.0');
+        expect(hsv[2], inInclusiveRange(0.0, 1.0));//, '0.0 <= v <= 1.0');
+      }
+    });
+//    test('irgba_hsv symetric with hsv_irgba',(){
+//      for(var i = 0x000000; i < 0x1000000; ++i) {
+//        var c = (i << 8 | 0xff);
+//        var hsv = irgba_hsv(c);
+//        expect(hsv_irgba(hsv), c);
+//      }
+//    });
   });
 }
 
-//equalsVec3(x, y, z) => new AllMatcher([
-//  predicate((v0) => v0.x == x, "same x "),
-//  predicate((v0) => v0.y == y, "same y "),
-//  predicate((v0) => v0.z == z, "same z "),
-//]);
-//
-//equalsVec4(x, y, z, w) => new AllMatcher([
-//  predicate((v0) => v0.x == x, "same x "),
-//  predicate((v0) => v0.y == y, "same y "),
-//  predicate((v0) => v0.z == z, "same z "),
-//  predicate((v0) => v0.w == w, "same w "),
-//]);
-//
-//class AllMatcher extends Matcher{
-// List<Matcher> ms;
-// AllMatcher(this.ms);
-//
-// Description describe(Description description) =>
-//   ms.fold(description, (acc, m)=> m.describe(acc));
-//
-// Description describeMismatch(item, Description mismatchDescription, MatchState matchState, bool verbose) =>
-//   ms.fold(mismatchDescription, (acc, m)=> m.describeMismatch(item, acc, matchState, verbose));
-//
-// bool matches(item, MatchState matchState) =>
-//   ms.fold(true, (acc, m) => m.matches(item, matchState) && acc);
-//
-//}
