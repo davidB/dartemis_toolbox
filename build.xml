@@ -14,7 +14,7 @@
   <property name="dart" value="${dart.sdk.dir}/bin/dart" />
   <property name="dart2js" value="${dart.sdk.dir}/bin/dart2js" />
   <property name="dartdoc" value="${dart.sdk.dir}/bin/dartdoc" />
-  <property name="dart_analyzer" value="${dart.sdk.dir}/bin/dart_analyzer" />
+  <property name="dartanalyzer" value="${dart.sdk.dir}/bin/dartanalyzer" />
   <property name="pub" value="${dart.sdk.dir}/bin/pub" />
   <property name="target" location="${basedir}/target"/>
 
@@ -22,8 +22,8 @@
     <attribute name="file"/>
     <sequential>
       <echo>${line.separator}---- check @{file} ----</echo>
-      <exec executable="${dart_analyzer}" failonerror="true">
-        <arg line="--work target/dart-work --package-root=packages/ --enable_type_checks --dart-sdk '${dart.sdk.dir}' lib/@{file}.dart"/>
+      <exec executable="${dartanalyzer}" failonerror="true">
+        <arg line="--package-root ${basedir}/packages/ --machine ${basedir}/lib/@{file}.dart"/>
       </exec>
       <exec executable="${dart}" failonerror="true">
         <arg line="--enable-checked-mode test/@{file}_test.dart"/>
