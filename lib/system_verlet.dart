@@ -46,7 +46,7 @@ class Constraints extends Component {
 class System_Simulator extends EntitySystem {
   ComponentMapper<Particles> _particlesMapper;
   ComponentMapper<Constraints> _constraintsMapper;
-  //var gravity = new vec3(0, 0.2, 0.0);
+  //var gravity = new Vector3(0, 0.2, 0.0);
   double friction = 0.99;
   //var groundFriction = 0.8;
   var step = 10;
@@ -118,8 +118,8 @@ class System_Simulator extends EntitySystem {
 }
 
 class Constraint_Distance implements Constraint {
-  vec3 a;
-  vec3 b;
+  Vector3 a;
+  Vector3 b;
   double distance2;
   double stiffness;
 
@@ -140,10 +140,10 @@ class Constraint_Distance implements Constraint {
 
 class Constraint_Pin implements Constraint{
   /// position of the pin
-  final vec3 pin;
-  final vec3 a;
+  final Vector3 pin;
+  final Vector3 a;
 
-  Constraint_Pin(vec3 v) : pin = v.clone(), a = v;
+  Constraint_Pin(Vector3 v) : pin = v.clone(), a = v;
 
   relax(stepCoef) {
     a.setFrom(pin);
@@ -151,9 +151,9 @@ class Constraint_Pin implements Constraint{
 }
 ///TODO support 3D
 class Constraint_AngleXY implements Constraint {
-  vec3 a;
-  vec3 b;
-  vec3 c;
+  Vector3 a;
+  Vector3 b;
+  Vector3 c;
   double stiffness;
   double _angle;
   Constraint_AngleXY(this.a, this.b, this.c, this.stiffness) {
@@ -177,22 +177,22 @@ class Constraint_AngleXY implements Constraint {
     b = _frotate(b, c, -diff);
   }
 
-  _fangle(vec3 v0, vec3 v1) =>
+  _fangle(Vector3 v0, Vector3 v1) =>
     math.atan2(v0.x * v1.y - v0.y * v1.x, v0.x * v1.x + v0.y * v1.y);
 
-  _fangle2(vec3 v0, vLeft, vRight) =>
+  _fangle2(Vector3 v0, vLeft, vRight) =>
     _fangle(vLeft - v0, vRight - v0);
 
-  _frotate(vec3 v0, vec3 origin, theta) {
+  _frotate(Vector3 v0, Vector3 origin, theta) {
     var x = v0.x - origin.x;
     var y = v0.y - origin.y;
-    return new vec3( x * math.cos(theta) - y * math.sin(theta) + origin.x, x* math.sin(theta) + y* math.cos(theta) + origin.y, v0.z);
+    return new Vector3( x * math.cos(theta) - y * math.sin(theta) + origin.x, x* math.sin(theta) + y* math.cos(theta) + origin.y, v0.z);
   }
 
 }
 
 
-Iterable<Component> makeTireXY(vec3 origin, double radius, int segments, double spokeStiffness, double treadStiffness) {
+Iterable<Component> makeTireXY(Vector3 origin, double radius, int segments, double spokeStiffness, double treadStiffness) {
   var stride = (2 * math.PI) / segments;
 
   // particles
@@ -216,17 +216,17 @@ Iterable<Component> makeTireXY(vec3 origin, double radius, int segments, double 
 }
 
 pinParticle(Entity e, int index) {
-  pinVec3(
+  pinVector3(
     (e.getComponent(Particles.CT) as Particles).l[index].position3d,
     e.getComponent(Constraints.CT)
   );
 }
 
-pinVec3(vec3 v, Constraints cs) {
+pinVector3(Vector3 v, Constraints cs) {
   cs.l.add(new Constraint_Pin(v));
 }
 
-Iterable<Component> makeLineSegments(List<vec3> vertices, double stiffness, bool closed) {
+Iterable<Component> makeLineSegments(List<Vector3> vertices, double stiffness, bool closed) {
   var ps = new Particles();
   ps.l.addAll(vertices.map((x) => new Particle(x)));
   var cs = new Constraints();
@@ -239,25 +239,25 @@ Iterable<Component> makeLineSegments(List<vec3> vertices, double stiffness, bool
   return [ps, cs];
 }
 
-Iterable<Component>  makeParallelogram(vec3 origin, vec3 width, vec3 height, double stiffness) {
+Iterable<Component>  makeParallelogram(Vector3 origin, Vector3 width, Vector3 height, double stiffness) {
   return makeLineSegments([origin, origin + width, origin + width + height, origin + height], stiffness, true);
 }
 
-Iterable<Component> makeCloth(vec3 origin, vec3 width, vec3 height, int segments, int pinMod, double stiffness) {
+Iterable<Component> makeCloth(Vector3 origin, Vector3 width, Vector3 height, int segments, int pinMod, double stiffness) {
   var xStride = width / segments.toDouble();
   var yStride = height / segments.toDouble();
 
   var ps = new Particles();
   var cs = new Constraints();
   for (var y=0; y < segments; ++y) {
-    var x0 = new Particle(origin + yStride * y.toDouble());
+    var x0 = new Particle(yStride.scaled(y.toDouble()).add(origin));
     ps.l.add(x0);
     if (y > 0)
       cs.l.add(new Constraint_Distance(x0.position3d, ps.l[(y-1)*segments].position3d, stiffness));
     for (var x = 1; x < segments; ++x) {
 //      var px = origin.x + x*xStride - width/2 + xStride/2;
 //      var py = origin.y + y*yStride - height/2 + yStride/2;
-      var xi = new Particle(x0.position3d + xStride * x.toDouble());
+      var xi = new Particle(xStride.scaled(x.toDouble()).add(x0.position3d));
       ps.l.add(xi);
       cs.l.add(new Constraint_Distance(xi.position3d, ps.l[y*segments+x-1].position3d, stiffness));
       if (y > 0)
@@ -267,7 +267,7 @@ Iterable<Component> makeCloth(vec3 origin, vec3 width, vec3 height, int segments
 
   for (var x=0; x< segments; ++x) {
     if ( x % pinMod == 0)
-      pinVec3(ps.l[x].position3d, cs);
+      pinVector3(ps.l[x].position3d, cs);
   }
 
   return [ps, cs];

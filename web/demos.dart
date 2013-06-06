@@ -119,7 +119,7 @@ addNewEntity(world, List<Component> cs, {String player, List<String> groups}) {
 Future initDemo0(world) {
   addNewEntity(world, [
     new Transform.w2d(50.0, 50.0, 0.0),
-    new proto.Drawable(proto.rect(10.0,10.0, 'blue', 'red'))
+    new proto.Drawable(proto.rect(10.0,10.0, fillStyle: 'blue', strokeStyle: 'red'))
   ]);
   return new Future.value(world);
 }
@@ -181,8 +181,8 @@ final initDemo = {
         ..genParticles = true
         ..counter = steady(100)
         ..initializers.add(particlesStartPosition(
-            //constant(new vec3.zero())
-            line(new vec3(0.0, 0.0, 0.0), new vec3(800.0, 100.0, 0.0), ease.periodicRatio(ease.random, 3000))
+            //constant(new Vector3.zero())
+            line(new Vector3(0.0, 0.0, 0.0), new Vector3(800.0, 100.0, 0.0), ease.periodicRatio(ease.random, 3000))
           , true
         ))
         ..initializers.add(addComponents([
@@ -222,10 +222,10 @@ final initDemo = {
         ..genParticles = true
         ..counter = steady(100)
         ..initializers.add(particlesStartPosition(
-          constant(new vec3.zero())
+          constant(new Vector3.zero())
           , true
         ))
-      ..initializers.add(particlesStartPositionPrevious(line(new vec3.zero(), new vec3(5.0, 0.0, 0.0), ease.periodicRatio(ease.random, 3000)), true))
+      ..initializers.add(particlesStartPositionPrevious(line(new Vector3.zero(), new Vector3(5.0, 0.0, 0.0), ease.periodicRatio(ease.random, 3000)), true))
       ..initializers.add(particlesAddComponents([
         (lg){
           var b = new ParticleInfo0s(lg);
@@ -281,11 +281,11 @@ final initDemo = {
     var segment = addNewEntity(world,
       makeLineSegments(
         [
-          new vec3(20.0, 10.0, 0.0),
-          new vec3(40.0, 10.0, 0.0),
-          new vec3(60.0, 10.0, 0.0),
-          new vec3(80.0, 10.0, 0.0),
-          new vec3(100.0,10.0, 0.0)
+          new Vector3(20.0, 10.0, 0.0),
+          new Vector3(40.0, 10.0, 0.0),
+          new Vector3(60.0, 10.0, 0.0),
+          new Vector3(80.0, 10.0, 0.0),
+          new Vector3(100.0,10.0, 0.0)
         ],
         0.02,
         false
@@ -294,14 +294,14 @@ final initDemo = {
     pinParticle(segment, 0);
     pinParticle(segment, 4);
 
-    addNewEntity(world, makeTireXY(new vec3(200.0, 50.0, 0.0), 50.0, 30, 0.3, 0.9).toList()..add(new proto.Drawable(defaultDraw)));
-    addNewEntity(world, makeTireXY(new vec3(400.0, 50.0, 0.0), 70.0, 7, 0.1, 0.2).toList()..add(new proto.Drawable(defaultDraw)));
-    addNewEntity(world, makeTireXY(new vec3(600.0, 50.0, 0.0), 70.0, 3, 1.0, 1.0).toList()..add(new proto.Drawable(defaultDraw)));
-    addNewEntity(world, makeCloth(new vec3(800.0, 50.0, 0.0), new vec3(300.0, 0.0, 0.0), new vec3(0.0, 200.0, 0.0), 15, 3, 0.5).toList()..add(new proto.Drawable(defaultDraw)));
+    addNewEntity(world, makeTireXY(new Vector3(200.0, 50.0, 0.0), 50.0, 30, 0.3, 0.9).toList()..add(new proto.Drawable(defaultDraw)));
+    addNewEntity(world, makeTireXY(new Vector3(400.0, 50.0, 0.0), 70.0, 7, 0.1, 0.2).toList()..add(new proto.Drawable(defaultDraw)));
+    addNewEntity(world, makeTireXY(new Vector3(600.0, 50.0, 0.0), 70.0, 3, 1.0, 1.0).toList()..add(new proto.Drawable(defaultDraw)));
+    addNewEntity(world, makeCloth(new Vector3(800.0, 50.0, 0.0), new Vector3(300.0, 0.0, 0.0), new Vector3(0.0, 200.0, 0.0), 15, 3, 0.5).toList()..add(new proto.Drawable(defaultDraw)));
 
-    addNewEntity(world, makeTireXY(new vec3(600.0, 300.0, 0.0), 70.0, 4, 1.0, 1.0).toList()..add(new proto.Drawable(defaultDraw)));
-    addNewEntity(world, makeParallelogram(new vec3(400.0, 300.0, 0.0), new vec3(70.0, 0.0, 0.0), new vec3(0.0, 70.0, 0.0), 1.0).toList()..add(new proto.Drawable(defaultDraw)));
-    addNewEntity(world, makeParallelogram(new vec3(200.0, 300.0, 0.0), new vec3(70.0, 10.0, 0.0), new vec3(10.0, 30.0, 0.0), 1.0).toList()..add(new proto.Drawable(defaultDraw)));
+    addNewEntity(world, makeTireXY(new Vector3(600.0, 300.0, 0.0), 70.0, 4, 1.0, 1.0).toList()..add(new proto.Drawable(defaultDraw)));
+    addNewEntity(world, makeParallelogram(new Vector3(400.0, 300.0, 0.0), new Vector3(70.0, 0.0, 0.0), new Vector3(0.0, 70.0, 0.0), 1.0).toList()..add(new proto.Drawable(defaultDraw)));
+    addNewEntity(world, makeParallelogram(new Vector3(200.0, 300.0, 0.0), new Vector3(70.0, 10.0, 0.0), new Vector3(10.0, 30.0, 0.0), 1.0).toList()..add(new proto.Drawable(defaultDraw)));
     return new Future.value(world);
   },
   'quadtree' : (world) {
@@ -312,11 +312,11 @@ final initDemo = {
       ..genParticles = true
       ..counter = singleWave(500)
       ..initializers.add(particlesStartPosition(
-        //constant(new vec3.zero())
-          box(new vec3(500.0, 500.0, 0.0), new vec3(400.0, 400.0, 0.0))
+        //constant(new Vector3.zero())
+          box(new Vector3(500.0, 500.0, 0.0), new Vector3(400.0, 400.0, 0.0))
         , true
       ))
-      ..initializers.add(particlesStartPositionPrevious(box(new vec3.zero(), new vec3(3.0, 3.0, 0.0)), false))
+      ..initializers.add(particlesStartPositionPrevious(box(new Vector3.zero(), new Vector3(3.0, 3.0, 0.0)), false))
       ..initializers.add(particlesAddComponents([
         (lg){
           var b = new ParticleInfo0s(lg);

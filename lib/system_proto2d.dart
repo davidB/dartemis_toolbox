@@ -44,7 +44,7 @@ import 'system_particles.dart';
 import 'system_verlet.dart';
 import 'colors.dart';
 
-typedef void DrawCanvas(CanvasRenderingContext2D g, Entity e, vec2 area);
+typedef void DrawCanvas(CanvasRenderingContext2D g, Entity e, Vector2 area);
 
 class Drawable extends Component {
   DrawCanvas draw = null;
@@ -61,7 +61,7 @@ class System_Renderer extends EntityProcessingSystem {
   var _h = 0;
   /// [_areaEntity] temp variable use fill by [Drawable.draw] to give the modified
   /// area, it is an area with center at (0.0, 0.0)
-  vec2 _areaEntity = new vec2(0.0, 0.0);
+  Vector2 _areaEntity = new Vector2(0.0, 0.0);
   /// _areaEntities sum of the _areaEntity in original state.
   /// TODO optim : use _areaEntity and _areaEntities to clear and to update offscreen canvas
   //vec4 _areaEntities = new vec4(0.0, 0.0);

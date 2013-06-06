@@ -33,6 +33,7 @@ import 'package:vector_math/vector_math.dart';
 import 'system_particles.dart';
 import 'system_transform.dart';
 import 'ease.dart' as ease;
+import 'utils_math.dart';
 
 
 /// https://github.com/richardlord/Flint/blob/master/src/org/flintparticles/common/initializers/Initializer.as
@@ -43,10 +44,10 @@ typedef  void Initializer(dt, Entity emitter, Iterable<Entity> product);
 /// [dt] is delta time since last call (the duration of the frame - used for time based updates).
 typedef int IntGen(dt);
 
-/// generate a [vec3]
+/// generate a [Vector3]
 /// (eg. used by [Emitter]'s [Initializer] to found the relative start position or initial velocity,...)).
 /// [dt] is delta time since last call (the duration of the frame - used for time based updates).
-typedef vec3 Vec3GenInto(vec3 v, dt);
+typedef Vector3 Vector3GenInto(Vector3 v, dt);
 
 class Emitter extends Component {
   static final CT = ComponentTypeManager.getTypeFor(Emitter);
@@ -108,7 +109,7 @@ processParticules(List<Entity> es, f(Particule)) {
     }
   });
 }
-Initializer particlesStartPosition(Vec3GenInto gen, bool fromEmitter) => (dt, Entity emitter, List<Entity> es) {
+Initializer particlesStartPosition(Vector3GenInto gen, bool fromEmitter) => (dt, Entity emitter, List<Entity> es) {
   var tf = emitter.getComponent(Transform.CT) as Transform;
   var pos = tf.position3d;
   processParticules(es, (p) {
@@ -120,8 +121,8 @@ Initializer particlesStartPosition(Vec3GenInto gen, bool fromEmitter) => (dt, En
 
 /// used to define a initial velocity if Verlet Simulator, also add Constraints Component
 /// should add after a Initializer that set position3d of particules
-Initializer particlesStartPositionPrevious(Vec3GenInto gen, bool fromEmitter) => (dt, Entity emitter, List<Entity> es) {
-  var m4 = new mat4.identity();
+Initializer particlesStartPositionPrevious(Vector3GenInto gen, bool fromEmitter) => (dt, Entity emitter, List<Entity> es) {
+  var m4 = new Matrix4.identity();
   if (fromEmitter) {
     var tf = emitter.getComponent(Transform.CT) as Transform;
     m4.rotateX(tf.rotation3d.x);
@@ -129,7 +130,7 @@ Initializer particlesStartPositionPrevious(Vec3GenInto gen, bool fromEmitter) =>
     m4.rotateZ(tf.rotation3d.z);
   }
   processParticules(es, (p) {
-     var v = gen(new vec3.zero(), dt);
+     var v = gen(new Vector3.zero(), dt);
      v = m4.rotate3(v);
      v.add(p.position3d);
      p.position3dPrevious = v;
@@ -184,13 +185,13 @@ IntGen easingOverTime(ease.Ease easing, num change, num baseValue){
   };
 }
 
-//--- Vec3Gen ------------------------------------------------------------------
+//--- Vector3Gen ------------------------------------------------------------------
 final _random = new math.Random();
 
 /// always return a clone of x.
-Vec3GenInto constant(vec3 x) => (v, dt) => v.setFrom(x);
+Vector3GenInto constant(Vector3 x) => (v, dt) => v.setFrom(x);
 
-Vec3GenInto box(vec3 center, vec3 offsets) => (v, dt){
+Vector3GenInto box(Vector3 center, Vector3 offsets) => (v, dt){
   v.setFrom(center);
   v.x += (_random.nextDouble() - 0.5) * 2 * offsets.x;
   v.y += (_random.nextDouble() - 0.5) * 2 * offsets.y;
@@ -198,7 +199,7 @@ Vec3GenInto box(vec3 center, vec3 offsets) => (v, dt){
   return v;
 };
 
-Vec3GenInto line(vec3 start, vec3 end, ease.Ease easing){
+Vector3GenInto line(Vector3 start, Vector3 end, ease.Ease easing){
   var length = end - start;
   var acc = 0.0;
   return (v, dt){
@@ -208,20 +209,16 @@ Vec3GenInto line(vec3 start, vec3 end, ease.Ease easing){
   };
 }
 
-final VZERO = new vec3.zero();
-final VY_AXIS = new vec3(0.0, 1.0, 0.0);
-final VX_AXIS = new vec3(1.0, 1.0, 0.0);
-
-vec3 perpendicular(vec3 v) {
+Vector3 perpendicular(Vector3 v) {
   if( v.x == 0 ) {
-    return new vec3( 1.0, 0.0, 0.0 );
+    return new Vector3( 1.0, 0.0, 0.0 );
   } else {
-    return new vec3( v.y, -v.x, 0 ).normalize();
+    return new Vector3( v.y, -v.x, 0.0 ).normalize();
   }
 }
 
-Vec3GenInto cone({vec3 apex, vec3 axis, double angle : 0.0, double height : 10.0, double truncatedHeight : 0.0} ){
-  apex = (apex == null) ? new vec3() : apex;
+Vector3GenInto cone({Vector3 apex, Vector3 axis, double angle : 0.0, double height : 10.0, double truncatedHeight : 0.0} ){
+  apex = (apex == null) ? new Vector3.zero() : apex;
   axis = (axis  == null)?  VY_AXIS : axis;
   var _perp1 = perpendicular(axis);
   var _perp2 = axis.cross( _perp1 ).normalize();

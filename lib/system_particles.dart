@@ -31,10 +31,10 @@ import 'package:dartemis/dartemis.dart';
 import 'package:vector_math/vector_math.dart';
 
 class Particle {
-  final vec3 position3d;
+  final Vector3 position3d;
 
-  vec3 position3dPrevious = null;
-  Particle([pos]): position3d = (pos==null)? new vec3.zero() : pos;
+  Vector3 position3dPrevious = null;
+  Particle([pos]): position3d = (pos==null)? new Vector3.zero() : pos;
 }
 
 class ParticleInfo0 {
