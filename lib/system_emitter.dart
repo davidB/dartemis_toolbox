@@ -121,16 +121,16 @@ Initializer particlesStartPosition(Vec3GenInto gen, bool fromEmitter) => (dt, En
 /// used to define a initial velocity if Verlet Simulator, also add Constraints Component
 /// should add after a Initializer that set position3d of particules
 Initializer particlesStartPositionPrevious(Vec3GenInto gen, bool fromEmitter) => (dt, Entity emitter, List<Entity> es) {
-  var mat4 = new mat4.identity();
+  var m4 = new mat4.identity();
   if (fromEmitter) {
     var tf = emitter.getComponent(Transform.CT) as Transform;
-    mat4.rotateX(tf.rotation3d.x);
-    mat4.rotateY(tf.rotation3d.y);
-    mat4.rotateZ(tf.rotation3d.z);
+    m4.rotateX(tf.rotation3d.x);
+    m4.rotateY(tf.rotation3d.y);
+    m4.rotateZ(tf.rotation3d.z);
   }
   processParticules(es, (p) {
      var v = gen(new vec3.zero(), dt);
-     v = mat4.rotate3(v);
+     v = m4.rotate3(v);
      v.add(p.position3d);
      p.position3dPrevious = v;
   });
