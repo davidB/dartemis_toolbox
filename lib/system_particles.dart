@@ -27,82 +27,76 @@
 ///TODO benchmark, profiling, optimisation
 library system_particles;
 
+import 'dart:math' as math;
 import 'package:dartemis/dartemis.dart';
 import 'package:vector_math/vector_math.dart';
+import 'utils.dart';
+import 'utils_math.dart';
 
-class Particle {
-  final Vector3 position3d;
+//class ParticleInfo0 {
+//  /// The age of the particle, in seconds.
+//  double age = 0.0;
+//
+//  /// The energy of the particle.
+//  double energy= 1.0;
+//
+//  /// Whether the particle is dead and should be removed from the stage.
+//  var isDead = false;
+//}
 
-  Vector3 position3dPrevious = null;
-  Particle([pos]): position3d = (pos==null)? new Vector3.zero() : pos;
-}
 
-class ParticleInfo0 {
-  /// The lifetime of the particle, in seconds.
-  double lifetime = double.INFINITY;
-
-  int color = 0x000000ff;
-
-  /// The scale of the particle ( 1 is normal size ).
-  double scale = 1.0;
-
-  /// The mass of the particle ( 1 is the default ).
-  double mass = 1.0;
-
-  /// The radius of the particle, for collision approximation
-  double radius = 1.0;
-
-  /// The age of the particle, in seconds.
-  double age = 0.0;
-
-  /// The energy of the particle.
-  double energy= 1.0;
-
-  /// Whether the particle is dead and should be removed from the stage.
-  var isDead = false;
-}
+typedef Particles ParticlesConstructor(int nb);
 
 class Particles extends Component {
   static final CT = ComponentTypeManager.getTypeFor(Particles);
-  final List<Particle> l;
+  final int length;
+  final List<Vector3> position3d;
+  final List<Vector3> position3dPrevious;
+  final ItemOption<int> color;
+  /// The lifetime of the particle, in seconds.
+  //final ItemOption<double> lifetime; = double.INFINITY;
+  /// The mass of the particle ( 1.0 is the default ).
+  final ItemOption<double> mass;
+  /// The radius of the particle, for collision approximation
+  final ItemOption<double> radius;
+  /// if the particule collide
+  final ItemOption<int> collide;
+  bool intraCollide;
+  /// the accumulated force on particule
+  final ItemOption<Vector3> accForces;
 
-  Particles([nb = 0]) :
-    l = (nb == 0)
-      ? new List<Particle>()
-      : new List.generate(nb, (i) => new Particle())
-      ;
+  Particles(length, {
+    withPrevious: true,
+    withColors: false, color0: 0x000000ff,
+    withMass:   false, mass0: 1.0,
+    withRadius: false, radius0: 1.0,
+    withCollides: false, collide0: 0,
+    withAccForces: false, accForces0: null,
+    this.intraCollide: false
+  }) :
+    this.length = length,
+    position3d = new List.generate(length, (i) => new Vector3.zero()),
+    position3dPrevious = withPrevious ? new List.generate(length, (i) => new Vector3.zero()) : null,
+    color = withColors ? new ItemSome(new List.generate(length, (i) => color0)) : new ItemDefault(color0),
+    mass = withMass ? new ItemSome(new List.generate(length, (i) => mass0)) : new ItemDefault(mass0),
+    radius = withRadius ? new ItemSome(new List.generate(length, (i) => radius0)) : new ItemDefault(radius0),
+    collide = withCollides ? new ItemSome(new List.generate(length, (i) => collide0)) : new ItemDefault(collide0),
+    accForces = withAccForces ? new ItemSome(new List.generate(length, (i) => accForces0 == null ? new Vector3.zero() : new Vector3.copy(accForces0))) : new ItemDefault(accForces0 == null ? new Vector3.zero() : accForces0)
+  ;
 
+  copyPosition3dIntoPrevious() {
+    for (int i = length -1; i > -1; --i) {
+      position3dPrevious[i].setFrom(position3d[i]);
+    }
+  }
 }
 
-class ParticleInfo0s extends Component {
-  static final CT = ComponentTypeManager.getTypeFor(ParticleInfo0s);
-  final List<ParticleInfo0> l;
+class Segment {
+  final Particles ps;
+  final int i1;
+  final int i2;
+  int collide = 0;
 
-  ParticleInfo0s([nb = 0]) :
-    l = (nb == 0)
-      ? new List<ParticleInfo0>()
-      : new List.generate(nb, (i) => new ParticleInfo0())
-      ;
-
+  Segment(this.ps, this.i1, this.i2, [this.collide = 0]);
 }
-
-//--- UpdateP ------------------------------------------------------------------
-
-///// Update the [Particle.energy] based on its age and the easing function.
-//UpdateP energyFromAge(ease.Ease easing) => (dt, Particle particle){
-//  particle.age += dt;
-//  if( particle.age >= particle.lifetime ) {
-//    particle.energy = 0.0;
-//    particle.isDead = true;
-//  } else {
-//    particle.energy = easing( particle.age / particle.lifetime, -1.0, 1.0);
-//  }
-//};
-//
-///// Update the transparency of the [Particle.color] based on the values defined
-///// [startAlpha] and [endAlpha] and the [Particle.energy] level.
-//UpdateP alphaFromEnergy({startAlpha : 1.0, endAlpha: 0.0}) => (dt, Particle particle){
-//  num alpha = endAlpha + (startAlpha - endAlpha) * particle.energy;
-//  particle.color = ( particle.color & 0xFFFFFF ) | ( ( alpha * 255 ).round() << 24 );
-//};
 

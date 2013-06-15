@@ -1,3 +1,5 @@
+library demos;
+
 import 'dart:html';
 import 'dart:math' as math;
 import 'package:web_ui/web_ui.dart';
@@ -5,13 +7,17 @@ import 'package:dartemis_toolbox/ease.dart' as ease;
 import 'package:dartemis_toolbox/system_transform.dart';
 import 'package:dartemis_toolbox/system_animator.dart';
 import 'package:dartemis_toolbox/system_proto2d.dart' as proto;
+import 'package:dartemis_toolbox/collisions.dart' as collisions;
 import 'package:dartemis_toolbox/system_verlet.dart';
 import 'package:dartemis_toolbox/system_emitter.dart';
 import 'package:dartemis_toolbox/system_particles.dart';
 import 'package:dartemis_toolbox/colors.dart';
+import 'package:dartemis_toolbox/utils_dartemis.dart';
 import 'package:dartemis/dartemis.dart';
 import 'dart:async';
 import 'package:vector_math/vector_math.dart';
+
+part 'demos/proto2d.dart';
 
 void main() {
   // Enable this to use Shadow DOM in the browser.
@@ -34,7 +40,6 @@ var activeDemo = null;
 var activeCtrl = new Future.value(new Ctrl());
 void _route(String hash) {
   var k = (hash != null && hash.length < 2)? null : hash.substring(2);
-  print("k :: ${k}");
   if (k == null) {
     window.location.hash = '/${initDemo.keys.first}';
     return;
@@ -57,7 +62,7 @@ Future init(initEntities) => handleError((){
   //world.addSystem(new System_Physics(false), passive : false);
   world.addSystem(new System_Animator());
   world.addSystem(new System_Emitters());
-  world.addSystem(new System_Simulator(step:16));
+  world.addSystem(new System_Simulator(steps:1));
   // Dart is single Threaded, and System doesn't run in // => component aren't
   // modified concurrently => Render3D.process like other System
   //world.addSystem(new System_Render3D(container), passive : false);
@@ -102,45 +107,13 @@ handleError(f) {
   }
 }
 
-addNewEntity(world, List<Component> cs, {String player, List<String> groups}) {
-  var e = world.createEntity();
-  cs.forEach((c) => e.addComponent(c));
-  if (groups != null) {
-    var gm = (world.getManager(GroupManager) as GroupManager);
-    groups.forEach((group) => gm.add(e, group));
-  }
-  if (player != null) {
-    (world.getManager(PlayerManager) as PlayerManager).setPlayer(e, player);
-  }
-  world.addEntity(e);
-  return e;
-}
-
-Future initDemo0(world) {
-  addNewEntity(world, [
-    new Transform.w2d(50.0, 50.0, 0.0),
-    new proto.Drawable(proto.rect(10.0,10.0, fillStyle: 'blue', strokeStyle: 'red'))
-  ]);
-  return new Future.value(world);
-}
-
 var foregroundcolor = 0xe3e3f8ff;
 var foregroundcolors = hsl_tetrad(irgba_hsl(foregroundcolor)).map((hsl) => irgba_rgbaString(hsl_irgba(hsl))).toList();
 var foregroundcolorsM = hsv_monochromatic(irgba_hsv(foregroundcolor), 4).map((hsv) => irgba_rgbaString(hsv_irgba(hsv))).toList(); //monochromatique
 
 @observable
 final initDemo = {
-  'proto2d' : (world) {
-    addNewEntity(world, [
-      new Transform.w2d(50.0, 50.0, 0.0),
-      new proto.Drawable(proto.rect(10.0,10.0, fillStyle : foregroundcolorsM[3], strokeStyle : foregroundcolorsM[0]))
-    ]);
-    addNewEntity(world, [
-      new Transform.w2d(0.0, 20.0, 0.0),
-      new proto.Drawable(proto.text("Hello World, choose an other demo in the list", strokeStyle : foregroundcolorsM[0], font: '16px sans-serif'))
-    ]);
-    return new Future.value(world);
-  },
+  'proto2d' : demo_proto2d,
   'proto2d + animatable' : (world) {
     addNewEntity(world, [
       new Transform.w2d(50.0, 50.0, 0.0),
@@ -175,10 +148,16 @@ final initDemo = {
 //          }
 //        )
 //    ]);
+    world.getSystem(System_Simulator)
+    ..damping = 0.1
+    ..globalForces.y = 0.0
+    ..steps = 1
+    ..collSpace = new collisions.Space_XY0(new collisions.Checker_T1(), new collisions.Resolver_Noop())
+    ;
     addNewEntity(world, [
       new Transform.w2d(50.0, 50.0, 0.0),
       new Emitter()
-        ..genParticles = true
+        ..genParticles = ((nb) => new Particles(nb))
         ..counter = steady(100)
         ..initializers.add(particlesStartPosition(
             //constant(new Vector3.zero())
@@ -197,15 +176,15 @@ final initDemo = {
                   var ratio = (t - t0) / 10000;
                   if (t == t0) { // store in parent closure
                     // ps.l.map generate a MappedListIterable, with fixed size List I 'force' an optimzed List for call [i]
-                    ys0 = new List(ps.l.length);
-                    for( var i = ps.l.length - 1; i > -1; --i) {
-                      ys0[i] = ps.l[i].position3d.y;
+                    ys0 = new List(ps.position3d.length);
+                    for( var i = ps.position3d.length - 1; i > -1; --i) {
+                      ys0[i] = ps.position3d[i].y;
                     }
                   }
-                  for( var i = ps.l.length - 1; i > -1; --i) {
+                  for( var i = ps.position3d.length - 1; i > -1; --i) {
                     //Improvement cache ease.loop result
                     // use t as ratio because periodicRatio will convert it 0..1
-                    ps.l[i].position3d.y = ease.inBounce(ratio, 200, ys0[i]);
+                    ps.position3d[i].y = ease.inBounce(ratio, 200, ys0[i]);
                   }
                   return (ratio < 1.0);
                 };
@@ -219,25 +198,15 @@ final initDemo = {
     addNewEntity(world, [
       new Transform.w2d(600.0, 50.0, 0.0),
       new Emitter()
-        ..genParticles = true
+        ..genParticles = ((nb) => new Particles(nb, withColors: true, color0: 0xff0000ff, radius0: 4.0, withCollides: true, collide0: 1, intraCollide: true))
         ..counter = steady(100)
         ..initializers.add(particlesStartPosition(
           constant(new Vector3.zero())
           , true
         ))
       ..initializers.add(particlesStartPositionPrevious(line(new Vector3.zero(), new Vector3(5.0, 0.0, 0.0), ease.periodicRatio(ease.random, 3000)), true))
-      ..initializers.add(particlesAddComponents([
-        (lg){
-          var b = new ParticleInfo0s(lg);
-          b.l.forEach((p){
-            p.color = 0xff0000ff;
-            p.radius = 4.0;
-          });
-          return b;
-        }
-      ]))
       ..initializers.add(addComponents([
-        () => new proto.Drawable(proto.particleInfo0s(3.0, fillStyle : foregroundcolors[0], strokeStyle : foregroundcolors[1])),
+        () => new proto.Drawable(proto.particles(1.0, fillStyle : foregroundcolors[0], strokeStyle : foregroundcolors[1])),
         // move by verlet simulator
         () => new Constraints(),
         // living for 5s
@@ -250,10 +219,10 @@ final initDemo = {
             ..onTick = (e, t, t0){
               var opacity = ease.onceRatio(ease.linear, 5000)(t - t0, -255.0, 255.0).toInt();
 
-              var ps = e.getComponent(ParticleInfo0s.CT);
-              ps.l.forEach((p0) {
-                p0.color = (p0.color & 0xffffff00) | opacity;
-              });
+              var ps = e.getComponent(Particles.CT);
+              for(int i= 0; i< ps.length; i++) {
+                ps.color[i] = (ps.color[i] & 0xffffff00) | opacity;
+              };
               return t - t0 < 5001;
             }
           )
@@ -271,12 +240,18 @@ final initDemo = {
     return new Future.value(world);
   },
   'verlet shapes' : (world) {
-    world.getSystem(System_Simulator).friction = 1.0;
+    world.getSystem(System_Simulator)
+      ..damping = 0.01
+      ..globalForces.y = 10.0
+      ..steps = 3
+      ..collSpace = new collisions.Space_XY0(new collisions.Checker_T1(), new collisions.Resolver_Backward())
+      ;
     var defaultDraw = proto.drawComponentType([
       new proto.DrawComponentType(Particles.CT, proto.particles(5.0, fillStyle : foregroundcolors[0], strokeStyle : foregroundcolors[1])),
-      new proto.DrawComponentType(Constraints.CT, proto.drawConstraints())
+      new proto.DrawComponentType(Constraints.CT, proto.drawConstraints(distanceStyleCollide : "#e20000"))
     ]);
 
+    ParticlesConstructor genP = (nb) => new Particles(nb, withCollides: true, collide0: 1, color0: 0x00A000FF);
     // entities
     var segment = addNewEntity(world,
       makeLineSegments(
@@ -288,60 +263,71 @@ final initDemo = {
           new Vector3(100.0,10.0, 0.0)
         ],
         0.02,
-        false
+        false,
+        genP
       ).toList()..add(new proto.Drawable(defaultDraw))
     );
     pinParticle(segment, 0);
     pinParticle(segment, 4);
 
-    addNewEntity(world, makeTireXY(new Vector3(200.0, 50.0, 0.0), 50.0, 30, 0.3, 0.9).toList()..add(new proto.Drawable(defaultDraw)));
-    addNewEntity(world, makeTireXY(new Vector3(400.0, 50.0, 0.0), 70.0, 7, 0.1, 0.2).toList()..add(new proto.Drawable(defaultDraw)));
-    addNewEntity(world, makeTireXY(new Vector3(600.0, 50.0, 0.0), 70.0, 3, 1.0, 1.0).toList()..add(new proto.Drawable(defaultDraw)));
-    addNewEntity(world, makeCloth(new Vector3(800.0, 50.0, 0.0), new Vector3(300.0, 0.0, 0.0), new Vector3(0.0, 200.0, 0.0), 15, 3, 0.5).toList()..add(new proto.Drawable(defaultDraw)));
+    var e1 = addNewEntity(world, makeTireXY(new Vector3(200.0, 50.0, 0.0), 50.0, 30, 0.3, 0.9, genP).toList()..add(new proto.Drawable(defaultDraw)));
+    setCollideOfSegment(e1, 1);
+    var e2 = addNewEntity(world, makeTireXY(new Vector3(400.0, 50.0, 0.0), 70.0, 7, 0.1, 0.2, genP).toList()..add(new proto.Drawable(defaultDraw)));
+    setCollideOfSegment(e2, 1);
+    var e3 = addNewEntity(world, makeTireXY(new Vector3(600.0, 50.0, 0.0), 70.0, 3, 1.0, 1.0, genP).toList()..add(new proto.Drawable(defaultDraw)));
+    setCollideOfSegment(e3, 1);
+    var e4 = addNewEntity(world, makeCloth(new Vector3(800.0, 50.0, 0.0), new Vector3(300.0, 0.0, 0.0), new Vector3(0.0, 200.0, 0.0), 15, 14, 0.5, genP).toList()..add(new proto.Drawable(defaultDraw)));
 
-    addNewEntity(world, makeTireXY(new Vector3(600.0, 300.0, 0.0), 70.0, 4, 1.0, 1.0).toList()..add(new proto.Drawable(defaultDraw)));
-    addNewEntity(world, makeParallelogram(new Vector3(400.0, 300.0, 0.0), new Vector3(70.0, 0.0, 0.0), new Vector3(0.0, 70.0, 0.0), 1.0).toList()..add(new proto.Drawable(defaultDraw)));
-    addNewEntity(world, makeParallelogram(new Vector3(200.0, 300.0, 0.0), new Vector3(70.0, 10.0, 0.0), new Vector3(10.0, 30.0, 0.0), 1.0).toList()..add(new proto.Drawable(defaultDraw)));
+    var e5 = addNewEntity(world, makeTireXY(new Vector3(600.0, 300.0, 0.0), 70.0, 4, 1.0, 1.0, genP).toList()..add(new proto.Drawable(defaultDraw)));
+    setCollideOfSegment(e5, 1);
+    var e6 = addNewEntity(world, makeParallelogram(new Vector3(400.0, 300.0, 0.0), new Vector3(70.0, 0.0, 0.0), new Vector3(0.0, 70.0, 0.0), 1.0, genP).toList()..add(new proto.Drawable(defaultDraw)));
+    setCollideOfSegment(e6, 1);
+    var e7 = addNewEntity(world, makeParallelogram(new Vector3(200.0, 300.0, 0.0), new Vector3(70.0, 10.0, 0.0), new Vector3(10.0, 30.0, 0.0), 1.0, genP).toList()..add(new proto.Drawable(defaultDraw)));
+    setCollideOfSegment(e7, 1);
+
+    var ground = addNewEntity(world, makeParallelogram(new Vector3(10.0, 380.0, 0.0), new Vector3(1100.0, 0.0, 0.0), new Vector3(0.0, 10.0, 0.0), 1.0, genP).toList()..add(new proto.Drawable(defaultDraw)));
+    pinParticle(ground, 0);
+    pinParticle(ground, 1);
+    pinParticle(ground, 2);
+    pinParticle(ground, 3);
+    setCollideOfSegment(ground, 1);
+
     return new Future.value(world);
   },
   'quadtree' : (world) {
-    world.getSystem(System_Simulator).friction = 1.0;
+    world.getSystem(System_Simulator)
+    ..damping = 0.0
+    ..globalForces.y = 0.0
+    ..steps = 3
+    ..collSpace = new collisions.Space_XY0(new collisions.Checker_T1(), new collisions.Resolver_Noop())
+    ;
     addNewEntity(world, [
       new Transform.w2d(50.0, 50.0, 0.0),
       new Emitter()
-      ..genParticles = true
+      ..genParticles = ((nb) => new Particles(nb, withRadius : true, radius0 : 3.0, withColors: true, color0: 0xff0000ff, withCollides: true, collide0: 1, intraCollide: true))
       ..counter = singleWave(500)
       ..initializers.add(particlesStartPosition(
-        //constant(new Vector3.zero())
+          //constant(new Vector3.zero())
           box(new Vector3(500.0, 500.0, 0.0), new Vector3(400.0, 400.0, 0.0))
         , true
       ))
       ..initializers.add(particlesStartPositionPrevious(box(new Vector3.zero(), new Vector3(3.0, 3.0, 0.0)), false))
-      ..initializers.add(particlesAddComponents([
-        (lg){
-          var b = new ParticleInfo0s(lg);
-          b.l.forEach((p){
-            p.radius = 3.0;
-          });
-          return b;
-        }
-      ]))
       ..initializers.add(addComponents([
-        () => new proto.Drawable(proto.particleInfo0s(3.0, fillStyle : foregroundcolors[0], strokeStyle : foregroundcolors[1])),
+        () => new proto.Drawable(proto.particles(1.0, fillStyle : foregroundcolors[0], strokeStyle : foregroundcolors[1])),
         () => new Constraints(),
         () => new Animatable()
           ..add(new Animation()
             ..onTick = (e, t, t0) {
                var ps = e.getComponent(Particles.CT);
                var cont = true;
-               for( var i = ps.l.length - 1; i > -1; --i) {
+               for( var i = ps.position3d.length - 1; i > -1; --i) {
                  cont = true;
-                 cont = cont && ps.l[i].position3d.y > 0;
-                 cont = cont && ps.l[i].position3d.y < 1000;
-                 cont = cont && ps.l[i].position3d.x > 0;
-                 cont = cont && ps.l[i].position3d.x < 1000;
+                 cont = cont && ps.position3d[i].y > 0;
+                 cont = cont && ps.position3d[i].y < 1000;
+                 cont = cont && ps.position3d[i].x > 0;
+                 cont = cont && ps.position3d[i].x < 1000;
                  if (!cont) {
-                   ps.l[i].position3d.setFrom(ps.l[i].position3dPrevious);
+                   ps.position3d[i].setFrom(ps.position3dPrevious[i]);
                  }
                }
                return true;//cont;

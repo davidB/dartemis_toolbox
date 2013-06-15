@@ -55,10 +55,11 @@ class Emitter extends Component {
   final initializers = new List<Initializer>();
   IntGen counter = zero();
 
-  /// true => generate one Entity with Particles
-  /// false => genere several empty Entity (no Particles,...)
-  bool genParticles = true;
+  /// not null => generate one Entity with Particles
+  /// null => genere several empty Entity (no Particles,...)
+  ParticlesConstructor genParticles = null;
   bool once = false;
+
 }
 
 class System_Emitters extends EntityProcessingSystem {
@@ -79,7 +80,7 @@ class System_Emitters extends EntityProcessingSystem {
   void processEntity(Entity entity) {
     var em = _emitterMapper.get(entity);
     var nb = em.counter(_dt);
-    var ne = em.genParticles ? _genParticles(nb) : _genEntities(nb);
+    var ne = (em.genParticles != null) ? _genParticles(nb, em.genParticles) : _genEntities(nb);
     em.initializers.forEach((init) => init(_dt, entity, ne));
     ne.forEach((e) => world.addEntity(e));
 //    em.particles.addAll(np);
@@ -88,34 +89,37 @@ class System_Emitters extends EntityProcessingSystem {
     if (em.once) entity.deleteFromWorld();
   }
 
-  List<Entity> _genEntities( int nb) {
+  List<Entity> _genEntities(int nb) {
     return new List<Entity>.generate(nb, (i) => world.createEntity());
   }
 
-  List<Entity> _genParticles(int nb) {
+  List<Entity> _genParticles(int nb, ParticlesConstructor pc) {
     var e = world.createEntity();
-    e.addComponent(new Particles(nb));
+    e.addComponent(pc(nb));
     return new List<Entity>.filled(1, e);
   }
+
 }
 
 //--- Initializer --------------------------------------------------------------
-processParticules(List<Entity> es, f(Particule)) {
+processParticules(List<Entity> es, f(Particules, i)) {
   es.forEach((e) {
     var ps = e.getComponent(Particles.CT) as Particles;
     if (ps != null) {
       //print("init on ${ps.l.length} particles");
-      ps.l.forEach(f);
+      for(var i = 0; i < ps.length; i++) {
+        f(ps, i);
+      }
     }
   });
 }
 Initializer particlesStartPosition(Vector3GenInto gen, bool fromEmitter) => (dt, Entity emitter, List<Entity> es) {
   var tf = emitter.getComponent(Transform.CT) as Transform;
   var pos = tf.position3d;
-  processParticules(es, (p) {
-    gen(p.position3d, dt);
+  processParticules(es, (ps, i) {
+    gen(ps.position3d[i], dt);
     //print(p.position3d);
-    if (fromEmitter) p.position3d.add(pos);
+    if (fromEmitter) ps.position3d[i].add(pos);
   });
 };
 
@@ -129,18 +133,12 @@ Initializer particlesStartPositionPrevious(Vector3GenInto gen, bool fromEmitter)
     m4.rotateY(tf.rotation3d.y);
     m4.rotateZ(tf.rotation3d.z);
   }
-  processParticules(es, (p) {
-     var v = gen(new Vector3.zero(), dt);
+  processParticules(es, (ps, i) {
+     var v = gen(ps.position3dPrevious[i], dt);
      v = m4.rotate3(v);
-     v.add(p.position3d);
-     p.position3dPrevious = v;
+     v.add(ps.position3d[i]);
   });
 };
-
-// shortcut
-Initializer addParticleInfo0s() => particlesAddComponents([
-  (lg) => new ParticleInfo0s(lg)
-]);
 
 Initializer addComponents(List<Function> fs) => (dt, Entity emitter, List<Entity> es) {
   es.forEach((e){
@@ -152,7 +150,7 @@ Initializer particlesAddComponents(List<Function> fs) => (dt, Entity emitter, Li
   es.forEach((e){
     var ps = e.getComponent(Particles.CT) as Particles;
     if (ps != null) {
-      fs.forEach((f) => e.addComponent(f(ps.l.length)));
+      fs.forEach((f) => e.addComponent(f(ps.length)));
     }
   });
 };

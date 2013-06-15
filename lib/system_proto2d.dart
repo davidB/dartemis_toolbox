@@ -139,7 +139,7 @@ DrawCanvas rect(w, h, {fillStyle, strokeStyle, strokeLineWidth : 1, strokeLineDa
     g.strokeStyle = strokeStyle;
     g.lineWidth = strokeLineWidth;
     g.lineDashOffset = strokeLineDashOffset;
-    g.strokeRect(rx, ry, w, h, strokeLineWidth);
+    g.strokeRect(rx, ry, w, h);
   }
   area.x = w.toDouble();
   area.y = h.toDouble();
@@ -192,52 +192,85 @@ DrawCanvas text(String txt, {fillStyle, strokeStyle, strokeLineWidth : 1, stroke
   //TODO area.y = m.h;
 };
 
-DrawCanvas particles(num radius, {fillStyle, strokeStyle, strokeLineWidth : 1, strokeLineDashOffset : 0}){
-  return (CanvasRenderingContext2D g, Entity entity, area) {
-    var particle0s = entity.getComponent(Particles.CT) as Particles;
-    if (particle0s == null || particle0s.l.isEmpty) return;
-    if (strokeStyle == null && fillStyle == null) return;
-    g.beginPath();
-    particle0s.l.forEach((p) {
-      var pos = p.position3d;
-      if (pos != null) {
-        g.moveTo(pos.x + radius, pos.y);
-        //print('${pos.x} // ${pos.y}');
-        g.arc(pos.x, pos.y, radius, 0, math.PI*2,true);
-      }
-    });
-    g.closePath();
-    if (fillStyle != null) {
-      g.fillStyle = fillStyle;
-      g.fill();
-    }
-    if (strokeStyle != null) {
-      g.strokeStyle = strokeStyle;
-      g.lineWidth = strokeLineWidth;
-      g.lineDashOffset = strokeLineDashOffset;
-      g.stroke();
-    }
-    //TODO define the area
-//    area.x = radius.toDouble();
-//    area.y = radius.toDouble();
-  };
-}
+//DrawCanvas particles(num radius, {fillStyle, strokeStyle, strokeLineWidth : 1, strokeLineDashOffset : 0}){
+//  return (CanvasRenderingContext2D g, Entity entity, area) {
+//    var particle0s = entity.getComponent(Particles.CT) as Particles;
+//    if (particle0s == null || particle0s.position3d.isEmpty) return;
+//    if (strokeStyle == null && fillStyle == null) return;
+//    g.beginPath();
+//    particle0s.position3d.forEach((pos) {
+//      if (pos != null) {
+//        g.moveTo(pos.x + radius, pos.y);
+//        //print('${pos.x} // ${pos.y}');
+//        g.arc(pos.x, pos.y, radius, 0, math.PI*2,true);
+//      }
+//    });
+//    g.closePath();
+//    if (fillStyle != null) {
+//      g.fillStyle = fillStyle;
+//      g.fill();
+//    }
+//    if (strokeStyle != null) {
+//      g.strokeStyle = strokeStyle;
+//      g.lineWidth = strokeLineWidth;
+//      g.lineDashOffset = strokeLineDashOffset;
+//      g.stroke();
+//    }
+//    //TODO define the area
+////    area.x = radius.toDouble();
+////    area.y = radius.toDouble();
+//  };
+//}
 
-DrawCanvas particleInfo0s(num radius, {fillStyle, strokeStyle, strokeLineWidth : 1, strokeLineDashOffset : 0}){
+//DrawCanvas particleInfo0s(num radius, {fillStyle, strokeStyle, strokeLineWidth : 1, strokeLineDashOffset : 0}){
+//  return (CanvasRenderingContext2D g, Entity entity, area) {
+//    var particle0s = entity.getComponent(Particles.CT) as Particles;
+//    if (particle0s == null || particle0s.position3d.isEmpty) return;
+//    var particleInfo0s = entity.getComponent(ParticleInfo0s.CT) as ParticleInfo0s;
+//    if (particleInfo0s == null || particleInfo0s.l.isEmpty) {
+//      return particles(radius, fillStyle : fillStyle, strokeStyle : strokeStyle, strokeLineWidth : strokeLineWidth, strokeLineDashOffset : strokeLineDashOffset)(g, entity, area);
+//    }
+//    for(var i = particle0s.position3d.length - 1; i > -1; --i){
+//      var pos = particle0s.position3d[i];
+//      if (pos != null) {
+//        var p0 = particleInfo0s.l[i];
+//        var radius0 = (p0 != null) ? p0.radius * p0.scale : radius;
+//        var fillStyle0 = (p0 != null) ? irgba_rgbaString(p0.color) : fillStyle;
+//        //g.moveTo(pos.x, pos.y);
+//        g.beginPath();
+//        //print('${pos.x} // ${pos.y}');
+//        g.arc(pos.x, pos.y, radius0, 0, math.PI*2,true);
+//        g.closePath();
+//        if (fillStyle != null) {
+//          g.fillStyle = fillStyle0;
+//          g.fill();
+//        }
+//        if (strokeStyle != null) {
+//          g.strokeStyle = strokeStyle;
+//          g.lineWidth = strokeLineWidth;
+//          g.lineDashOffset = strokeLineDashOffset;
+//          g.stroke();
+//        }
+//      }
+//    }
+//    //TODO define the area
+////    area.x = radius.toDouble();
+////    area.y = radius.toDouble();
+//  };
+//}
+DrawCanvas particles(num radiusScale, {fillStyle, strokeStyle, strokeLineWidth : 1, strokeLineDashOffset : 0}){
   return (CanvasRenderingContext2D g, Entity entity, area) {
     var particle0s = entity.getComponent(Particles.CT) as Particles;
-    if (particle0s == null || particle0s.l.isEmpty) return;
-    var particleInfo0s = entity.getComponent(ParticleInfo0s.CT) as ParticleInfo0s;
-    if (particleInfo0s == null || particleInfo0s.l.isEmpty) {
-      return particles(radius, fillStyle : fillStyle, strokeStyle : strokeStyle, strokeLineWidth : strokeLineWidth, strokeLineDashOffset : strokeLineDashOffset)(g, entity, area);
-    }
-    for(var i = particle0s.l.length - 1; i > -1; --i){
-      var p = particle0s.l[i];
-      var pos = p.position3d;
+    if (particle0s == null || particle0s.position3d.isEmpty) return;
+    for(var i = particle0s.length - 1; i > -1; --i){
+      var pos = particle0s.position3d[i];
       if (pos != null) {
-        var p0 = particleInfo0s.l[i];
-        var radius0 = (p0 != null) ? p0.radius * p0.scale : radius;
-        var fillStyle0 = (p0 != null) ? irgba_rgbaString(p0.color) : fillStyle;
+        var radius0 = particle0s.radius[i] * radiusScale;
+        int color = particle0s.color[i];
+        if (particle0s.collide[i] == -1) {
+          color = hsl_irgba(hsl_complement(irgba_hsl(color)));
+        }
+        var fillStyle0 = irgba_rgbaString(color);
         //g.moveTo(pos.x, pos.y);
         g.beginPath();
         //print('${pos.x} // ${pos.y}');
@@ -261,11 +294,13 @@ DrawCanvas particleInfo0s(num radius, {fillStyle, strokeStyle, strokeLineWidth :
   };
 }
 
-drawCDistance(g, Constraint_Distance x, strokeStyle) {
+drawSegment(g, Segment x, strokeStyle, strokeStyleCollide) {
+  var p1 = x.ps.position3d[x.i1];
+  var p2 = x.ps.position3d[x.i2];
   g.beginPath();
-  g.moveTo(x.a.x, x.a.y);
-  g.lineTo(x.b.x, x.b.y);
-  g.strokeStyle = strokeStyle; //
+  g.moveTo(p1.x, p1.y);
+  g.lineTo(p2.x, p2.y);
+  g.strokeStyle = (x.collide == -1) ? strokeStyleCollide : strokeStyle; //
   g.stroke();
 }
 
@@ -289,11 +324,11 @@ drawCAngle(g, Constraint_AngleXY x, strokeStyle) {
   g.lineWidth = tmp;
 }
 
-DrawCanvas drawConstraints({pinStyle : "rgba(0,153,255,0.1)", distanceStyle : "#d8dde2", angleStyle:"rgba(255,255,0,0.2)"}) => (CanvasRenderingContext2D g, Entity e, area) {
+DrawCanvas drawConstraints({pinStyle : "rgba(0,153,255,0.1)", distanceStyle : "#d8dde2", distanceStyleCollide : "#e2ddd8", angleStyle:"rgba(255,255,0,0.2)"}) => (CanvasRenderingContext2D g, Entity e, area) {
   var cs = e.getComponent(Constraints.CT) as Constraints;
   cs.l.forEach((x) {
     if (distanceStyle != null && x is Constraint_Distance)
-      drawCDistance(g, x, distanceStyle);
+      drawSegment(g, x.segment, distanceStyle, distanceStyleCollide);
     else if (pinStyle != null && x is Constraint_Pin)
       drawCPin(g, x, pinStyle);
     else if (angleStyle != null && x is Constraint_AngleXY)
