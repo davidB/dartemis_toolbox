@@ -1,0 +1,111 @@
+
+//------------------------------------------------------------------------------
+///// try to implement the solution of papalazaru from http://www.gamedev.net/topic/415538-verlet-object-object-collision/
+//
+//
+////TODO optimize: reduce Vector3 creation (each operation)
+//collideParticleSegment2(Vector3 Pold, Vector3 Pnew, double Pr, Vector3 A, Vector3 B, IntersectionFinder intf){
+//  var V  = Pnew - Pold;
+//  var AB = B - A;
+//  var AP = Pold - A;
+//
+//  double VxAB = V.cross(AB).length; // TODO optim in XY V.cross(AB).length == V.cross(AB).z
+//  double APxAB = AP.cross(AB).length; // TODO optim in XY V.cross(AB).length == V.cross(AB).z
+//
+//
+//  if ( VxAB.abs() < 0.00001)  {
+//    var coll = new Vector3.zero();
+//    if(!intf.sphere_segment(Pnew, Pr, A, B, coll)) {
+//      Pnew.setFrom(coll);
+//    }
+//  }
+//  double t = -(APxAB / VxAB);
+//
+//  if (t < 0.0 || t > 1.0) {
+//    return false;
+//  }
+//
+//  var collA = V.scaled(t).add(Pold);
+//
+//  AP = collA - A;
+//
+//  double u = AP.dot(AB) / AB.length2;
+//
+//  if(u < 0.0 || u > 1.0){
+//    return false;
+//  }
+//
+//  //ci.collA.setValues(collA.x, collA.y, collA.z, t);
+//  return true;
+//}
+
+///// ```
+///// P' = P + Vp . t
+///// A' = A + Va . t
+///// B' = B + Vb . t
+///// (A'P') x (A'B') = 0
+/////
+///// => (AP + Vap . t) x (AB + Vab . t) = 0
+///// => 2nd order equation : a.t^2 + b.t + c = 0
+/////
+///// => a = Vap x Vab
+///// => b = AP x Vab + Vap x AB
+///// => c = AP x AB
+//collideParticleSegment0(Vector3 Pold, Vector3 Pnew, double Pr, Vector3 Aold, Vector3 Anew, Vector3 Bold, Vector3 Bnew, IntersectionFinder intf){
+//  var AP = Pold - Aold;
+//  var AB = Bold - Aold;
+//  var Vp = Pnew - Pold;
+//  var Va = Anew - Aold;
+//  var Vb = Bnew - Bold;
+//  var Vap = Vp - Va;
+//  var Vab = Vb - Va;
+//
+//  double a = (Vap.x * Vab.y) - (Vap.y * Vab.x);
+//  double b = (AP.x*Vab.y - AB.y*Vap.x) + (AP.y*Vab.x - AB.x*Vap.y);
+//  double c = (AP.x * AB.y) - (AP.y * AB.x);
+//  double d = (b*b - 4*a*c);
+//
+//
+//  if (a.abs() < 0.00001) {
+//    return collideParticleSegment2(Pold, Pnew, Pr, Aold, Bold, intf);
+//  }
+//
+//  if (d < 0.0) {
+//    return false;
+//  }
+//
+//  double t0 = (-b - math.sqrt(d)) / (2.0 * a);
+//  double t1 = (-b + math.sqrt(d)) / (2.0 * a);
+//  double tmin = (t1 < t0)? t1 : t0;
+//  double tmax = (t1 > t0)? t1 : t0;
+//
+//  if (tmin > 1.0 || tmax < 0.0) {
+//    return false;
+//  }
+//
+//  var t = (tmin < 0.0)? tmax : tmin;
+//
+//  if (t > 1.0 || t < 0.0) {
+//    return false;
+//  }
+//
+//  var collA = Vp.scaled(t).add(Pold);
+//  ci.collA.setValues(collA.x, collA.y, collA.z, t);
+//  ci.collS1.setFrom(Aold + Va.scaled(t));
+//  ci.collS2.setFrom(Bold + Vb.scaled(t));
+//
+//  AP = collA - ci.collS1;
+//  AB = ci.collS2 - ci.collS1;
+//
+//  double u = AP.dot(AB) / AB.length2;
+//  if (u < 0.0 || u > 1.0) {
+//    return false;
+//  }
+//
+////  Part of the resolution
+////  Pnew = Pcoll;
+////  Anew = Acoll;
+////  Bnew = Bcoll;
+////  t    = tcoll;
+//  return true;
+//}

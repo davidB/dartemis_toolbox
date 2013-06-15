@@ -1,0 +1,191 @@
+
+
+//  //TODO support mass of particules
+//  
+//      // collision of body
+//      var tmp = new Vector3.zero();
+//      var tmpAv = new Vector3.zero();
+//      var tmpBv = new Vector3.zero();
+//      var tmpA = new MinMaxXYZ();
+//      var tmpB = new MinMaxXYZ();
+//      var ci = new CollisionInfo();
+//      for (int b1 = 0; b1 < bodies.length; b1++) { //Iterate trough all bodies
+//        var bo1 = bodies[b1];
+//        if (bo1 == null) continue;
+//        for (int b2 = b1 + 1; b2 < bodies.length; b2++) {
+//          var bo2 = bodies[b2];
+//          if (bo2 == null) continue;
+//          //Used for optimization to test if the bounding boxes of two bodies.
+//          if (detectCollision_aabb(bo1.shape, bo2.shape, tmpA, tmpB)) { //Test the bounding boxes
+//            if (detectCollision_sat(bo1.shape, bo2.shape, ci, tmp)) { //If there is a collision, respond to it
+//              updateCollisionInfo(bo1.shape, bo1.shape, ci, extractCenter(bo1.shape, tmpAv), extractCenter(bo2.shape, tmpBv));
+//              //print(tmpAv);
+//              //print(tmpBv);
+//              processCollisionXY(ci);
+//            }
+//          }
+//        }
+//      }
+//  
+//  processCollisionXY(CollisionInfo ci) {
+//    var e1 = ci.edgev0;
+//    var e1mass = 1.0; //e1.parent.mass;
+//    var e2 = ci.edgev1;
+//    var e2mass = 1.0; //e2.parent.mass;
+//    var vmass = 1.0; // ci.v.parent.mass
+//
+//    var collisionVectorX = ci.normal.x * ci.depth;
+//    var collisionVectorY = ci.normal.y * ci.depth;
+//
+//    var t = (( e1.x - e2.x ).abs() > ( e1.y - e2.y ).abs() )?
+//        ( ci.v.x - collisionVectorX - e1.x )/(  e2.x - e1.x )
+//      : ( ci.v.y - collisionVectorY - e1.y )/(  e2.y - e1.y )
+//      ;
+//
+//    var lambda = 1.0/( t*t + ( 1 - t )*( 1 - t ) );
+//    var edgeMass = t * e2mass + ( 1.0 - t ) * e1mass; //Calculate the mass at the intersection point
+//    var invCollisionMass = 1.0/( edgeMass + vmass );
+//
+//    var ratio1 = vmass * invCollisionMass;
+//    var ratio2 = edgeMass * invCollisionMass;
+//
+//    e1.x -= collisionVectorX * (( 1 - t )*ratio1*lambda);
+//    e1.y -= collisionVectorY * (( 1 - t )*ratio1*lambda);
+//    e2.x -= collisionVectorX * (    t    *ratio1*lambda);
+//    e2.y -= collisionVectorY * (    t    *ratio1*lambda);
+//
+//    ci.v.x += collisionVectorX * ratio2;
+//    ci.v.y += collisionVectorY * ratio2;
+//  }
+
+import 'dart:math' as math;
+import 'package:vector_math/vector_math.dart';
+import 'utils_math.dart';
+
+class CollisionInfo {
+ final normal = new Vector2.zero();
+ var depth = 0.0;
+ /// edge of collision start point
+ Vector3 edgev0 = null;
+/// edge of collision end point
+ Vector3 edgev1 = null;
+ /// collision vertex
+ Vector3 v;
+}
+
+
+
+void projectToAxis( List<Vector3> vertices, Vector3 axis, MinMax out) {
+  var dotP = axis.dot(vertices[0]);
+
+  //Set the minimum and maximum values to the projection of the first vertex
+  out.min = out.max = dotP;
+
+  for( int i = vertices.length - 1 ; i > 1 ; --i) {
+    //Project the rest of the vertices onto the axis and extend
+    //the interval to the left/right if necessary
+    dotP = axis.dot(vertices[i]);
+    out.min = math.min( dotP, out.min );
+    out.max = math.max( dotP, out.max );
+  }
+}
+
+//TODO remove the need of [m1] and [m2]
+double intervalDistanceOnAxis(List<Vector3> shapeA, List<Vector3> shapeB, Vector3 axis, MinMax m1, MinMax m2) {
+  // Project both bodies onto the perpendicular
+  projectToAxis(shapeA, axis, m1);
+  projectToAxis(shapeB, axis, m2);
+
+  return intervalDistance( m1.min, m1.max, m2.min, m2.max );
+}
+
+///// Used for optimization to test if the bounding boxes (aabb) of two bodies overlap.
+///// bounding boxes are Vector4(minX, minY, width, height)
+bool detectCollision_aabb(List<Vector3> shapeA, List<Vector3> shapeB, MinMaxXYZ tmpA, MinMaxXYZ tmpB) {
+  //return ( shapeA.x <= (shapeB.x + shapeB.z)) && ( shapeA.y <= (shapeB.y + shapeB.w)) && ((shapeA.x + shapeA.z) >= shapeB.x ) && (( shapeB.y + shapeB.w) >= shapeA.y);
+  extractMinMax(shapeA, tmpA);
+  extractMinMax(shapeB, tmpB);
+  //Used for optimization to test if the bounding boxes of two bodies overlap.
+  return overlapXYZ(tmpA, tmpB);
+}
+/// source port from
+/// * [A Verlet based approach for 2D game physics](http://www.gamedev.net/page/resources/_/technical/math-and-physics/a-verlet-based-approach-for-2d-game-physics-r2714)
+/// * [java port](https://code.google.com/p/verlet/source/browse/VerletDemo/src/com/gmail/craigmit/verletdemo/Physics.java)
+bool detectCollision_sat( List<Vector3> shapeA, List<Vector3> shapeB, CollisionInfo out, Vector3 tmp ) {
+  var m1 = new MinMax();
+  var m2 = new MinMax();
+  return _detectCollision_satEdge1(shapeA, shapeB, out, tmp, m1, m2)
+      || _detectCollision_satEdge1(shapeB, shapeA, out, tmp, m1, m2)
+      ;
+}
+
+/// The body containing the collision edge lies in [shapeB] and the one conatining the collision vertex in [shapeA]
+bool _detectCollision_satEdge1( List<Vector3> shapeA, List<Vector3> shapeB, CollisionInfo out, Vector3 axis, MinMax m1, MinMax m2) {
+  var minDistance = double.MAX_FINITE; //Initialize the length of the collision vector to a relatively large value
+  var lg = shapeA.length;
+  for (int i = 0; i < lg; i++ ) {
+
+//    //This will skip edges that lie totally inside the bodies, as they don't matter.
+//    //The boundary flag has to be set manually and defaults to true
+//    if (e.boundary == false) {
+//      continue;
+//    }
+
+    // Calculate the perpendicular to this edge and normalize it
+    var v0 = shapeA[i];
+    var v1 = (i + 1 == lg)? shapeA[0]: shapeA[i+1];
+    axis.x = v0.y - v1.y;
+    axis.y = v1.x - v0.x;
+    axis.z = 0.0;
+    axis.normalize();
+
+    var distance = intervalDistanceOnAxis( shapeA, shapeB, axis, m1, m2);
+
+    // If the intervals don't overlap, return, since there is no collision
+    if (distance > 0.0) {
+      return false;
+    } else if (distance.abs() < minDistance ) {
+      minDistance = distance.abs();
+
+      // Save collision information for later
+      out.normal.x = axis.x;
+      out.normal.y = axis.y;
+      //Store the edge, as it is the collision edge
+      out.edgev0 = v0;
+      out.edgev1 = v1;
+    }
+  }
+  out.depth = minDistance;
+  //There is no separating axis. Report a collision!
+  return true;
+}
+
+void updateCollisionInfo(List<Vector3> shapeA, List<Vector3> shapeB, CollisionInfo out, Vector3 centerA, Vector3 centerB) {
+  // int Sign = SGN( CollisionInfo.Normal.multiplyVal( shapeA.Center.minus(shapeB.Center) ) ); //This is needed to make sure that the collision normal is pointing at shapeA
+  var xx = centerB.x - centerA.x;
+  var yy = centerB.y - centerA.y;
+  var mult = out.normal.x * xx + out.normal.y * yy;
+
+  // Remember that the line equation is N*( R - R0 ). We choose shapeB->Center as R0; the normal N is given by the collision normal
+
+  if (mult < 0) {
+    // Revert the collision normal if it points away from shapeA
+    out.normal.x = 0 - out.normal.x;
+    out.normal.y = 0 - out.normal.y;
+  }
+
+  var smallestD = double.MAX_FINITE; //Initialize the smallest distance to a large value
+
+  for (int i = 0; i < shapeB.length; i++) {
+    // Measure the distance of the vertex from the line using the line equation
+    // float Distance = CollisionInfo.Normal.multiplyVal( shapeA.Vertices[I].Position.minus(shapeB.Center) );
+    xx = shapeB[i].x - centerA.x;
+    yy = shapeB[i].y - centerA.y;
+    var distance = out.normal.x * xx + out.normal.y * yy;
+
+    if (distance < smallestD) { //If the measured distance is smaller than the smallest distance reported so far, set the smallest distance and the collision vertex
+      smallestD = distance;
+      out.v = shapeB[i];
+    }
+  }
+}
