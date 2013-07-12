@@ -42,6 +42,8 @@ import 'dart:collection';
 final all = new LinkedHashMap<String, Ease>()
   ..['linear'] = linear
   ..['random'] = random
+  ..['smoothstep'] = smoothstep
+  ..['smootherstep'] = smootherstep
   ..['inQuad'] = inQuad
   ..['outQuad'] = outQuad
   ..['inOutQuad'] = inOutQuad
@@ -129,21 +131,31 @@ onceRatio(Ease f0, num duration) => (double ratio, num change, num baseValue) {
 /// * return the intermediate value.
 typedef num Ease(double ratio, num change, num baseValue);
 
-/**
- * Performs a linear.
- */
+// LINEAR
 num linear(double ratio, num change, num baseValue) {
   return change * ratio + baseValue;
 }
 
-/**
- * Performs a random value (except for ratio == 0 or ratio == 1).
- */
+
+/// Performs a random value (except for ratio == 0 or ratio == 1).
 num random(double ratio, num change, num baseValue) {
   var r = (ratio > 0.0 && ratio < 1.0) ? _randomRatio.nextDouble() : ratio;
   return change * r + baseValue;
 }
 final _randomRatio = new Random();
+
+
+// smoothstep(t) = 3t^2 - 2t^3
+num smoothstep(double ratio, num change, num baseValue) {
+  var r = ratio * ratio * (3 - 2 * ratio);
+  return change * r + baseValue;
+}
+
+// smootherstep(t) = 6t^5 - 15t^4 + 10t^3
+num smootherstep(double ratio, num change, num baseValue) {
+  var r = ratio * ratio * ratio *( ratio *( ratio *6 - 15) + 10);
+  return change * r + baseValue;
+}
 
 // QUADRATIC
 
