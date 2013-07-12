@@ -59,6 +59,7 @@ class System_Renderer extends EntityProcessingSystem {
   ComponentMapper<Drawable> _drawMapper;
   var _w = 0;
   var _h = 0;
+  var _dpr = 1.0;
   /// [_areaEntity] temp variable use fill by [Drawable.draw] to give the modified
   /// area, it is an area with center at (0.0, 0.0)
   Vector2 _areaEntity = new Vector2(0.0, 0.0);
@@ -66,11 +67,22 @@ class System_Renderer extends EntityProcessingSystem {
   /// TODO optim : use _areaEntity and _areaEntities to clear and to update offscreen canvas
   //vec4 _areaEntities = new vec4(0.0, 0.0);
 
+  var translateX = 0.0;
+  var translateY = 0.0;
+
+  var _scale = 1.0;
+  var _scaleI = 1.0;
+  get scale => _scale / _dpr;
+  set scale(v) {
+    _scale = v * _dpr;
+    _scaleI = 1 / _scale;
+  }
+
 
   System_Renderer(canvas) :
     super(Aspect.getAspectForAllOf([Drawable])),
-    _gVisible = canvas.context2d,
-    _g = new CanvasElement().context2d
+    _gVisible = canvas.context2D,
+    _g = new CanvasElement().context2D
     ;
 
   void initialize(){
@@ -83,16 +95,19 @@ class System_Renderer extends EntityProcessingSystem {
     // to avoid scale and blur
     // canvas dimensions
     var canvasV = _gVisible.canvas;
-    var dpr = window.devicePixelRatio;     // retina
-    _w = (dpr * canvasV.clientWidth).round();//parseInt(canvas.style.width);
-    _h = (dpr * canvasV.clientHeight).round(); //parseInt(canvas.style.height);
+    var s = scale;
+    _dpr = window.devicePixelRatio;     // retina
+    scale = s;
+
+    _w = (_dpr * canvasV.clientWidth).round();//parseInt(canvas.style.width);
+    _h = (_dpr * canvasV.clientHeight).round(); //parseInt(canvas.style.height);
 
     canvasV.width = _w;
     canvasV.height = _h;
-    _gVisible.scale(dpr, dpr);
+    _gVisible.scale(_dpr, _dpr);
     _g.canvas.width = _w;
     _g.canvas.height = _h;
-    _g.scale(dpr, dpr);
+
   }
 
   void begin() {
@@ -101,6 +116,9 @@ class System_Renderer extends EntityProcessingSystem {
   }
 
   void processEntity(Entity entity) {
+    _g.translate(translateX, translateY);
+    if (_scale != 1.0) _g.scale(_scale, _scale);
+
     var d = _drawMapper.get(entity);
     var tf = _transformMapper.getSafe(entity);
     if (tf != null) {
@@ -112,18 +130,21 @@ class System_Renderer extends EntityProcessingSystem {
     _areaEntity.y = 0.0;
     d.draw(_g, entity, _areaEntity);
     if (tf != null) {
-      _g.translate(-tf.position3d.x.toInt(), -tf.position3d.y.toInt());
-      _g.rotate(-tf.rotation3d.z);
       _g.scale(1/tf.scale3d.x, 1/tf.scale3d.y);
+      _g.rotate(-tf.rotation3d.z);
+      _g.translate(-tf.position3d.x.toInt(), -tf.position3d.y.toInt());
     }
+
+    if (_scale != 1.0) _g.scale(_scaleI, _scaleI);
+    _g.translate(- translateX, - translateY);
     _g.restore();
   }
 
   void end() {
     _g.restore();
-    _gVisible.clearRect(0,0, _w, _h);
+    _gVisible.clearRect(0, 0, _w, _h);
     _gVisible.drawImage(_g.canvas, 0, 0);
-    _g.clearRect(0,0, _w, _h);
+    _g.clearRect(0, 0, _w, _h);
   }
 }
 
