@@ -54,7 +54,7 @@ Vector3 lookAt(Vector3 target, Vector3 position3d, Vector3 out, [Vector3 up]) {
   var m = makeViewMatrix(position3d, target, up).getRotation();
   // code from (euler order XYZ)
   // https://github.com/mrdoob/three.js/blob/master/src/math/Vector3.js
-  out.y = math.asin( clamp(m.row2.x, -1.0 ,1.0 ) );
+  out.y = math.asin( clamp(m.row2.x, 1.0, -1.0 ) );
   if ( m.row2.x.abs() < 0.99999 ) {
     out.x = math.atan2( - m.row2.y, m.row2.z );
     out.z = math.atan2( - m.row1.x, m.row0.x );
