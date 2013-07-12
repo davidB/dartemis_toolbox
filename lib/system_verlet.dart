@@ -65,9 +65,9 @@ class System_Simulator extends IntervalEntitySystem {
   double _timestep = -1.0;
   double ndamping = 1.0;
   get damping => 1.0 - ndamping;
-  set damping(double v){ ndamping = 1.0 - math2.clamp(v, 0.0, 1.0); }
+  set damping(double v){ ndamping = 1.0 - math2.clamp(v, 1.0, 0.0); }
 
-  System_Simulator({this.steps : 10, interval0 : 1000.0/30, collisions.Space space0: null}) :
+  System_Simulator({this.steps : 3, interval0 : 1000.0/30, collisions.Space space0: null}) :
     super(interval0, Aspect.getAspectForAllOf([Particles, Constraints])),
     interval = interval0,
     collSpace = (space0 != null)? space0 : new collisions.Space_Noop()
