@@ -28,6 +28,7 @@
 library system_particles;
 
 import 'dart:math' as math;
+import 'dart:typed_data';
 import 'package:dartemis/dartemis.dart';
 import 'package:vector_math/vector_math.dart';
 import 'utils.dart';
@@ -50,11 +51,17 @@ typedef Particles ParticlesConstructor(int nb);
 class Particles extends Component {
   static final CT = ComponentTypeManager.getTypeFor(Particles);
   final int length;
-  final List<Vector3> position3d;
+  List<Vector3> _position3d;
+  get position3d => _position3d;
+  /// all the positions in a single list (can be used in webgl to set vertices in one call)
+  final Float32List position3dBuff;
   final List<Vector3> position3dPrevious;
+
   final ItemOption<int> color;
+
   /// The lifetime of the particle, in seconds.
   //final ItemOption<double> lifetime; = double.INFINITY;
+
   /// The mass of the particle ( 1.0 is the default ).
   final ItemOption<double> mass;
   /// The radius of the particle, for collision approximation
@@ -75,14 +82,16 @@ class Particles extends Component {
     this.intraCollide: false
   }) :
     this.length = length,
-    position3d = new List.generate(length, (i) => new Vector3.zero()),
+    position3dBuff = new Float32List(length * 3),
     position3dPrevious = withPrevious ? new List.generate(length, (i) => new Vector3.zero()) : null,
     color = withColors ? new ItemSome(new List.generate(length, (i) => color0)) : new ItemDefault(color0),
     mass = withMass ? new ItemSome(new List.generate(length, (i) => mass0)) : new ItemDefault(mass0),
     radius = withRadius ? new ItemSome(new List.generate(length, (i) => radius0)) : new ItemDefault(radius0),
     collide = withCollides ? new ItemSome(new List.generate(length, (i) => collide0)) : new ItemDefault(collide0),
     accForces = withAccForces ? new ItemSome(new List.generate(length, (i) => accForces0 == null ? new Vector3.zero() : new Vector3.copy(accForces0))) : new ItemDefault(accForces0 == null ? new Vector3.zero() : accForces0)
-  ;
+  {
+    _position3d = new List.generate(length, (i) => new Vector3.view(new Float32List.view(position3dBuff.buffer, i * 4 * 3, 3)));
+  }
 
   copyPosition3dIntoPrevious() {
     for (int i = length -1; i > -1; --i) {
