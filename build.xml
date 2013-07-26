@@ -45,12 +45,18 @@
     <attribute name="file"/>
     <sequential>
       <exec executable="${dart2js}" dir="${target}/web">
-        <arg line="--package-root=packages/ _@{file}.html_bootstrap.dart -o_@{file}.html_bootstrap.dart.js"/>
+        <arg line="--package-root=packages/ --minify _@{file}.html_bootstrap.dart -o_@{file}_bootstrap.dart --output-type=dart"/>
+      </exec>
+      <exec executable="${dart2js}" dir="${target}/web">
+        <arg line="--package-root=packages/ --minify _@{file}.html_bootstrap.dart -o_@{file}_bootstrap.dart.js"/>
       </exec>
       <!--copy file="${target}/web/index0.html" tofile="${target}/web/index.html"/-->
-      <replace file="${target}/web/@{file}.html">
+      <!--replace file="${target}/web/@{file}.html">
         <replacefilter token='type="application/dart"' value='type="application/javascript"'/>
         <replacefilter token='.dart' value='.dart.js'/>
+      </replace-->
+      <replace file="${target}/web/@{file}.html">
+        <replacefilter token='.html_bootstrap.dart"' value='_bootstrap.dart"'/>
       </replace>
     </sequential>
   </macrodef>
@@ -138,7 +144,7 @@
       <!--fileset dir="${target}/web/packages" followsymlinks="false"/-->
     </delete>
     <delete includeemptydirs="true">
-      <fileset dir="${target}/web" includes="*.dart,*.dart.map"/>
+      <fileset dir="${target}/web" includes="*.html_bootstrap.dart.*"/>
     </delete>
     <delete includeemptydirs="true">
       <fileset dir="${target}/web" includes="**/out" followsymlinks="false"/>
@@ -167,7 +173,7 @@
   </target>
 
   <target name="deploy0" depends="js, remove_packages, apidoc"/>
-  <target name="deploy" depends="deploy0">
+  <target name="deploy" depends="">
     <echo file="target/publish-site.sh">
         #!/bin/sh
         cd ${basedir}.gh-pages
