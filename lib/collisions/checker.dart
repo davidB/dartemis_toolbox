@@ -159,35 +159,42 @@ class Checker_MvtAsPoly4 implements Checker{
 
   // if no displacement (< r/10) then an outside square is return;
   makePoly4(Particles ps, int i, List<Vector3> out) {
-    _v0.setFrom(ps.position3d[i]).sub(ps.position3dPrevious[i]);
-    var l = _v0.length;
+    var pn = ps.position3d[i];
+    var pp = ps.position3dPrevious[i];
+    // _v0.setFrom(pn).sub(pp);
+    var vx = pn.x - pp.x;
+    var vy = pn.y - pp.y;
+    //var l = _v0.length;
+    var l2 = vx * vx + vy * vy;
     var r = ps.radius[i];
-    if ((l * 10) < r) {
-      out[0].setFrom(ps.position3d[i])
-        ..x += r
-        ..y += r
-        ;
-      out[1].setFrom(ps.position3d[i])
-        ..x += r
-        ..y -= r
-        ;
-      out[2].setFrom(ps.position3d[i])
-        ..x -= r
-        ..y -= r
-        ;
-      out[3].setFrom(ps.position3d[i])
-        ..x -= r
-        ..y += r
-        ;
+    if ((l2 * 10) < r) {
+      out[0].x = pn.x + r;
+      out[0].y = pn.y + r;
+      out[1].x = pn.x + r;
+      out[1].x = pn.y - r;
+      out[2].x = pn.x - r;
+      out[2].y = pn.y - r;
+      out[3].x = pn.x - r;
+      out[3].y = pn.y + r;
     } else {
-      var t = _v0.x;
-      _v0.x = - _v0.y;
-      _v0.y = t;
-      _v0.scale(r / l);
-      out[0].setFrom(ps.position3dPrevious[i]).add(_v0);
-      out[1].setFrom(ps.position3dPrevious[i]).sub(_v0);
-      out[2].setFrom(ps.position3d[i]).sub(_v0);
-      out[3].setFrom(ps.position3d[i]).add(_v0);
+      //var t = _v0.x;
+      //_v0.scale(r / l);
+      var rl = r / math.sqrt(l2);
+      var t = vx;
+      vx = -vy * rl;
+      vy = t *rl;
+      //out[0].setFrom(pp).add(_v0);
+      out[0].x = pp.x + vx;
+      out[0].y = pp.y + vy;
+      //out[1].setFrom(ps.position3dPrevious[i]).sub(_v0);
+      out[1].x = pp.x - vx;
+      out[1].y = pp.y - vy;
+      //out[2].setFrom(ps.position3d[i]).sub(_v0);
+      out[2].x = pn.x - vx;
+      out[2].y = pn.y - vy;
+      //out[3].setFrom(ps.position3d[i]).add(_v0);
+      out[3].x = pn.x + vx;
+      out[3].y = pn.y + vy;
     }
     return out;
   }
