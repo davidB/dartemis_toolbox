@@ -19,8 +19,8 @@ void main() {
     const interval = 1000 ~/ 30;
     const duration = 2000 / interval;
     var values = new List<double>(2);
+    var chart = query("#xtchart_demo0").xtag;
     new Timer.periodic(const Duration(milliseconds: interval), (timer) {
-      var chart = query("#xtchart_demo0").xtag;
       //var v0 = random.nextDouble() * 100.0;
       cnt = (cnt + 1) % duration;
       values[0] = ease.inQuad(cnt/duration, chart.ymax, chart.ymin );

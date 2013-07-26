@@ -33,6 +33,7 @@ import 'package:vector_math/vector_math.dart';
 import 'system_particles.dart';
 import 'utils_math.dart' as math2;
 import 'collisions.dart' as collisions;
+import 'utils_dartemis.dart';
 
 /// Constraint is a class (vs a typedef of Function) to allow
 /// others service, function to read data and use it in other way (eg: draw)
@@ -54,41 +55,40 @@ class Body extends Component {
 }
 
 class System_Simulator extends IntervalEntitySystem {
-  ComponentMapper<Particles> _particlesMapper;
-  ComponentMapper<Constraints> _constraintsMapper;
-  ComponentMapper<Body> _bodiesMapper;
+  //ComponentMapper<Particles> _particlesMapper;
+  ComponentMapper0 _particlesMapper;
+  ComponentMapper0 _constraintsMapper;
+  var _constraintss = new List<Constraints>(0);
+  int _constraintssL = 0;
+
   var steps = 10;
   /// eg : gravity
-  final globalForces = new Vector3(0.0, 0.0, 0.0);
+  final globalAccs = new Vector3(0.0, 0.0, 0.0);
   collisions.Space collSpace;
   final double interval; // = 1000.0/30.0;
   double _timestep = -1.0;
-  double ndamping = 1.0;
-  get damping => 1.0 - ndamping;
-  set damping(double v){ ndamping = 1.0 - math2.clamp(v, 1.0, 0.0); }
 
   System_Simulator({this.steps : 3, interval0 : 1000.0/30, collisions.Space space0: null}) :
-    super(interval0, Aspect.getAspectForAllOf([Particles, Constraints])),
+    super(interval0, Aspect.getAspectForAllOf([Particles])),
     interval = interval0,
     collSpace = (space0 != null)? space0 : new collisions.Space_Noop()
     ;
 
   void initialize(){
-    _particlesMapper = new ComponentMapper<Particles>(Particles, world);
-    _constraintsMapper = new ComponentMapper<Constraints>(Constraints, world);
-    _bodiesMapper = new ComponentMapper<Body>(Body, world);
+    _particlesMapper = new ComponentMapper0(Particles, world);
+    _constraintsMapper = new ComponentMapper0(Constraints, world);
   }
 
   void processEntities(ReadOnlyBag<Entity> entities) {
     var deplacement = new Vector3.zero();
-    var forces = new Vector3.zero();
-    collSpace.clear();
+    var accs = new Vector3.zero();
+    collSpace.reset();
     //for (var pass = (delta ~/ interval) + 1; pass > 0; --pass) {
     //apply time corrected verlet [TCV](http://lonesock.net/article/verlet.html)
-    var dt = delta.toDouble() / 1000;
+    var dt = delta.toDouble() / 1000.0;
     var timestepPrevious = (_timestep == -1) ?dt : _timestep;
     _timestep = dt  ;
-    var deplacementScale = (_timestep / timestepPrevious) * ndamping;
+    var timeScale = (_timestep / timestepPrevious);
     var timestep2 = _timestep * _timestep;
     entities.forEach((e){
       var ps = _particlesMapper.get(e);
@@ -97,7 +97,7 @@ class System_Simulator extends IntervalEntitySystem {
         var position3d = ps.position3d[i];
         var position3dPrevious = ps.position3dPrevious[i];
         // calculate velocity
-        deplacement.setFrom(position3d).sub(position3dPrevious).scale(deplacementScale);
+        deplacement.setFrom(position3d).sub(position3dPrevious).scale(timeScale * ps.inertia[i]);
 
 //        // ground friction
 //        if (particles[i].pos.y >= this.height-1 && velocity.length2() > 0.000001) {
@@ -107,13 +107,11 @@ class System_Simulator extends IntervalEntitySystem {
 //          velocity.mutableScale(m*this.groundFriction);
 //        }
 
-        // forces (include gravity,...)
-        // fs.l should be same length that ps.l
-        forces.setFrom(globalForces);
-        forces.add(ps.accForces[i]);
+        accs.setFrom(globalAccs);
+        accs.add(ps.acc[i]);
         // Position Verlet integration
-        forces.scale(timestep2);
-        deplacement.add(forces);
+        accs.scale(timestep2);
+        deplacement.add(accs);
         // follow http://lolengine.net/blog/2011/12/14/understanding-motion-in-games
         // Velocity Verlet integration
         // vec3 OldVel = Vel;
@@ -134,7 +132,7 @@ class System_Simulator extends IntervalEntitySystem {
     // iterate collisions + constraints
     var stepCoef = 1.0/steps;
     //var bodies = maps(entities, _bodiesMapper);
-    var constraints = maps(entities, _constraintsMapper);
+    _updateConstraintss(entities);
 
     for(int step = 0; step < steps; ++step ) { //Repeat this a few times to give more exact results
 //    // bounds checking
@@ -149,17 +147,16 @@ class System_Simulator extends IntervalEntitySystem {
       //TODO optimize the loop
       //TODO check if relax should be done in the same loop as collision
       //TODO check if relax should be done once constraint per step or every constraint per step
-      for (int i = 0; i < constraints.length; i++) {
-        var c = constraints[i];
-        if (c == null) continue;
+      for (int i = 0; i < _constraintssL; i++) {
+        var c = _constraintss[i];
         c.l.forEach((j) {
           j.relax(stepCoef);
         });
       };
     }
 
-    for(var i = 0; i < constraints.length; ++i) {
-      var cs = constraints[i];
+    for(var i = 0; i < _constraintssL; ++i) {
+      var cs = _constraintss[i];
       for(var j = 0; j < cs.l.length; ++j) {
         var c = cs.l[j];
         if(c is Constraint_Distance) {
@@ -171,16 +168,19 @@ class System_Simulator extends IntervalEntitySystem {
 
   }
 
-  maps(entities, mapper) {
-    var s = new List(entities.size);
+  _updateConstraintss(entities) {
+    _constraintssL = 0;
+    if (entities.size > _constraintss.length) {
+      _constraintss = new List(entities.size);
+    }
     for(var i = 0; i < entities.size; i++) {
       var e = entities[i];
-      var c = mapper.getSafe(e);
+      var c = _constraintsMapper.getSafe(e);
       if (c != null) {
-        s[i] = c;
+        _constraintss[_constraintssL] = c;
+        _constraintssL++;
       }
     }
-    return s;
   }
 
 }
@@ -210,7 +210,7 @@ class Constraint_Distance implements Constraint {
     var diff = ( _distance2 - l)/l;
     _stick.scale(diff *  stiffness * stepCoef);
     var ma = segment.ps.mass[segment.i1];
-    var mb = segment.ps.mass[segment.i1];
+    var mb = segment.ps.mass[segment.i2];
     var mw = (ma + mb);// * stiffness;
     a.add(_stick.scale(ma / mw));
     b.sub(_stick.scale(mb / ma)); // _stick(mb / mw)
