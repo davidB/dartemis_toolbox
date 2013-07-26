@@ -10,6 +10,15 @@ class Resolver_Noop implements Resolver {
   void notifyCollisionParticleParticle(Particles psA, int iA, Particles psB, int iB, double tcoll){}
 }
 
+class Resolver_Print implements Resolver {
+  void notifyCollisionParticleSegment(Particles psA, int iA, Segment s, double tcoll) {
+    print("notifyCollisionParticleSegment(${psA}, ${iA}, ${s}, ${tcoll});");
+  }
+  void notifyCollisionParticleParticle(Particles psA, int iA, Particles psB, int iB, double tcoll){
+    print("notifyCollisionParticleParticle(${psA}, ${iA}, ${psB}, ${iB}, ${tcoll});");
+  }
+}
+
 class Resolver_Backward implements Resolver {
   backward(Vector3 vc, Vector3 vp, double t) {
     vc.sub(vp).scale(t).add(vp);

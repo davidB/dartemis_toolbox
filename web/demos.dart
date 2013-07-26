@@ -13,6 +13,7 @@ import 'package:dartemis_toolbox/system_emitter.dart';
 import 'package:dartemis_toolbox/system_particles.dart';
 import 'package:dartemis_toolbox/colors.dart';
 import 'package:dartemis_toolbox/utils_dartemis.dart';
+import 'package:dartemis_toolbox/startstopstats.dart';
 import 'package:dartemis/dartemis.dart';
 import 'dart:async';
 import 'package:vector_math/vector_math.dart';
@@ -82,16 +83,43 @@ class Ctrl {
 start(world) {
   var lastT = -1;
   var ctrl = new Ctrl();
+  var _statsLoopTxt = query('#statsLoop') as PreElement;
+  var _statsLoopChart = query("#statsLoop_xtchart").xtag;
+  var values = new List<double>(2);
+  //var v0 = random.nextDouble() * 100.0;
+
+  var statsL = new StartStopStats()
+    ..displayFct = (stats, now) {
+      if (now - stats.displayLast > 1000) {
+        stats.displayLast = now;
+        var fps = 1000/stats.avg;
+        if (_statsLoopTxt != null){
+          var msg = "avg : ${stats.avg}\nmax : ${stats.max}\nmin : ${stats.min}\nfps : ${fps}\n";
+          _statsLoopTxt.text = msg;
+        }
+        if (_statsLoopChart != null){
+          values[0] = stats.avg;
+          values[1] = fps;
+          _statsLoopChart.push(values);
+        }
+
+        if (now - stats.resetLast > 3000) stats.reset();
+      }
+    }
+  ;
+  var deltaMax = 1000.0 / 30;
   loop(num highResTime) => handleError((){
+    if (ctrl.running) window.requestAnimationFrame(loop);
+    statsL.start();
     try {
-      world.delta = (lastT > 0)? highResTime - lastT : 0;
+      world.delta = (lastT > 0)? math.min(highResTime - lastT, deltaMax) : 0;
       world.process();
       lastT = highResTime;
-      if (ctrl.running) window.requestAnimationFrame(loop);
     } on Object catch(e,s) {
       print(e);
       print(s);
     }
+    statsL.stop();
   });
   window.requestAnimationFrame(loop);
   return ctrl;
@@ -148,16 +176,17 @@ final initDemo = {
 //          }
 //        )
 //    ]);
+
     world.getSystem(System_Simulator)
-    ..damping = 0.1
-    ..globalForces.y = 0.0
+    ..globalAccs.y = 0.0
     ..steps = 1
     ..collSpace = new collisions.Space_XY0(new collisions.Checker_T1(), new collisions.Resolver_Noop())
     ;
+    enableQuadtree(world, query('canvas#demo'), false, false);
     addNewEntity(world, [
       new Transform.w2d(50.0, 50.0, 0.0),
       new Emitter()
-        ..genParticles = ((nb) => new Particles(nb))
+        ..genParticles = ((nb) => new Particles(nb, inertia0: 0.0))
         ..counter = steady(100)
         ..initializers.add(particlesStartPosition(
             //constant(new Vector3.zero())
@@ -198,7 +227,7 @@ final initDemo = {
     addNewEntity(world, [
       new Transform.w2d(600.0, 50.0, 0.0),
       new Emitter()
-        ..genParticles = ((nb) => new Particles(nb, withColors: true, color0: 0xff0000ff, radius0: 4.0, withCollides: true, collide0: 1, intraCollide: true))
+        ..genParticles = ((nb) => new Particles(nb, withColors: true, color0: 0xff0000ff, radius0: 4.0, withCollides: true, collide0: 0, intraCollide: true, inertia0: 0.98))
         ..counter = steady(100)
         ..initializers.add(particlesStartPosition(
           constant(new Vector3.zero())
@@ -241,17 +270,17 @@ final initDemo = {
   },
   'verlet shapes' : (world) {
     world.getSystem(System_Simulator)
-      ..damping = 0.01
-      ..globalForces.y = 10.0
+      ..globalAccs.y = 10.0
       ..steps = 3
       ..collSpace = new collisions.Space_XY0(new collisions.Checker_T1(), new collisions.Resolver_Backward())
       ;
+    enableQuadtree(world, query('canvas#demo'), true, false);
     var defaultDraw = proto.drawComponentType([
       new proto.DrawComponentType(Particles.CT, proto.particles(5.0, fillStyle : foregroundcolors[0], strokeStyle : foregroundcolors[1])),
       new proto.DrawComponentType(Constraints.CT, proto.drawConstraints(distanceStyleCollide : "#e20000"))
     ]);
 
-    ParticlesConstructor genP = (nb) => new Particles(nb, withCollides: true, collide0: 1, color0: 0x00A000FF);
+    ParticlesConstructor genP = (nb) => new Particles(nb, withCollides: true, collide0: 1, color0: 0x00A000FF, inertia0: 0.99);
     // entities
     var segment = addNewEntity(world,
       makeLineSegments(
@@ -294,13 +323,18 @@ final initDemo = {
 
     return new Future.value(world);
   },
-  'quadtree' : (world) {
+  'collisions' : (world) {
+    var canvas = query('canvas#demo');
+    var w = canvas.width;
+    var h = canvas.height;
+    var wm = 10;
+    var hm = 10;
     world.getSystem(System_Simulator)
-    ..damping = 0.0
-    ..globalForces.y = 0.0
+    ..globalAccs.y = 0.0
     ..steps = 3
     ..collSpace = new collisions.Space_XY0(new collisions.Checker_T1(), new collisions.Resolver_Noop())
     ;
+    enableQuadtree(world, canvas, true, true);
     addNewEntity(world, [
       new Transform.w2d(50.0, 50.0, 0.0),
       new Emitter()
@@ -308,7 +342,7 @@ final initDemo = {
       ..counter = singleWave(500)
       ..initializers.add(particlesStartPosition(
           //constant(new Vector3.zero())
-          box(new Vector3(500.0, 500.0, 0.0), new Vector3(400.0, 400.0, 0.0))
+          box(new Vector3(w/2, h/2, 0.0), new Vector3(w/2 - wm, h/2 -hm, 0.0))
         , true
       ))
       ..initializers.add(particlesStartPositionPrevious(box(new Vector3.zero(), new Vector3(3.0, 3.0, 0.0)), false))
@@ -322,10 +356,10 @@ final initDemo = {
                var cont = true;
                for( var i = ps.position3d.length - 1; i > -1; --i) {
                  cont = true;
-                 cont = cont && ps.position3d[i].y > 0;
-                 cont = cont && ps.position3d[i].y < 1000;
-                 cont = cont && ps.position3d[i].x > 0;
-                 cont = cont && ps.position3d[i].x < 1000;
+                 cont = cont && ps.position3d[i].y > hm;
+                 cont = cont && ps.position3d[i].y < (h - hm);
+                 cont = cont && ps.position3d[i].x > wm;
+                 cont = cont && ps.position3d[i].x < (w - wm);
                  if (!cont) {
                    ps.position3d[i].setFrom(ps.position3dPrevious[i]);
                  }
@@ -342,3 +376,17 @@ final initDemo = {
   }
 };
 
+enableQuadtree(world, canvas, state, displayDebug) {
+  var w = canvas.width;
+  var h = canvas.height;
+  var wm = 10;
+  var hm = 10;
+  var grid = new collisions.QuadTreeXYAabb(0.0 - wm, 0.0 - hm, w + 2 * wm, h + 2 *hm, 10);
+
+  var sim = world.getSystem(System_Simulator);
+  sim.collSpace = (state) ?
+      new collisions.Space_QuadtreeXY(sim.collSpace.checker, sim.collSpace.resolver, grid : grid)
+      : new collisions.Space_XY0(new collisions.Checker_T1(), new collisions.Resolver_Noop())
+  ;
+  if (displayDebug) addNewEntity(world, [new proto.Drawable(collisions.newDrawCanvas_QuadTreeXYAabb(grid, foregroundcolorsM[2], irgba_rgbaString(0x00f000ff)))]);
+}

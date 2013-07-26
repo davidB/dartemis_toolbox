@@ -41,6 +41,10 @@ double intervalDistance( double minA, double maxA, double minB, double maxB ) {
   return ( minA < minB ) ? minB - maxA : minA - maxB;
 }
 
+bool isSeparated( double minA, double maxA, double minB, double maxB ) {
+  return (maxA < minB) || (maxB < minA);
+}
+
 //-- Vector3 -------------------------------------------------------------------
 
 final VZERO = new Vector3.zero();
@@ -80,20 +84,97 @@ Vector3 extractCenter(List<Vector3> shape, Vector3 out) {
   return out;
 }
 
-void extractMinMax(List<Vector3> vs, Aabb3 out){
+Aabb3 extractAabbDisc(Vector3 v, double radius, Aabb3 out){
+  out.min.setValues(v.x - radius, v.y - radius, v.z - radius);
+  out.max.setValues(v.x + radius, v.y + radius, v.z + radius);
+}
+
+Aabb3 extractAabbDisc2(Vector3 v0, Vector3 v1, double radius, Aabb3 out){
+  var min = out.min;
+  var max = out.max;
+  if (v0.x < v1.x) {
+    min.x = v0.x - radius;
+    max.x = v1.x + radius;
+  } else {
+    min.x = v1.x - radius;
+    max.x = v0.x + radius;
+  }
+  if (v0.y < v1.y) {
+    min.y = v0.y - radius;
+    max.y = v1.y + radius;
+  } else {
+    min.y = v1.y - radius;
+    max.y = v0.y + radius;
+  }
+  if (v0.z < v1.z) {
+    min.z = v0.z - radius;
+    max.z = v1.z + radius;
+  } else {
+    min.z = v1.z - radius;
+    max.z = v0.z + radius;
+  }
+  //out.min.setValues(math.min(v0.x, v1.x) - radius, math.min(v0.y, v1.y) - radius, math.min(v0.z, v1.z) - radius);
+  //out.max.setValues(math.max(v0.x, v1.x) + radius, math.max(v0.y, v1.y) + radius, math.max(v0.z, v1.z) + radius);
+}
+
+Aabb3 extractAabbPoly(List<Vector3> vs, Aabb3 out){
   var min = out.min;
   var max = out.max;
 
-  min.setValues(double.INFINITY, double.INFINITY, double.INFINITY);
-  max.setValues(double.NEGATIVE_INFINITY, double.NEGATIVE_INFINITY, double.NEGATIVE_INFINITY);
-  for (int i = 0; i < vs.length; i++) {
+  min.setFrom(vs[0]);
+  max.setFrom(vs[0]);
+  for (int i = vs.length - 1; i > 0 ; --i) {
     var v = vs[i];
-    min.x = math.min( min.x, v.x );
-    min.y = math.min( min.y, v.y );
-    min.z = math.min( min.z, v.z );
-    max.x = math.max( max.x, v.x );
-    max.y = math.max( max.y, v.y );
-    max.z = math.max( max.z, v.z );
+    if (min.x > v.x) min.x = v.x;
+    if (min.y > v.y) min.y = v.y;
+    if (min.z > v.z) min.z = v.z;
+    if (max.x < v.x) max.x = v.x;
+    if (max.y < v.y) max.y = v.y;
+    if (max.z < v.z) max.z = v.z;
+  }
+
+  return out;
+}
+
+Aabb3 extractAabbPoly2(List<Vector3> vs0, List<Vector3> vs1, Aabb3 out){
+  var min = out.min;
+  var max = out.max;
+
+  min.setFrom(vs0[0]);
+  max.setFrom(vs0[0]);
+  var vs = vs0;
+  for (int i = vs.length - 1; i > 0 ; --i) {
+    var v = vs[i];
+    if (min.x > v.x) min.x = v.x;
+    if (min.y > v.y) min.y = v.y;
+    if (min.z > v.z) min.z = v.z;
+    if (max.x < v.x) max.x = v.x;
+    if (max.y < v.y) max.y = v.y;
+    if (max.z < v.z) max.z = v.z;
+  }
+  vs = vs1;
+  for (int i = vs.length - 1; i >= 0; --i) {
+    var v = vs[i];
+    if (min.x > v.x) min.x = v.x;
+    if (min.y > v.y) min.y = v.y;
+    if (min.z > v.z) min.z = v.z;
+    if (max.x < v.x) max.x = v.x;
+    if (max.y < v.y) max.y = v.y;
+    if (max.z < v.z) max.z = v.z;
+  }
+
+  return out;
+}
+
+/// the MinMax use axis as unit vector, and (0,0,0) as origin point.
+MinMax extractMinMaxProjection(List<Vector3> vs, Vector3 axis, MinMax out) {
+  var p = vs[0].dot(axis);
+  out.min = p;
+  out.max = p;
+  for (int i = 1; i < vs.length; i++) {
+    p = vs[i].dot(axis);
+    if (p < out.min) out.min = p;
+    if (p > out.max) out.max = p;
   }
 }
 
@@ -102,6 +183,7 @@ abstract class IntersectionFinder {
   bool segment_sphere(Vector3 s1, Vector3 s2, Vector3 c, double r);
   bool sphere_sphere(Vector3 ca, double ra, Vector3 cb, double rb);
   bool aabb_aabb(Aabb3 b1, Aabb3 b2 );
+  bool poly_poly(List<Vector3> a, List<Vector3> b);
 }
 
 /// TODO optimize: reduce Vector3 creation (each operation) by using instance cache (or by using x,y instead of vector)
@@ -113,6 +195,14 @@ abstract class IntersectionFinder {
 class IntersectionFinderXY implements IntersectionFinder {
   //with double approximation, use zeroEpsilon for test
   static const zeroEpsilon = 0.0001;
+
+  // cache to avoid re-alloc
+  var _v0 = new Vector3.zero();
+  var _v1 = new Vector3.zero();
+  var _v2 = new Vector3.zero();
+  var _mm0 = new MinMax();
+  var _mm1 = new MinMax();
+
 
 //  double length2(Vector3 p0, Vector3 p1) {
 //    var x = p1.x - p0.x;
@@ -148,8 +238,10 @@ class IntersectionFinderXY implements IntersectionFinder {
 
   bool segment_sphere(Vector3 s1, Vector3 s2, Vector3 c, double r){
 
-    var s1c = c - s1;
-    var s = s2 - s1;
+    var s1c = _v0;
+    s1c.setFrom(c).sub(s1);
+    var s = _v1;
+    s.setFrom(s2).sub(s1);
     var sl2 = s.length2;
     var sp;
     if (sl2 == 0.0) {
@@ -158,7 +250,8 @@ class IntersectionFinderXY implements IntersectionFinder {
       double u = (s1c.x * s.x + s1c.y *s.y) / sl2; // s1c.dot(s)
       sp = (u < 0.0)? s1 : (u > 1.0) ? s2 : s.scale(u).add(s1);
     }
-    var cs = c - sp;
+    var cs = _v2;
+    cs.setFrom(c).sub(sp);
     double l2 = cs.length2;
 
     if (l2 > r * r)
@@ -191,4 +284,34 @@ class IntersectionFinderXY implements IntersectionFinder {
         && ( b1.max.x >= b2.min.x ) && ( b1.max.y >= b2.min.y);
   }
 
+
+  // use SAT check intersection (first againts the longer poly (nb of edge))
+  // [a] and [b] should be clockwise concave polygone
+  bool poly_poly(List<Vector3> a, List<Vector3> b) {
+    var separated = false;
+
+    separated = _poly_poly0(a, b);
+    separated = separated || _poly_poly0(b, a);
+    return !separated;
+  }
+
+  bool _poly_poly0(List<Vector3> a, List<Vector3> b) {
+    var axis = _v0;
+    MinMax amm = _mm0;
+    MinMax bmm = _mm1;
+
+    var separated = false;
+    for (var i = 0; (!separated) && (i < a.length); i++) {
+      // axis is the left normal of the side
+      axis.setFrom(a[(i+1) % a.length]).sub(a[i]);
+      var t = axis.x;
+      axis.x = - axis.y;
+      axis.y = t;
+
+      extractMinMaxProjection(a, axis, amm);
+      extractMinMaxProjection(b, axis, bmm);
+      separated = isSeparated(amm.min, amm.max, bmm.min, bmm.max);
+    }
+    return separated;
+  }
 }
