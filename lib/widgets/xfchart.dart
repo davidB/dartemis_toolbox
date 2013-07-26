@@ -1,3 +1,5 @@
+// License [CC0](http://creativecommons.org/publicdomain/zero/1.0/)
+
 import 'dart:html';
 import 'package:web_ui/web_ui.dart';
 
