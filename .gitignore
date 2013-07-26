@@ -9,4 +9,6 @@ target
 web/out
 .idea
 *.orig
+*.off
+*.failed
 /.project
