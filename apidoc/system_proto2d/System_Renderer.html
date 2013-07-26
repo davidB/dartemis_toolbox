@@ -40,18 +40,30 @@ class System_Renderer extends EntityProcessingSystem {
  ComponentMapper&lt;Drawable&gt; _drawMapper;
  var _w = 0;
  var _h = 0;
+ var _dpr = 1.0;
  /// [_areaEntity] temp variable use fill by [Drawable.draw] to give the modified
  /// area, it is an area with center at (0.0, 0.0)
- vec2 _areaEntity = new vec2(0.0, 0.0);
+ Vector2 _areaEntity = new Vector2(0.0, 0.0);
  /// _areaEntities sum of the _areaEntity in original state.
  /// TODO optim : use _areaEntity and _areaEntities to clear and to update offscreen canvas
  //vec4 _areaEntities = new vec4(0.0, 0.0);
 
+ var translateX = 0.0;
+ var translateY = 0.0;
+
+ var _scale = 1.0;
+ var _scaleI = 1.0;
+ get scale =&gt; _scale / _dpr;
+ set scale(v) {
+   _scale = v * _dpr;
+   _scaleI = 1 / _scale;
+ }
+
 
  System_Renderer(canvas) :
    super(Aspect.getAspectForAllOf([Drawable])),
-   _gVisible = canvas.context2d,
-   _g = new CanvasElement().context2d
+   _gVisible = canvas.context2D,
+   _g = new CanvasElement().context2D
    ;
 
  void initialize(){
@@ -64,16 +76,19 @@ class System_Renderer extends EntityProcessingSystem {
    // to avoid scale and blur
    // canvas dimensions
    var canvasV = _gVisible.canvas;
-   var dpr = window.devicePixelRatio;     // retina
-   _w = (dpr * canvasV.clientWidth).round();//parseInt(canvas.style.width);
-   _h = (dpr * canvasV.clientHeight).round(); //parseInt(canvas.style.height);
+   var s = scale;
+   _dpr = window.devicePixelRatio;     // retina
+   scale = s;
+
+   _w = (_dpr * canvasV.clientWidth).round();//parseInt(canvas.style.width);
+   _h = (_dpr * canvasV.clientHeight).round(); //parseInt(canvas.style.height);
 
    canvasV.width = _w;
    canvasV.height = _h;
-   _gVisible.scale(dpr, dpr);
+   _gVisible.scale(_dpr, _dpr);
    _g.canvas.width = _w;
    _g.canvas.height = _h;
-   _g.scale(dpr, dpr);
+
  }
 
  void begin() {
@@ -82,6 +97,9 @@ class System_Renderer extends EntityProcessingSystem {
  }
 
  void processEntity(Entity entity) {
+   _g.translate(translateX, translateY);
+   if (_scale != 1.0) _g.scale(_scale, _scale);
+
    var d = _drawMapper.get(entity);
    var tf = _transformMapper.getSafe(entity);
    if (tf != null) {
@@ -93,18 +111,21 @@ class System_Renderer extends EntityProcessingSystem {
    _areaEntity.y = 0.0;
    d.draw(_g, entity, _areaEntity);
    if (tf != null) {
-     _g.translate(-tf.position3d.x.toInt(), -tf.position3d.y.toInt());
-     _g.rotate(-tf.rotation3d.z);
      _g.scale(1/tf.scale3d.x, 1/tf.scale3d.y);
+     _g.rotate(-tf.rotation3d.z);
+     _g.translate(-tf.position3d.x.toInt(), -tf.position3d.y.toInt());
    }
+
+   if (_scale != 1.0) _g.scale(_scaleI, _scaleI);
+   _g.translate(- translateX, - translateY);
    _g.restore();
  }
 
  void end() {
    _g.restore();
-   _gVisible.clearRect(0,0, _w, _h);
+   _gVisible.clearRect(0, 0, _w, _h);
    _gVisible.drawImage(_g.canvas, 0, 0);
-   _g.clearRect(0,0, _w, _h);
+   _g.clearRect(0, 0, _w, _h);
  }
 }
 </pre>
@@ -114,24 +135,25 @@ class System_Renderer extends EntityProcessingSystem {
 <span class="type-box"><span class="icon-class"></span><a href="../dartemis/EntitySystem.html">EntitySystem</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><a href="../dartemis/EntityProcessingSystem.html">EntityProcessingSystem</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><strong>System_Renderer</strong></span></p>
 <div>
 <h3>Constructors</h3>
-<div class="method"><h4 id="System_Renderer">
+<div class="method"><h4 id="">
 <button class="show-code">Code</button>
-new <strong>System_Renderer</strong>(canvas) <a class="anchor-link" href="#System_Renderer"
+new <strong>System_Renderer</strong>(canvas) <a class="anchor-link" href="#"
               title="Permalink to System_Renderer.System_Renderer">#</a></h4>
 <div class="doc">
-<p><em>areaEntities sum of the </em>areaEntity in original state.
-TODO optim : use <em>areaEntity and </em>areaEntities to clear and to update offscreen canvas</p>
+<div class="inherited">
+<p>Create a new <a class="crossref" href="../dartemis/EntityProcessingSystem.html">EntityProcessingSystem</a>. It requires at least one component.</p>
+<div class="docs-inherited-from">docs inherited from EntityProcessingSystem </div></div>
 <pre class="source">
 System_Renderer(canvas) :
  super(Aspect.getAspectForAllOf([Drawable])),
- _gVisible = canvas.context2d,
- _g = new CanvasElement().context2d
+ _gVisible = canvas.context2D,
+ _g = new CanvasElement().context2D
  ;
 </pre>
 </div>
 </div>
 </div>
-<div class="inherited">
+<div>
 <h3>Properties</h3>
 <div class="field inherited"><h4 id="passive">
 <button class="show-code">Code</button>
@@ -142,6 +164,50 @@ final         <strong>passive</strong> <a class="anchor-link"
         <div class="inherited-from">inherited from EntitySystem </div><div class="doc">
 <pre class="source">
 get passive =&gt; _passive;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="scale">
+<button class="show-code">Code</button>
+var         <strong>scale</strong> <a class="anchor-link"
+            href="#scale"
+            title="Permalink to System_Renderer.scale">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+get scale =&gt; _scale / _dpr;
+</pre>
+<pre class="source">
+set scale(v) {
+ _scale = v * _dpr;
+ _scaleI = 1 / _scale;
+}
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="translateX">
+<button class="show-code">Code</button>
+var         <strong>translateX</strong> <a class="anchor-link"
+            href="#translateX"
+            title="Permalink to System_Renderer.translateX">#</a>
+        </h4>
+        <div class="doc">
+<p><em>areaEntities sum of the </em>areaEntity in original state.
+TODO optim : use <em>areaEntity and </em>areaEntities to clear and to update offscreen canvas</p>
+<pre class="source">
+var translateX = 0.0
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="translateY">
+<button class="show-code">Code</button>
+var         <strong>translateY</strong> <a class="anchor-link"
+            href="#translateY"
+            title="Permalink to System_Renderer.translateY">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+var translateY = 0.0
 </pre>
 </div>
 </div>
@@ -258,9 +324,9 @@ void <strong>end</strong>() <a class="anchor-link" href="#end"
 <pre class="source">
 void end() {
  _g.restore();
- _gVisible.clearRect(0,0, _w, _h);
+ _gVisible.clearRect(0, 0, _w, _h);
  _gVisible.drawImage(_g.canvas, 0, 0);
- _g.clearRect(0,0, _w, _h);
+ _g.clearRect(0, 0, _w, _h);
 }
 </pre>
 </div>
@@ -337,6 +403,9 @@ void <strong>processEntity</strong>(Entity entity) <a class="anchor-link" href="
 <div class="docs-inherited-from">docs inherited from EntityProcessingSystem </div></div>
 <pre class="source">
 void processEntity(Entity entity) {
+ _g.translate(translateX, translateY);
+ if (_scale != 1.0) _g.scale(_scale, _scale);
+
  var d = _drawMapper.get(entity);
  var tf = _transformMapper.getSafe(entity);
  if (tf != null) {
@@ -348,10 +417,13 @@ void processEntity(Entity entity) {
  _areaEntity.y = 0.0;
  d.draw(_g, entity, _areaEntity);
  if (tf != null) {
-   _g.translate(-tf.position3d.x.toInt(), -tf.position3d.y.toInt());
-   _g.rotate(-tf.rotation3d.z);
    _g.scale(1/tf.scale3d.x, 1/tf.scale3d.y);
+   _g.rotate(-tf.rotation3d.z);
+   _g.translate(-tf.position3d.x.toInt(), -tf.position3d.y.toInt());
  }
+
+ if (_scale != 1.0) _g.scale(_scaleI, _scaleI);
+ _g.translate(- translateX, - translateY);
  _g.restore();
 }
 </pre>
@@ -374,7 +446,7 @@ void removed(Entity entity) {}
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-05-20 21:46:57.056</div>
+          <div>This page was generated at 2013-07-26 14:44:11.489</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>

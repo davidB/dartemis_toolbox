@@ -1,0 +1,317 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>IntersectionFinderXY class / utils_math Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="utils_math" data-type="IntersectionFinderXY">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../utils_math.html">utils_math</a> &rsaquo; <a href="../utils_math/IntersectionFinderXY.html">IntersectionFinderXY</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>IntersectionFinderXY</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p>TODO optimize: reduce Vector3 creation (each operation) by using instance cache (or by using x,y instead of vector)
+May be future inspiration :
+<em> http://www.realtimerendering.com/intersections.html
+</em> http://www.kevlindev.com/gui/math/intersection/index.htm
+<em> http://cse.csusb.edu/tong/courses/cs621/notes/intersect.php
+</em> http://www.gamasutra.com/view/feature/3383/simple<em>intersection</em>tests<em>for</em>games.php</p>
+<pre class="source">
+class IntersectionFinderXY implements IntersectionFinder {
+ //with double approximation, use zeroEpsilon for test
+ static const zeroEpsilon = 0.0001;
+
+ // cache to avoid re-alloc
+ var _v0 = new Vector3.zero();
+ var _v1 = new Vector3.zero();
+ var _v2 = new Vector3.zero();
+ var _mm0 = new MinMax();
+ var _mm1 = new MinMax();
+
+
+//  double length2(Vector3 p0, Vector3 p1) {
+//    var x = p1.x - p0.x;
+//    var y = p1.y - p0.y;
+//    return x*x + y*y;
+//  }
+
+ /// implementation from http://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
+ /// based on Andre LeMothe's ["Tricks of the Windows Game Programming Gurus"](http://rads.stackoverflow.com/amzn/click/0672323699).
+ bool segment_segment(Vector3 sa1, Vector3 sa2, Vector3 sb1, Vector3 sb2, Vector4 acol) {
+   var sa_x, sa_y, sb_x, sb_y;
+   sa_x = sa2.x - sa1.x;     sa_y = sa2.y - sa1.y;
+   sb_x = sb2.x - sb1.x;     sb_y = sb2.y - sb1.y;
+
+   var u = (sa_x * sb_y - sb_x * sa_y);
+   // u == 0 if segment are parallele, with double approximation, use 0.0001
+   //if (u &lt; zeroEpsilon &amp;&amp; u &gt; -zeroEpsilon ) return false;
+   if (u == 0) return false;
+
+   var s = ( sa_x * (sa1.y - sb1.y) - sa_y * (sa1.x - sb1.x)) / u;
+   var t = ( sb_x * (sa1.y - sb1.y) - sb_y * (sa1.x - sb1.x)) / u;
+
+   if (s &gt;= 0 &amp;&amp; s &lt;= 1 &amp;&amp; t &gt;= 0 &amp;&amp; t &lt;= 1) {
+     acol.x = sa1.x + (t * sa_x);
+     acol.y = sa1.y + (t * sa_y);
+     //acol.z = sa1.z;
+     acol.w = t;
+     return  true;
+   }
+   return false;
+ }
+
+
+ bool segment_sphere(Vector3 s1, Vector3 s2, Vector3 c, double r){
+
+   var s1c = _v0;
+   s1c.setFrom(c).sub(s1);
+   var s = _v1;
+   s.setFrom(s2).sub(s1);
+   var sl2 = s.length2;
+   var sp;
+   if (sl2 == 0.0) {
+     sp = s1;
+   } else {
+     double u = (s1c.x * s.x + s1c.y *s.y) / sl2; // s1c.dot(s)
+     sp = (u &lt; 0.0)? s1 : (u &gt; 1.0) ? s2 : s.scale(u).add(s1);
+   }
+   var cs = _v2;
+   cs.setFrom(c).sub(sp);
+   double l2 = cs.length2;
+
+   if (l2 &gt; r * r)
+     return false;
+
+//    double l = math.sqrt(l2);
+//    var t = (r - l) / l;
+//    var coll = cs.scale(t).add(c);
+//    ccol.setValues(coll.x, coll.y, coll.z, t);
+   return true;
+
+ }
+
+ bool sphere_sphere(Vector3 ca, double ra, Vector3 cb, double rb) {
+   var threshold = ra + rb;
+
+   // Get the Cathetus
+   var dx = (ca.x - cb.x);
+   var dy = (ca.y - cb.y);
+
+   // Calculate the distance
+   var dis2 = dx * dx + dy * dy;
+
+   // Returns whether the distance between the two particles is smaller then the sum of both radi
+   return (threshold * threshold &gt;= dis2);
+ }
+
+ bool aabb_aabb( Aabb3 b1, Aabb3 b2 ) {
+   return ( b1.min.x &lt;= b2.max.x) &amp;&amp; ( b1.min.y &lt;= b2.max.y )
+       &amp;&amp; ( b1.max.x &gt;= b2.min.x ) &amp;&amp; ( b1.max.y &gt;= b2.min.y);
+ }
+
+
+ // use SAT check intersection (first againts the longer poly (nb of edge))
+ // [a] and [b] should be clockwise concave polygone
+ bool poly_poly(List&lt;Vector3&gt; a, List&lt;Vector3&gt; b) {
+   var separated = false;
+
+   separated = _poly_poly0(a, b);
+   separated = separated || _poly_poly0(b, a);
+   return !separated;
+ }
+
+ bool _poly_poly0(List&lt;Vector3&gt; a, List&lt;Vector3&gt; b) {
+   var axis = _v0;
+   MinMax amm = _mm0;
+   MinMax bmm = _mm1;
+
+   var separated = false;
+   for (var i = 0; (!separated) &amp;&amp; (i &lt; a.length); i++) {
+     // axis is the left normal of the side
+     axis.setFrom(a[(i+1) % a.length]).sub(a[i]);
+     var t = axis.x;
+     axis.x = - axis.y;
+     axis.y = t;
+
+     extractMinMaxProjection(a, axis, amm);
+     extractMinMaxProjection(b, axis, bmm);
+     separated = isSeparated(amm.min, amm.max, bmm.min, bmm.max);
+   }
+   return separated;
+ }
+}
+</pre>
+</div>
+<h3>Implements</h3>
+<p>
+<span class="type-box"><span class="icon-class"></span><a href="../utils_math/IntersectionFinder.html">IntersectionFinder</a></span></p>
+<div>
+<h3>Static Properties</h3>
+<div class="field"><h4 id="zeroEpsilon">
+<button class="show-code">Code</button>
+const         <strong>zeroEpsilon</strong> <a class="anchor-link"
+            href="#zeroEpsilon"
+            title="Permalink to IntersectionFinderXY.zeroEpsilon">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+static const zeroEpsilon = 0.0001
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="aabb_aabb">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>aabb_aabb</strong>(Aabb3 b1, Aabb3 b2) <a class="anchor-link" href="#aabb_aabb"
+              title="Permalink to IntersectionFinderXY.aabb_aabb">#</a></h4>
+<div class="doc">
+<pre class="source">
+bool aabb_aabb( Aabb3 b1, Aabb3 b2 ) {
+ return ( b1.min.x &lt;= b2.max.x) &amp;&amp; ( b1.min.y &lt;= b2.max.y )
+     &amp;&amp; ( b1.max.x &gt;= b2.min.x ) &amp;&amp; ( b1.max.y &gt;= b2.min.y);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="poly_poly">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>poly_poly</strong>(<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;Vector3&gt; a, <a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;Vector3&gt; b) <a class="anchor-link" href="#poly_poly"
+              title="Permalink to IntersectionFinderXY.poly_poly">#</a></h4>
+<div class="doc">
+<pre class="source">
+bool poly_poly(List&lt;Vector3&gt; a, List&lt;Vector3&gt; b) {
+ var separated = false;
+
+ separated = _poly_poly0(a, b);
+ separated = separated || _poly_poly0(b, a);
+ return !separated;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="segment_segment">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>segment_segment</strong>(Vector3 sa1, Vector3 sa2, Vector3 sb1, Vector3 sb2, Vector4 acol) <a class="anchor-link" href="#segment_segment"
+              title="Permalink to IntersectionFinderXY.segment_segment">#</a></h4>
+<div class="doc">
+<p>implementation from http://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
+based on Andre LeMothe's <a href="http://rads.stackoverflow.com/amzn/click/0672323699">"Tricks of the Windows Game Programming Gurus"</a>.</p>
+<pre class="source">
+bool segment_segment(Vector3 sa1, Vector3 sa2, Vector3 sb1, Vector3 sb2, Vector4 acol) {
+ var sa_x, sa_y, sb_x, sb_y;
+ sa_x = sa2.x - sa1.x;     sa_y = sa2.y - sa1.y;
+ sb_x = sb2.x - sb1.x;     sb_y = sb2.y - sb1.y;
+
+ var u = (sa_x * sb_y - sb_x * sa_y);
+ // u == 0 if segment are parallele, with double approximation, use 0.0001
+ //if (u &lt; zeroEpsilon &amp;&amp; u &gt; -zeroEpsilon ) return false;
+ if (u == 0) return false;
+
+ var s = ( sa_x * (sa1.y - sb1.y) - sa_y * (sa1.x - sb1.x)) / u;
+ var t = ( sb_x * (sa1.y - sb1.y) - sb_y * (sa1.x - sb1.x)) / u;
+
+ if (s &gt;= 0 &amp;&amp; s &lt;= 1 &amp;&amp; t &gt;= 0 &amp;&amp; t &lt;= 1) {
+   acol.x = sa1.x + (t * sa_x);
+   acol.y = sa1.y + (t * sa_y);
+   //acol.z = sa1.z;
+   acol.w = t;
+   return  true;
+ }
+ return false;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="segment_sphere">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>segment_sphere</strong>(Vector3 s1, Vector3 s2, Vector3 c, <a href="http://api.dartlang.org/dart_core/double.html">double</a> r) <a class="anchor-link" href="#segment_sphere"
+              title="Permalink to IntersectionFinderXY.segment_sphere">#</a></h4>
+<div class="doc">
+<pre class="source">
+bool segment_sphere(Vector3 s1, Vector3 s2, Vector3 c, double r){
+
+ var s1c = _v0;
+ s1c.setFrom(c).sub(s1);
+ var s = _v1;
+ s.setFrom(s2).sub(s1);
+ var sl2 = s.length2;
+ var sp;
+ if (sl2 == 0.0) {
+   sp = s1;
+ } else {
+   double u = (s1c.x * s.x + s1c.y *s.y) / sl2; // s1c.dot(s)
+   sp = (u &lt; 0.0)? s1 : (u &gt; 1.0) ? s2 : s.scale(u).add(s1);
+ }
+ var cs = _v2;
+ cs.setFrom(c).sub(sp);
+ double l2 = cs.length2;
+
+ if (l2 &gt; r * r)
+   return false;
+
+//    double l = math.sqrt(l2);
+//    var t = (r - l) / l;
+//    var coll = cs.scale(t).add(c);
+//    ccol.setValues(coll.x, coll.y, coll.z, t);
+ return true;
+
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="sphere_sphere">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>sphere_sphere</strong>(Vector3 ca, <a href="http://api.dartlang.org/dart_core/double.html">double</a> ra, Vector3 cb, <a href="http://api.dartlang.org/dart_core/double.html">double</a> rb) <a class="anchor-link" href="#sphere_sphere"
+              title="Permalink to IntersectionFinderXY.sphere_sphere">#</a></h4>
+<div class="doc">
+<pre class="source">
+bool sphere_sphere(Vector3 ca, double ra, Vector3 cb, double rb) {
+ var threshold = ra + rb;
+
+ // Get the Cathetus
+ var dx = (ca.x - cb.x);
+ var dy = (ca.y - cb.y);
+
+ // Calculate the distance
+ var dis2 = dx * dx + dy * dy;
+
+ // Returns whether the distance between the two particles is smaller then the sum of both radi
+ return (threshold * threshold &gt;= dis2);
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-07-26 14:44:11.581</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

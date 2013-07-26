@@ -51,7 +51,7 @@ class System_Emitters extends EntityProcessingSystem {
  void processEntity(Entity entity) {
    var em = _emitterMapper.get(entity);
    var nb = em.counter(_dt);
-   var ne = em.genParticles ? _genParticles(nb) : _genEntities(nb);
+   var ne = (em.genParticles != null) ? _genParticles(nb, em.genParticles) : _genEntities(nb);
    em.initializers.forEach((init) =&gt; init(_dt, entity, ne));
    ne.forEach((e) =&gt; world.addEntity(e));
 //    em.particles.addAll(np);
@@ -60,15 +60,16 @@ class System_Emitters extends EntityProcessingSystem {
    if (em.once) entity.deleteFromWorld();
  }
 
- List&lt;Entity&gt; _genEntities( int nb) {
+ List&lt;Entity&gt; _genEntities(int nb) {
    return new List&lt;Entity&gt;.generate(nb, (i) =&gt; world.createEntity());
  }
 
- List&lt;Entity&gt; _genParticles(int nb) {
+ List&lt;Entity&gt; _genParticles(int nb, ParticlesConstructor pc) {
    var e = world.createEntity();
-   e.addComponent(new Particles(nb));
+   e.addComponent(pc(nb));
    return new List&lt;Entity&gt;.filled(1, e);
  }
+
 }
 </pre>
 </div>
@@ -77,11 +78,14 @@ class System_Emitters extends EntityProcessingSystem {
 <span class="type-box"><span class="icon-class"></span><a href="../dartemis/EntitySystem.html">EntitySystem</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><a href="../dartemis/EntityProcessingSystem.html">EntityProcessingSystem</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><strong>System_Emitters</strong></span></p>
 <div>
 <h3>Constructors</h3>
-<div class="method"><h4 id="System_Emitters">
+<div class="method"><h4 id="">
 <button class="show-code">Code</button>
-new <strong>System_Emitters</strong>() <a class="anchor-link" href="#System_Emitters"
+new <strong>System_Emitters</strong>() <a class="anchor-link" href="#"
               title="Permalink to System_Emitters.System_Emitters">#</a></h4>
 <div class="doc">
+<div class="inherited">
+<p>Create a new <a class="crossref" href="../dartemis/EntityProcessingSystem.html">EntityProcessingSystem</a>. It requires at least one component.</p>
+<div class="docs-inherited-from">docs inherited from EntityProcessingSystem </div></div>
 <pre class="source">
 System_Emitters() : super(Aspect.getAspectForAllOf([Emitter]));
 </pre>
@@ -287,7 +291,7 @@ void <strong>processEntity</strong>(Entity entity) <a class="anchor-link" href="
 void processEntity(Entity entity) {
  var em = _emitterMapper.get(entity);
  var nb = em.counter(_dt);
- var ne = em.genParticles ? _genParticles(nb) : _genEntities(nb);
+ var ne = (em.genParticles != null) ? _genParticles(nb, em.genParticles) : _genEntities(nb);
  em.initializers.forEach((init) =&gt; init(_dt, entity, ne));
  ne.forEach((e) =&gt; world.addEntity(e));
 //    em.particles.addAll(np);
@@ -315,7 +319,7 @@ void removed(Entity entity) {}
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-05-20 21:46:56.678</div>
+          <div>This page was generated at 2013-07-26 14:44:11.399</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>

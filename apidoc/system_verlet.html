@@ -31,84 +31,27 @@
 TODO benchmark, profiling, optimisation</p></div>
 <div>
 <h3>Functions</h3>
-<div class="method"><h4 id="makeCloth">
+<div class="method"><h4 id="setCollideOfSegment">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;Component&gt; <strong>makeCloth</strong>(vec3 origin, vec3 width, vec3 height, <a href="http://api.dartlang.org/dart_core/int.html">int</a> segments, <a href="http://api.dartlang.org/dart_core/int.html">int</a> pinMod, <a href="http://api.dartlang.org/dart_core/double.html">double</a> stiffness) <a class="anchor-link" href="#makeCloth"
-              title="Permalink to makeCloth">#</a></h4>
+dynamic <strong>setCollideOfSegment</strong>(Entity e, collide) <a class="anchor-link" href="#setCollideOfSegment"
+              title="Permalink to setCollideOfSegment">#</a></h4>
 <div class="doc">
 <pre class="source">
-Iterable&lt;Component&gt; makeCloth(vec3 origin, vec3 width, vec3 height, int segments, int pinMod, double stiffness) {
- var xStride = width / segments.toDouble();
- var yStride = height / segments.toDouble();
-
- var ps = new Particles();
- var cs = new Constraints();
- for (var y=0; y &lt; segments; ++y) {
-   var x0 = new Particle(origin + yStride * y.toDouble());
-   ps.l.add(x0);
-   if (y &gt; 0)
-     cs.l.add(new Constraint_Distance(x0.position3d, ps.l[(y-1)*segments].position3d, stiffness));
-   for (var x = 1; x &lt; segments; ++x) {
-//      var px = origin.x + x*xStride - width/2 + xStride/2;
-//      var py = origin.y + y*yStride - height/2 + yStride/2;
-     var xi = new Particle(x0.position3d + xStride * x.toDouble());
-     ps.l.add(xi);
-     cs.l.add(new Constraint_Distance(xi.position3d, ps.l[y*segments+x-1].position3d, stiffness));
-     if (y &gt; 0)
-       cs.l.add(new Constraint_Distance(xi.position3d, ps.l[(y-1)*segments+x].position3d, stiffness));
-   }
- }
-
- for (var x=0; x&lt; segments; ++x) {
-   if ( x % pinMod == 0)
-     pinVec3(ps.l[x].position3d, cs);
- }
-
- return [ps, cs];
+setCollideOfSegment(Entity e, collide) {
+ (e.getComponent(Constraints.CT) as Constraints).l.forEach((c){
+   if (c is Constraint_Distance) c.segment.collide = collide;
+ });
 }
 </pre>
 </div>
 </div>
-<div class="method"><h4 id="makeParallelogram">
+<div class="method"><h4 id="pinVector3">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;Component&gt; <strong>makeParallelogram</strong>(vec3 origin, vec3 width, vec3 height, <a href="http://api.dartlang.org/dart_core/double.html">double</a> stiffness) <a class="anchor-link" href="#makeParallelogram"
-              title="Permalink to makeParallelogram">#</a></h4>
+dynamic <strong>pinVector3</strong>(Vector3 v, <a href="system_verlet/Constraints.html">Constraints</a> cs) <a class="anchor-link" href="#pinVector3"
+              title="Permalink to pinVector3">#</a></h4>
 <div class="doc">
 <pre class="source">
-Iterable&lt;Component&gt;  makeParallelogram(vec3 origin, vec3 width, vec3 height, double stiffness) {
- return makeLineSegments([origin, origin + width, origin + width + height, origin + height], stiffness, true);
-}
-</pre>
-</div>
-</div>
-<div class="method"><h4 id="makeLineSegments">
-<button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;Component&gt; <strong>makeLineSegments</strong>(<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;vec3&gt; vertices, <a href="http://api.dartlang.org/dart_core/double.html">double</a> stiffness, <a href="http://api.dartlang.org/dart_core/bool.html">bool</a> closed) <a class="anchor-link" href="#makeLineSegments"
-              title="Permalink to makeLineSegments">#</a></h4>
-<div class="doc">
-<pre class="source">
-Iterable&lt;Component&gt; makeLineSegments(List&lt;vec3&gt; vertices, double stiffness, bool closed) {
- var ps = new Particles();
- ps.l.addAll(vertices.map((x) =&gt; new Particle(x)));
- var cs = new Constraints();
- for (var i = 1; i &lt; ps.l.length; ++i) {
-   cs.l.add(new Constraint_Distance(ps.l[i].position3d, ps.l[i-1].position3d, stiffness));
- }
- if (closed) {
-   cs.l.add(new Constraint_Distance(ps.l[0].position3d, ps.l[ps.l.length - 1].position3d, stiffness));
- }
- return [ps, cs];
-}
-</pre>
-</div>
-</div>
-<div class="method"><h4 id="pinVec3">
-<button class="show-code">Code</button>
-dynamic <strong>pinVec3</strong>(vec3 v, <a href="system_verlet/Constraints.html">Constraints</a> cs) <a class="anchor-link" href="#pinVec3"
-              title="Permalink to pinVec3">#</a></h4>
-<div class="doc">
-<pre class="source">
-pinVec3(vec3 v, Constraints cs) {
+pinVector3(Vector3 v, Constraints cs) {
  cs.l.add(new Constraint_Pin(v));
 }
 </pre>
@@ -121,39 +64,120 @@ dynamic <strong>pinParticle</strong>(Entity e, <a href="http://api.dartlang.org/
 <div class="doc">
 <pre class="source">
 pinParticle(Entity e, int index) {
- pinVec3(
-   (e.getComponent(Particles.CT) as Particles).l[index].position3d,
+ pinVector3(
+   (e.getComponent(Particles.CT) as Particles).position3d[index],
    e.getComponent(Constraints.CT)
  );
 }
 </pre>
 </div>
 </div>
+<div class="method"><h4 id="makeCloth">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;Component&gt; <strong>makeCloth</strong>(Vector3 origin, Vector3 width, Vector3 height, <a href="http://api.dartlang.org/dart_core/int.html">int</a> segments, <a href="http://api.dartlang.org/dart_core/int.html">int</a> pinMod, <a href="http://api.dartlang.org/dart_core/double.html">double</a> stiffness, <a href="system_particles/ParticlesConstructor.html">ParticlesConstructor</a> genP) <a class="anchor-link" href="#makeCloth"
+              title="Permalink to makeCloth">#</a></h4>
+<div class="doc">
+<pre class="source">
+Iterable&lt;Component&gt; makeCloth(Vector3 origin, Vector3 width, Vector3 height, int segments, int pinMod, double stiffness, ParticlesConstructor genP) {
+ var xStride = width / segments.toDouble();
+ var yStride = height / segments.toDouble();
+ var diag = width - height;
+ var diagl = diag.length;
+ var xStiffness = stiffness * width.length / diagl;
+ var yStiffness = stiffness * height.length / diagl;
+
+ var ps = genP(segments * segments);
+ var cs = new Constraints();
+ for (var y=0; y &lt; segments; ++y) {
+   var x0 = ps.position3d[y*segments + 0];
+   x0.setFrom(yStride).scale(y.toDouble()).add(origin);
+   if (y &gt; 0)
+     cs.l.add(new Constraint_Distance.fromParticles(ps, y*segments + 0, (y-1)*segments, yStiffness));
+   for (var x = 1; x &lt; segments; ++x) {
+//      var px = origin.x + x*xStride - width/2 + xStride/2;
+//      var py = origin.y + y*yStride - height/2 + yStride/2;
+     var xi = ps.position3d[y*segments + x];
+     xi.setFrom(xStride).scale(x.toDouble()).add(x0);
+     cs.l.add(new Constraint_Distance.fromParticles(ps, y*segments + x, y*segments+x-1, xStiffness));
+     if (y &gt; 0) {
+       cs.l.add(new Constraint_Distance.fromParticles(ps, y*segments + x, (y-1)*segments+x, yStiffness));
+       //cs.l.add(new Constraint_Distance.fromParticles(ps, y*segments + x, (y-1)*segments+x-1, stiffness));
+     }
+   }
+ }
+ ps.copyPosition3dIntoPrevious();
+
+ for (var x=0; x&lt; segments; ++x) {
+   if ( x % pinMod == 0)
+     pinVector3(ps.position3d[x], cs);
+ }
+
+ return [ps, cs];
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="makeParallelogram">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;Component&gt; <strong>makeParallelogram</strong>(Vector3 origin, Vector3 width, Vector3 height, <a href="http://api.dartlang.org/dart_core/double.html">double</a> stiffness, <a href="system_particles/ParticlesConstructor.html">ParticlesConstructor</a> genP) <a class="anchor-link" href="#makeParallelogram"
+              title="Permalink to makeParallelogram">#</a></h4>
+<div class="doc">
+<pre class="source">
+Iterable&lt;Component&gt;  makeParallelogram(Vector3 origin, Vector3 width, Vector3 height, double stiffness, ParticlesConstructor genP) {
+ return makeLineSegments([origin, origin + width, origin + width + height, origin + height], stiffness, true, genP);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="makeLineSegments">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;Component&gt; <strong>makeLineSegments</strong>(<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;Vector3&gt; vertices, <a href="http://api.dartlang.org/dart_core/double.html">double</a> stiffness, <a href="http://api.dartlang.org/dart_core/bool.html">bool</a> closed, <a href="system_particles/ParticlesConstructor.html">ParticlesConstructor</a> genP) <a class="anchor-link" href="#makeLineSegments"
+              title="Permalink to makeLineSegments">#</a></h4>
+<div class="doc">
+<pre class="source">
+Iterable&lt;Component&gt; makeLineSegments(List&lt;Vector3&gt; vertices, double stiffness, bool closed, ParticlesConstructor genP) {
+ var ps = genP(vertices.length);
+ for(int i = 0; i &lt; ps.length; ++i) {
+   ps.position3d[i].setFrom(vertices[i]);
+ }
+ ps.copyPosition3dIntoPrevious();
+ var cs = new Constraints();
+ for (var i = 1; i &lt; ps.position3d.length; ++i) {
+   cs.l.add(new Constraint_Distance.fromParticles(ps, i, i-1, stiffness));
+ }
+ if (closed) {
+   cs.l.add(new Constraint_Distance.fromParticles(ps, 0, ps.position3d.length - 1, stiffness));
+ }
+ return [ps, cs];
+}
+</pre>
+</div>
+</div>
 <div class="method"><h4 id="makeTireXY">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;Component&gt; <strong>makeTireXY</strong>(vec3 origin, <a href="http://api.dartlang.org/dart_core/double.html">double</a> radius, <a href="http://api.dartlang.org/dart_core/int.html">int</a> segments, <a href="http://api.dartlang.org/dart_core/double.html">double</a> spokeStiffness, <a href="http://api.dartlang.org/dart_core/double.html">double</a> treadStiffness) <a class="anchor-link" href="#makeTireXY"
+<a href="http://api.dartlang.org/dart_core/Iterable.html">Iterable</a>&lt;Component&gt; <strong>makeTireXY</strong>(Vector3 origin, <a href="http://api.dartlang.org/dart_core/double.html">double</a> radius, <a href="http://api.dartlang.org/dart_core/int.html">int</a> segments, <a href="http://api.dartlang.org/dart_core/double.html">double</a> spokeStiffness, <a href="http://api.dartlang.org/dart_core/double.html">double</a> treadStiffness, <a href="system_particles/ParticlesConstructor.html">ParticlesConstructor</a> genP) <a class="anchor-link" href="#makeTireXY"
               title="Permalink to makeTireXY">#</a></h4>
 <div class="doc">
 <pre class="source">
-Iterable&lt;Component&gt; makeTireXY(vec3 origin, double radius, int segments, double spokeStiffness, double treadStiffness) {
+Iterable&lt;Component&gt; makeTireXY(Vector3 origin, double radius, int segments, double spokeStiffness, double treadStiffness, ParticlesConstructor genP) {
  var stride = (2 * math.PI) / segments;
 
  // particles
- var ps = new Particles(segments + 1);
+ var ps = genP(segments + 1);
  for (var i=0; i &lt; segments; ++i) {
    var theta = i * stride;
-   var v = ps.l[i].position3d.setFrom(origin);
+   var v = ps.position3d[i].setFrom(origin);
    v.x = v.x + math.cos(theta) * radius;
    v.y = v.y + math.sin(theta) * radius;
  }
- ps.l[segments].position3d.setFrom(origin);
-
+ ps.position3d[segments].setFrom(origin);
+ ps.copyPosition3dIntoPrevious();
  // constraints
  var cs = new Constraints();
  for (var i=0; i &lt; segments; ++i) {
-   cs.l.add(new Constraint_Distance(ps.l[i].position3d, ps.l[(i + 1) % segments].position3d, treadStiffness));
-   cs.l.add(new Constraint_Distance(ps.l[i].position3d, origin, spokeStiffness));
-   cs.l.add(new Constraint_Distance(ps.l[i].position3d, ps.l[(i + 5) % segments].position3d, treadStiffness));
+   cs.l.add(new Constraint_Distance.fromParticles(ps, i, (i + 1) % segments, treadStiffness));
+   cs.l.add(new Constraint_Distance.fromParticles(ps, i, segments, spokeStiffness));
+   cs.l.add(new Constraint_Distance.fromParticles(ps, i, (i + 5) % segments, treadStiffness));
  }
  return [ps,cs];
 }
@@ -172,6 +196,12 @@ Iterable&lt;Component&gt; makeTireXY(vec3 origin, double radius, int segments, d
 </div>
 <div>
 <h3>Classes</h3>
+          <div class="type">
+          <h4>
+            <a href="system_verlet/Body.html"><strong>Body</strong></a>
+          </h4>
+          </div>
+          
           <div class="type">
           <h4>
             <a href="system_verlet/Constraint_AngleXY.html"><strong>Constraint_AngleXY</strong></a>
@@ -207,7 +237,7 @@ Iterable&lt;Component&gt; makeTireXY(vec3 origin, double radius, int segments, d
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-05-20 21:46:57.134</div>
+          <div>This page was generated at 2013-07-26 14:44:11.524</div>
         </div>
         <script async src="client-live-nav.js"></script>
         </body></html>

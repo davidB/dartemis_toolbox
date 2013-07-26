@@ -35,9 +35,9 @@
 <p>TODO support 3D</p>
 <pre class="source">
 class Constraint_AngleXY implements Constraint {
- vec3 a;
- vec3 b;
- vec3 c;
+ Vector3 a;
+ Vector3 b;
+ Vector3 c;
  double stiffness;
  double _angle;
  Constraint_AngleXY(this.a, this.b, this.c, this.stiffness) {
@@ -61,16 +61,16 @@ class Constraint_AngleXY implements Constraint {
    b = _frotate(b, c, -diff);
  }
 
- _fangle(vec3 v0, vec3 v1) =&gt;
+ _fangle(Vector3 v0, Vector3 v1) =&gt;
    math.atan2(v0.x * v1.y - v0.y * v1.x, v0.x * v1.x + v0.y * v1.y);
 
- _fangle2(vec3 v0, vLeft, vRight) =&gt;
+ _fangle2(Vector3 v0, vLeft, vRight) =&gt;
    _fangle(vLeft - v0, vRight - v0);
 
- _frotate(vec3 v0, vec3 origin, theta) {
+ _frotate(Vector3 v0, Vector3 origin, theta) {
    var x = v0.x - origin.x;
    var y = v0.y - origin.y;
-   return new vec3( x * math.cos(theta) - y * math.sin(theta) + origin.x, x* math.sin(theta) + y* math.cos(theta) + origin.y, v0.z);
+   return new Vector3( x * math.cos(theta) - y * math.sin(theta) + origin.x, x* math.sin(theta) + y* math.cos(theta) + origin.y, v0.z);
  }
 
 }
@@ -81,11 +81,17 @@ class Constraint_AngleXY implements Constraint {
 <span class="type-box"><span class="icon-class"></span><a href="../system_verlet/Constraint.html">Constraint</a></span></p>
 <div>
 <h3>Constructors</h3>
-<div class="method"><h4 id="Constraint_AngleXY">
+<div class="method"><h4 id="">
 <button class="show-code">Code</button>
-new <strong>Constraint_AngleXY</strong>(vec3 a, vec3 b, vec3 c, <a href="http://api.dartlang.org/dart_core/double.html">double</a> stiffness) <a class="anchor-link" href="#Constraint_AngleXY"
+new <strong>Constraint_AngleXY</strong>(Vector3 a, Vector3 b, Vector3 c, <a href="http://api.dartlang.org/dart_core/double.html">double</a> stiffness) <a class="anchor-link" href="#"
               title="Permalink to Constraint_AngleXY.Constraint_AngleXY">#</a></h4>
 <div class="doc">
+<div class="inherited">
+<p>Creates a new <a class="crossref" href="../dart_core/Object.html">Object</a> instance.</p>
+<p><a class="crossref" href="../dart_core/Object.html">Object</a> instances have no meaningful state, and are only useful
+through their identity. An <a class="crossref" href="../dart_core/Object.html">Object</a> instance is equal to itself
+only.</p>
+<div class="docs-inherited-from">docs inherited from <a href="http://api.dartlang.org/dart_core/Object.html">Object</a> </div></div>
 <pre class="source">
 Constraint_AngleXY(this.a, this.b, this.c, this.stiffness) {
  _angle = _fangle2(b, a, c);
@@ -98,37 +104,37 @@ Constraint_AngleXY(this.a, this.b, this.c, this.stiffness) {
 <h3>Properties</h3>
 <div class="field"><h4 id="a">
 <button class="show-code">Code</button>
-vec3         <strong>a</strong> <a class="anchor-link"
+Vector3         <strong>a</strong> <a class="anchor-link"
             href="#a"
             title="Permalink to Constraint_AngleXY.a">#</a>
         </h4>
         <div class="doc">
 <pre class="source">
-vec3 a
+Vector3 a
 </pre>
 </div>
 </div>
 <div class="field"><h4 id="b">
 <button class="show-code">Code</button>
-vec3         <strong>b</strong> <a class="anchor-link"
+Vector3         <strong>b</strong> <a class="anchor-link"
             href="#b"
             title="Permalink to Constraint_AngleXY.b">#</a>
         </h4>
         <div class="doc">
 <pre class="source">
-vec3 b
+Vector3 b
 </pre>
 </div>
 </div>
 <div class="field"><h4 id="c">
 <button class="show-code">Code</button>
-vec3         <strong>c</strong> <a class="anchor-link"
+Vector3         <strong>c</strong> <a class="anchor-link"
             href="#c"
             title="Permalink to Constraint_AngleXY.c">#</a>
         </h4>
         <div class="doc">
 <pre class="source">
-vec3 c
+Vector3 c
 </pre>
 </div>
 </div>
@@ -177,7 +183,7 @@ relax(stepCoef) {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-05-20 21:46:57.145</div>
+          <div>This page was generated at 2013-07-26 14:44:11.528</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>

@@ -1,0 +1,278 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>Space_XY0 class / collisions Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="collisions" data-type="Space_XY0">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../collisions.html">collisions</a> &rsaquo; <a href="../collisions/Space_XY0.html">Space_XY0</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>Space_XY0</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p>Raw space (no optimisation, no grid, no quadtree, no ...) every particles
+are check against every particles (inter <a class="crossref" href="../system_particles/Particles.html">Particles</a> and intra <a class="crossref" href="../system_particles/Particles.html">Particles</a> group)
+and check against every <a class="crossref" href="../system_particles/Segment.html">Segment</a></p>
+<pre class="source">
+class Space_XY0 implements Space{
+
+ final List&lt;Particles&gt; _particlesS = new List();
+ final List&lt;Segment&gt; _segments = new List();
+ final Checker checker;
+ final Resolver resolver;
+ final Vector4 _scol = new Vector4.zero();
+
+ Space_XY0(this.checker, this.resolver);
+
+ void reset() {
+   _particlesS.clear();
+   _segments.clear();
+ }
+
+ /// return true if at least one [ps].collide != 0 (the Particles [ps] is included in the space)
+ bool addParticles(Particles ps) {
+   var b = false;
+   for(int i = 0; i &lt; ps.length; ++i) {
+     var v = ps.collide[i];
+     ps.collide[i] = v * v;
+     b  = b || (ps.collide[i] != 0);
+   }
+   b = b &amp;&amp; (ps.length &gt; 0);
+   if (b) {
+     _particlesS.add(ps);
+   }
+   //if (ps.length &gt; 0) print("&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; ${ps.length} ${ps.collide[0]} ${b}");
+   return b;
+ }
+
+ /// return true if [seg].collide != 0 (the Segment [seg] is include in the space)
+ bool addSegment(Segment seg) {
+   //print("try add segment");
+   if (seg.collide != 0) {
+     seg.collide = 1;
+     _segments.add(seg);
+     return true;
+   }
+   return false;
+ }
+
+ //TODO optimize with a grid, a quadtree, ...
+ void handleCollision() {
+   for (int i = 0; i &lt; _particlesS.length; ++i) {
+     _detectCollisionInterParticles(i);
+     _detectCollisionParticlesSegments(i);
+     _detectCollisionIntraParticles(i);
+   }
+ }
+
+ void _detectCollisionInterParticles(int i) {
+   var psA = _particlesS[i];
+   for (int j = i+1; j &lt; _particlesS.length; ++j) {
+     var psB = _particlesS[j];
+     for(int iA = 0; iA &lt; psA.length; ++iA) {
+       if (psA.collide[iA] != 0) {
+         for(int iB = 0; iB &lt; psB.length; ++iB) {
+           if (psB.collide[iB] != 0) {
+             if(checker.collideParticleParticle(psA, iA, psB, iB, _scol)){
+               resolver.notifyCollisionParticleParticle(psA, iA, psB, iB, _scol.w);
+             }
+           }
+         }
+       }
+     }
+   }
+ }
+
+ void _detectCollisionIntraParticles(int i) {
+   var psA = _particlesS[i];
+   if (!psA.intraCollide) return;
+   for(int iA = 0; iA &lt; psA.length; ++iA) {
+     if (psA.collide[iA] != 0) {
+       for(int iB = iA+1; iB &lt; psA.length; ++iB) {
+         if (psA.collide[iB] != 0) {
+           if(checker.collideParticleParticle(psA, iA, psA, iB, _scol)){
+             resolver.notifyCollisionParticleParticle(psA, iA, psA, iB, _scol.w);
+           }
+         }
+       }
+     }
+   }
+ }
+
+ void _detectCollisionParticlesSegments(int i) {
+   var psA = _particlesS[i];
+   for(int iS = 0; iS &lt; _segments.length; ++iS) {
+     var s = _segments[iS];
+     if (psA == s.ps) continue;
+     for(int iA = 0; iA &lt; psA.length; ++iA) {
+       if (psA.collide[iA] != 0) {
+         //print("test ${psA.position3d[iA]}");
+         if (checker.collideParticleSegment(psA, iA, s, _scol)) {
+           resolver.notifyCollisionParticleSegment(psA, iA, s, _scol.w);
+         }
+       }
+     }
+   }
+ }
+}
+</pre>
+</div>
+<h3>Implements</h3>
+<p>
+<span class="type-box"><span class="icon-class"></span><a href="../collisions/Space.html">Space</a></span></p>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="">
+<button class="show-code">Code</button>
+new <strong>Space_XY0</strong>(<a href="../collisions/Checker.html">Checker</a> checker, <a href="../collisions/Resolver.html">Resolver</a> resolver) <a class="anchor-link" href="#"
+              title="Permalink to Space_XY0.Space_XY0">#</a></h4>
+<div class="doc">
+<div class="inherited">
+<p>Creates a new <a class="crossref" href="../dart_core/Object.html">Object</a> instance.</p>
+<p><a class="crossref" href="../dart_core/Object.html">Object</a> instances have no meaningful state, and are only useful
+through their identity. An <a class="crossref" href="../dart_core/Object.html">Object</a> instance is equal to itself
+only.</p>
+<div class="docs-inherited-from">docs inherited from <a href="http://api.dartlang.org/dart_core/Object.html">Object</a> </div></div>
+<pre class="source">
+Space_XY0(this.checker, this.resolver);
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="checker">
+<button class="show-code">Code</button>
+final <a href="../collisions/Checker.html">Checker</a>         <strong>checker</strong> <a class="anchor-link"
+            href="#checker"
+            title="Permalink to Space_XY0.checker">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final Checker checker
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="resolver">
+<button class="show-code">Code</button>
+final <a href="../collisions/Resolver.html">Resolver</a>         <strong>resolver</strong> <a class="anchor-link"
+            href="#resolver"
+            title="Permalink to Space_XY0.resolver">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final Resolver resolver
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="addParticles">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>addParticles</strong>(<a href="../system_particles/Particles.html">Particles</a> ps) <a class="anchor-link" href="#addParticles"
+              title="Permalink to Space_XY0.addParticles">#</a></h4>
+<div class="doc">
+<p>return true if at least one 
+<span class="param">ps</span>.collide != 0 (the Particles 
+<span class="param">ps</span> is included in the space)</p>
+<pre class="source">
+bool addParticles(Particles ps) {
+ var b = false;
+ for(int i = 0; i &lt; ps.length; ++i) {
+   var v = ps.collide[i];
+   ps.collide[i] = v * v;
+   b  = b || (ps.collide[i] != 0);
+ }
+ b = b &amp;&amp; (ps.length &gt; 0);
+ if (b) {
+   _particlesS.add(ps);
+ }
+ //if (ps.length &gt; 0) print("&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; ${ps.length} ${ps.collide[0]} ${b}");
+ return b;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="addSegment">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>addSegment</strong>(<a href="../system_particles/Segment.html">Segment</a> seg) <a class="anchor-link" href="#addSegment"
+              title="Permalink to Space_XY0.addSegment">#</a></h4>
+<div class="doc">
+<p>return true if 
+<span class="param">seg</span>.collide != 0 (the Segment 
+<span class="param">seg</span> is include in the space)</p>
+<pre class="source">
+bool addSegment(Segment seg) {
+ //print("try add segment");
+ if (seg.collide != 0) {
+   seg.collide = 1;
+   _segments.add(seg);
+   return true;
+ }
+ return false;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="handleCollision">
+<button class="show-code">Code</button>
+void <strong>handleCollision</strong>() <a class="anchor-link" href="#handleCollision"
+              title="Permalink to Space_XY0.handleCollision">#</a></h4>
+<div class="doc">
+<pre class="source">
+void handleCollision() {
+ for (int i = 0; i &lt; _particlesS.length; ++i) {
+   _detectCollisionInterParticles(i);
+   _detectCollisionParticlesSegments(i);
+   _detectCollisionIntraParticles(i);
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="reset">
+<button class="show-code">Code</button>
+void <strong>reset</strong>() <a class="anchor-link" href="#reset"
+              title="Permalink to Space_XY0.reset">#</a></h4>
+<div class="doc">
+<pre class="source">
+void reset() {
+ _particlesS.clear();
+ _segments.clear();
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-07-26 14:44:11.155</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

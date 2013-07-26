@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="../index.css">
     <link rel="stylesheet" href="http://weloveiconfonts.com/api/?family=fontawesome">
     <title>demo 0 : proto2d : dartemis_toolbox</title>
-    <!--link rel="import" href="packages/dartemis_toolbox/widgets/xtchart.html"-->
+    
     <style>#demo {
   height: 400px;
 }</style>
@@ -28,7 +28,13 @@
           <template></template>
         </ul>
       </div>
+      <div class="span12">
+        <label>Duration (ms) of main loop:</label>
+        <div id="statsLoop_xtchart" is="x-tchart" style="height:50px"></div>
+        <pre id="statsLoop"></pre>
+      </div>
     </div>
+
     
     <!-- for this next line to work, your pubspec.yaml file must have a dependency on 'browser' -->
     <script src="../packages/browser/dart.js"></script>

@@ -1,0 +1,152 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>Resolver_Backward class / collisions Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="collisions" data-type="Resolver_Backward">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../collisions.html">collisions</a> &rsaquo; <a href="../collisions/Resolver_Backward.html">Resolver_Backward</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>Resolver_Backward</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<pre class="source">
+class Resolver_Backward implements Resolver {
+ backward(Vector3 vc, Vector3 vp, double t) {
+   vc.sub(vp).scale(t).add(vp);
+   vp.setValues(vc.x, vc.y, vc.z); //HACK to reset valocity// inertie
+ }
+
+ void notifyCollisionParticleSegment(Particles psA, int iA, Segment s, double tcoll) {
+   //var t = math.max(0.0, tcoll - 0.5); //small repulsion should not override
+   var t = 0.5 * tcoll;
+   //ci.psA.position3d[ci.iA].setValues(ci.collA.x, ci.collA.y, ci.collA.z);
+   backward(psA.position3d[iA], psA.position3dPrevious[iA], t);
+   backward(s.ps.position3d[s.i1], s.ps.position3dPrevious[s.i1], t);
+   backward(s.ps.position3d[s.i2], s.ps.position3dPrevious[s.i2], t);
+   //print("${ci.psA.hashCode}  ... ${ci.s.ps.hashCode} ${ci.psA == ci.s.ps}");
+ }
+
+ void notifyCollisionParticleParticle(Particles psA, int iA, Particles psB, int iB, double tcoll) {
+   var body1 = psA.position3d[iA];
+   var body2 = psB.position3d[iB];
+   var x = body1.x - body2.x;
+   var y = body1.y - body2.y;
+   var slength = x*x+y*y;
+   var length = math.sqrt(slength);
+   var target = psA.radius[iA] + psB.radius[iB];
+
+   // if the spheres are closer
+   // then their radii combined
+   if(length &lt; target){
+     var factor = (length-target)/length;
+     // move the spheres away from each other
+     // by half the conflicting length
+     body1.x -= x*factor*0.5;
+     body1.y -= y*factor*0.5;
+     body2.x += x*factor*0.5;
+     body2.y += y*factor*0.5;
+   }
+ }
+
+}
+</pre>
+</div>
+<h3>Implements</h3>
+<p>
+<span class="type-box"><span class="icon-class"></span><a href="../collisions/Resolver.html">Resolver</a></span></p>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="backward">
+<button class="show-code">Code</button>
+dynamic <strong>backward</strong>(Vector3 vc, Vector3 vp, <a href="http://api.dartlang.org/dart_core/double.html">double</a> t) <a class="anchor-link" href="#backward"
+              title="Permalink to Resolver_Backward.backward">#</a></h4>
+<div class="doc">
+<pre class="source">
+backward(Vector3 vc, Vector3 vp, double t) {
+ vc.sub(vp).scale(t).add(vp);
+ vp.setValues(vc.x, vc.y, vc.z); //HACK to reset valocity// inertie
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="notifyCollisionParticleParticle">
+<button class="show-code">Code</button>
+void <strong>notifyCollisionParticleParticle</strong>(<a href="../system_particles/Particles.html">Particles</a> psA, <a href="http://api.dartlang.org/dart_core/int.html">int</a> iA, <a href="../system_particles/Particles.html">Particles</a> psB, <a href="http://api.dartlang.org/dart_core/int.html">int</a> iB, <a href="http://api.dartlang.org/dart_core/double.html">double</a> tcoll) <a class="anchor-link" href="#notifyCollisionParticleParticle"
+              title="Permalink to Resolver_Backward.notifyCollisionParticleParticle">#</a></h4>
+<div class="doc">
+<pre class="source">
+void notifyCollisionParticleParticle(Particles psA, int iA, Particles psB, int iB, double tcoll) {
+ var body1 = psA.position3d[iA];
+ var body2 = psB.position3d[iB];
+ var x = body1.x - body2.x;
+ var y = body1.y - body2.y;
+ var slength = x*x+y*y;
+ var length = math.sqrt(slength);
+ var target = psA.radius[iA] + psB.radius[iB];
+
+ // if the spheres are closer
+ // then their radii combined
+ if(length &lt; target){
+   var factor = (length-target)/length;
+   // move the spheres away from each other
+   // by half the conflicting length
+   body1.x -= x*factor*0.5;
+   body1.y -= y*factor*0.5;
+   body2.x += x*factor*0.5;
+   body2.y += y*factor*0.5;
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="notifyCollisionParticleSegment">
+<button class="show-code">Code</button>
+void <strong>notifyCollisionParticleSegment</strong>(<a href="../system_particles/Particles.html">Particles</a> psA, <a href="http://api.dartlang.org/dart_core/int.html">int</a> iA, <a href="../system_particles/Segment.html">Segment</a> s, <a href="http://api.dartlang.org/dart_core/double.html">double</a> tcoll) <a class="anchor-link" href="#notifyCollisionParticleSegment"
+              title="Permalink to Resolver_Backward.notifyCollisionParticleSegment">#</a></h4>
+<div class="doc">
+<pre class="source">
+void notifyCollisionParticleSegment(Particles psA, int iA, Segment s, double tcoll) {
+ //var t = math.max(0.0, tcoll - 0.5); //small repulsion should not override
+ var t = 0.5 * tcoll;
+ //ci.psA.position3d[ci.iA].setValues(ci.collA.x, ci.collA.y, ci.collA.z);
+ backward(psA.position3d[iA], psA.position3dPrevious[iA], t);
+ backward(s.ps.position3d[s.i1], s.ps.position3dPrevious[s.i1], t);
+ backward(s.ps.position3d[s.i2], s.ps.position3dPrevious[s.i2], t);
+ //print("${ci.psA.hashCode}  ... ${ci.s.ps.hashCode} ${ci.psA == ci.s.ps}");
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-07-26 14:44:11.195</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

@@ -33,39 +33,50 @@
 <button id="show-inherited" class="show-inherited">Hide inherited</button>
 <div class="doc">
 <pre class="source">
-class System_Simulator extends EntitySystem {
- ComponentMapper&lt;Particles&gt; _particlesMapper;
- ComponentMapper&lt;Constraints&gt; _constraintsMapper;
- //var gravity = new vec3(0, 0.2, 0.0);
- double friction = 0.99;
- //var groundFriction = 0.8;
- var step = 10;
+class System_Simulator extends IntervalEntitySystem {
+ //ComponentMapper&lt;Particles&gt; _particlesMapper;
+ ComponentMapper0 _particlesMapper;
+ ComponentMapper0 _constraintsMapper;
+ var _constraintss = new List&lt;Constraints&gt;(0);
+ int _constraintssL = 0;
 
- System_Simulator({this.step}) : super(Aspect.getAspectForAllOf([Particles, Constraints]));
+ var steps = 10;
+ /// eg : gravity
+ final globalAccs = new Vector3(0.0, 0.0, 0.0);
+ collisions.Space collSpace;
+ final double interval; // = 1000.0/30.0;
+ double _timestep = -1.0;
+
+ System_Simulator({this.steps : 3, interval0 : 1000.0/30, collisions.Space space0: null}) :
+   super(interval0, Aspect.getAspectForAllOf([Particles])),
+   interval = interval0,
+   collSpace = (space0 != null)? space0 : new collisions.Space_Noop()
+   ;
 
  void initialize(){
-   _particlesMapper = new ComponentMapper&lt;Particles&gt;(Particles, world);
-   _constraintsMapper = new ComponentMapper&lt;Constraints&gt;(Constraints, world);
+   _particlesMapper = new ComponentMapper0(Particles, world);
+   _constraintsMapper = new ComponentMapper0(Constraints, world);
  }
 
- bool checkProcessing() =&gt; true;
-
  void processEntities(ReadOnlyBag&lt;Entity&gt; entities) {
-   var particlesG = new List();
-   var constraintsG = new List();
+   var deplacement = new Vector3.zero();
+   var accs = new Vector3.zero();
+   collSpace.reset();
+   //for (var pass = (delta ~/ interval) + 1; pass &gt; 0; --pass) {
+   //apply time corrected verlet [TCV](http://lonesock.net/article/verlet.html)
+   var dt = delta.toDouble() / 1000.0;
+   var timestepPrevious = (_timestep == -1) ?dt : _timestep;
+   _timestep = dt  ;
+   var timeScale = (_timestep / timestepPrevious);
+   var timestep2 = _timestep * _timestep;
    entities.forEach((e){
      var ps = _particlesMapper.get(e);
-     if (ps != null) particlesG.add(ps);
-     var cs = _constraintsMapper.get(e);
-     if (cs != null) constraintsG.add(cs);
-   });
-   particlesG.forEach((c) {
-     if (c == null) return;
-     c.l.forEach((p) {
-       if (p.position3dPrevious == null)
-         p.position3dPrevious = p.position3d.clone();
+     if (ps == null) return;
+     for (var i = ps.length -1 ; i &gt; -1; --i){
+       var position3d = ps.position3d[i];
+       var position3dPrevious = ps.position3dPrevious[i];
        // calculate velocity
-       var velocity = (p.position3d - p.position3dPrevious).scale(friction);
+       deplacement.setFrom(position3d).sub(position3dPrevious).scale(timeScale * ps.inertia[i]);
 
 //        // ground friction
 //        if (particles[i].pos.y &gt;= this.height-1 &amp;&amp; velocity.length2() &gt; 0.000001) {
@@ -75,66 +86,160 @@ class System_Simulator extends EntitySystem {
 //          velocity.mutableScale(m*this.groundFriction);
 //        }
 
+       accs.setFrom(globalAccs);
+       accs.add(ps.acc[i]);
+       // Position Verlet integration
+       accs.scale(timestep2);
+       deplacement.add(accs);
+       // follow http://lolengine.net/blog/2011/12/14/understanding-motion-in-games
+       // Velocity Verlet integration
+       // vec3 OldVel = Vel;
+       // Vel = Vel + Accel * dt;
+       // Pos = Pos + (OldVel + Vel) * 0.5 * dt;
+       // Pos = Pos + (2 * OldVel + Accel * dt) * 0.5 * dt;
+       //forces.scale(_timestep1);
+       //deplacement.scale(2.0).add(forces).scale(0.5 * _timestep1);
+
+
        // save last good state
-       p.position3dPrevious.setFrom(p.position3d);
-
-       // gravity
-       //p.position3d.add(this.gravity);
-
-       // inertia
-       p.position3d.add(velocity);
-     });
-   });
-
-   // relax
-   var stepCoef = 1/step;
-   constraintsG.forEach((c) {
-     for (var i=0; i&lt;step; ++i) {
-       c.l.forEach((j) {
-         j.relax(stepCoef);
-       });
+       // TODO optim : store future pos in previous and swap previous (with future) and current values in one swap (swap the list), but this optimisation will break existing code that keep vector of position (eg constraint)
+       position3dPrevious.setFrom(position3d);
+       position3d.add(deplacement);
      }
+     collSpace.addParticles(ps);
    });
+   // iterate collisions + constraints
+   var stepCoef = 1.0/steps;
+   //var bodies = maps(entities, _bodiesMapper);
+   _updateConstraintss(entities);
 
+   for(int step = 0; step &lt; steps; ++step ) { //Repeat this a few times to give more exact results
 //    // bounds checking
+//    //TODO define bounds as constraintes
 //    for (c in this.composites) {
 //      var particles = this.composites[c].particles;
 //      for (i in particles)
 //        this.bounds(particles[i]);
 //    }
+
+     //relax Constraints (include Edge) correction step
+     //TODO optimize the loop
+     //TODO check if relax should be done in the same loop as collision
+     //TODO check if relax should be done once constraint per step or every constraint per step
+     for (int i = 0; i &lt; _constraintssL; i++) {
+       var c = _constraintss[i];
+       c.l.forEach((j) {
+         j.relax(stepCoef);
+       });
+     };
+   }
+
+   for(var i = 0; i &lt; _constraintssL; ++i) {
+     var cs = _constraintss[i];
+     for(var j = 0; j &lt; cs.l.length; ++j) {
+       var c = cs.l[j];
+       if(c is Constraint_Distance) {
+         collSpace.addSegment(c.segment);
+       }
+     }
+   }
+   collSpace.handleCollision();
+
  }
 
+ _updateConstraintss(entities) {
+   _constraintssL = 0;
+   if (entities.size &gt; _constraintss.length) {
+     _constraintss = new List(entities.size);
+   }
+   for(var i = 0; i &lt; entities.size; i++) {
+     var e = entities[i];
+     var c = _constraintsMapper.getSafe(e);
+     if (c != null) {
+       _constraintss[_constraintssL] = c;
+       _constraintssL++;
+     }
+   }
+ }
 
 }
 </pre>
 </div>
 <h3>Extends</h3>
 <p>
-<span class="type-box"><span class="icon-class"></span><a href="../dartemis/EntitySystem.html">EntitySystem</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><strong>System_Simulator</strong></span></p>
+<span class="type-box"><span class="icon-class"></span><a href="../dartemis/EntitySystem.html">EntitySystem</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><a href="../dartemis/IntervalEntitySystem.html">IntervalEntitySystem</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><strong>System_Simulator</strong></span></p>
 <div>
 <h3>Constructors</h3>
-<div class="method"><h4 id="System_Simulator">
+<div class="method"><h4 id="">
 <button class="show-code">Code</button>
-new <strong>System_Simulator</strong>({step}) <a class="anchor-link" href="#System_Simulator"
+new <strong>System_Simulator</strong>({steps: 3, interval0: 1000.0/30, <a href="../collisions/Space.html">Space</a> space0: null}) <a class="anchor-link" href="#"
               title="Permalink to System_Simulator.System_Simulator">#</a></h4>
 <div class="doc">
+<div class="inherited">
+<p>Creates a new <a class="crossref" href="../dart_core/Object.html">Object</a> instance.</p>
+<p><a class="crossref" href="../dart_core/Object.html">Object</a> instances have no meaningful state, and are only useful
+through their identity. An <a class="crossref" href="../dart_core/Object.html">Object</a> instance is equal to itself
+only.</p>
+<div class="docs-inherited-from">docs inherited from <a href="http://api.dartlang.org/dart_core/Object.html">Object</a> </div></div>
 <pre class="source">
-System_Simulator({this.step}) : super(Aspect.getAspectForAllOf([Particles, Constraints]));
+System_Simulator({this.steps : 3, interval0 : 1000.0/30, collisions.Space space0: null}) :
+ super(interval0, Aspect.getAspectForAllOf([Particles])),
+ interval = interval0,
+ collSpace = (space0 != null)? space0 : new collisions.Space_Noop()
+ ;
 </pre>
 </div>
 </div>
 </div>
 <div>
 <h3>Properties</h3>
-<div class="field"><h4 id="friction">
+<div class="field"><h4 id="collSpace">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>friction</strong> <a class="anchor-link"
-            href="#friction"
-            title="Permalink to System_Simulator.friction">#</a>
+<a href="../collisions/Space.html">Space</a>         <strong>collSpace</strong> <a class="anchor-link"
+            href="#collSpace"
+            title="Permalink to System_Simulator.collSpace">#</a>
         </h4>
         <div class="doc">
 <pre class="source">
-double friction = 0.99
+collisions.Space collSpace
+</pre>
+</div>
+</div>
+<div class="field inherited"><h4 id="delta">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/num.html">num</a>         <strong>delta</strong> <a class="anchor-link"
+            href="#delta"
+            title="Permalink to System_Simulator.delta">#</a>
+        </h4>
+        <div class="inherited-from">inherited from IntervalEntitySystem </div><div class="doc">
+<p>Returns the accumulated delta since the system was last invoked.</p>
+<pre class="source">
+num get delta =&gt; _delta;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="globalAccs">
+<button class="show-code">Code</button>
+final         <strong>globalAccs</strong> <a class="anchor-link"
+            href="#globalAccs"
+            title="Permalink to System_Simulator.globalAccs">#</a>
+        </h4>
+        <div class="doc">
+<p>eg : gravity</p>
+<pre class="source">
+final globalAccs = new Vector3(0.0, 0.0, 0.0)
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="interval">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>interval</strong> <a class="anchor-link"
+            href="#interval"
+            title="Permalink to System_Simulator.interval">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final double interval
 </pre>
 </div>
 </div>
@@ -150,15 +255,15 @@ get passive =&gt; _passive;
 </pre>
 </div>
 </div>
-<div class="field"><h4 id="step">
+<div class="field"><h4 id="steps">
 <button class="show-code">Code</button>
-var         <strong>step</strong> <a class="anchor-link"
-            href="#step"
-            title="Permalink to System_Simulator.step">#</a>
+var         <strong>steps</strong> <a class="anchor-link"
+            href="#steps"
+            title="Permalink to System_Simulator.steps">#</a>
         </h4>
         <div class="doc">
 <pre class="source">
-var step = 10
+var steps = 10
 </pre>
 </div>
 </div>
@@ -208,16 +313,24 @@ void changed(Entity e) =&gt; _check(e);
 </pre>
 </div>
 </div>
-<div class="method"><h4 id="checkProcessing">
+<div class="method inherited"><h4 id="checkProcessing">
 <button class="show-code">Code</button>
 <a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>checkProcessing</strong>() <a class="anchor-link" href="#checkProcessing"
               title="Permalink to System_Simulator.checkProcessing">#</a></h4>
-<div class="doc">
+<div class="inherited-from">inherited from IntervalEntitySystem </div><div class="doc">
 <div class="inherited">
 <p>Returns true if the system should be processed, false if not.</p>
 <div class="docs-inherited-from">docs inherited from EntitySystem </div></div>
 <pre class="source">
-bool checkProcessing() =&gt; true;
+bool checkProcessing() {
+ _acc += world.delta;
+ _delta += world.delta;
+ if(_acc &gt;= _interval) {
+   _acc -= _interval;
+   return true;
+ }
+ return false;
+}
 </pre>
 </div>
 </div>
@@ -263,10 +376,13 @@ void enabled(Entity e) =&gt; _check(e);
 <button class="show-code">Code</button>
 void <strong>end</strong>() <a class="anchor-link" href="#end"
               title="Permalink to System_Simulator.end">#</a></h4>
-<div class="inherited-from">inherited from EntitySystem </div><div class="doc">
-<p>Called after the processing of entities ends.</p>
+<div class="inherited-from">inherited from IntervalEntitySystem </div><div class="doc">
+<p>Resets the accumulated delta to 0.</p>
+<p>Call <code>super.end()</code> if you overwrite this function.</p>
 <pre class="source">
-void end() {}
+void end() {
+ _delta = 0;
+}
 </pre>
 </div>
 </div>
@@ -280,8 +396,8 @@ void <strong>initialize</strong>() <a class="anchor-link" href="#initialize"
 <div class="docs-inherited-from">docs inherited from EntitySystem </div></div>
 <pre class="source">
 void initialize(){
- _particlesMapper = new ComponentMapper&lt;Particles&gt;(Particles, world);
- _constraintsMapper = new ComponentMapper&lt;Constraints&gt;(Constraints, world);
+ _particlesMapper = new ComponentMapper0(Particles, world);
+ _constraintsMapper = new ComponentMapper0(Constraints, world);
 }
 </pre>
 </div>
@@ -327,21 +443,24 @@ to process the given
 <div class="docs-inherited-from">docs inherited from EntitySystem </div></div>
 <pre class="source">
 void processEntities(ReadOnlyBag&lt;Entity&gt; entities) {
- var particlesG = new List();
- var constraintsG = new List();
+ var deplacement = new Vector3.zero();
+ var accs = new Vector3.zero();
+ collSpace.reset();
+ //for (var pass = (delta ~/ interval) + 1; pass &gt; 0; --pass) {
+ //apply time corrected verlet [TCV](http://lonesock.net/article/verlet.html)
+ var dt = delta.toDouble() / 1000.0;
+ var timestepPrevious = (_timestep == -1) ?dt : _timestep;
+ _timestep = dt  ;
+ var timeScale = (_timestep / timestepPrevious);
+ var timestep2 = _timestep * _timestep;
  entities.forEach((e){
    var ps = _particlesMapper.get(e);
-   if (ps != null) particlesG.add(ps);
-   var cs = _constraintsMapper.get(e);
-   if (cs != null) constraintsG.add(cs);
- });
- particlesG.forEach((c) {
-   if (c == null) return;
-   c.l.forEach((p) {
-     if (p.position3dPrevious == null)
-       p.position3dPrevious = p.position3d.clone();
+   if (ps == null) return;
+   for (var i = ps.length -1 ; i &gt; -1; --i){
+     var position3d = ps.position3d[i];
+     var position3dPrevious = ps.position3dPrevious[i];
      // calculate velocity
-     var velocity = (p.position3d - p.position3dPrevious).scale(friction);
+     deplacement.setFrom(position3d).sub(position3dPrevious).scale(timeScale * ps.inertia[i]);
 
 //        // ground friction
 //        if (particles[i].pos.y &gt;= this.height-1 &amp;&amp; velocity.length2() &gt; 0.000001) {
@@ -351,33 +470,65 @@ void processEntities(ReadOnlyBag&lt;Entity&gt; entities) {
 //          velocity.mutableScale(m*this.groundFriction);
 //        }
 
+     accs.setFrom(globalAccs);
+     accs.add(ps.acc[i]);
+     // Position Verlet integration
+     accs.scale(timestep2);
+     deplacement.add(accs);
+     // follow http://lolengine.net/blog/2011/12/14/understanding-motion-in-games
+     // Velocity Verlet integration
+     // vec3 OldVel = Vel;
+     // Vel = Vel + Accel * dt;
+     // Pos = Pos + (OldVel + Vel) * 0.5 * dt;
+     // Pos = Pos + (2 * OldVel + Accel * dt) * 0.5 * dt;
+     //forces.scale(_timestep1);
+     //deplacement.scale(2.0).add(forces).scale(0.5 * _timestep1);
+
+
      // save last good state
-     p.position3dPrevious.setFrom(p.position3d);
-
-     // gravity
-     //p.position3d.add(this.gravity);
-
-     // inertia
-     p.position3d.add(velocity);
-   });
- });
-
- // relax
- var stepCoef = 1/step;
- constraintsG.forEach((c) {
-   for (var i=0; i&lt;step; ++i) {
-     c.l.forEach((j) {
-       j.relax(stepCoef);
-     });
+     // TODO optim : store future pos in previous and swap previous (with future) and current values in one swap (swap the list), but this optimisation will break existing code that keep vector of position (eg constraint)
+     position3dPrevious.setFrom(position3d);
+     position3d.add(deplacement);
    }
+   collSpace.addParticles(ps);
  });
+ // iterate collisions + constraints
+ var stepCoef = 1.0/steps;
+ //var bodies = maps(entities, _bodiesMapper);
+ _updateConstraintss(entities);
 
+ for(int step = 0; step &lt; steps; ++step ) { //Repeat this a few times to give more exact results
 //    // bounds checking
+//    //TODO define bounds as constraintes
 //    for (c in this.composites) {
 //      var particles = this.composites[c].particles;
 //      for (i in particles)
 //        this.bounds(particles[i]);
 //    }
+
+   //relax Constraints (include Edge) correction step
+   //TODO optimize the loop
+   //TODO check if relax should be done in the same loop as collision
+   //TODO check if relax should be done once constraint per step or every constraint per step
+   for (int i = 0; i &lt; _constraintssL; i++) {
+     var c = _constraintss[i];
+     c.l.forEach((j) {
+       j.relax(stepCoef);
+     });
+   };
+ }
+
+ for(var i = 0; i &lt; _constraintssL; ++i) {
+   var cs = _constraintss[i];
+   for(var j = 0; j &lt; cs.l.length; ++j) {
+     var c = cs.l[j];
+     if(c is Constraint_Distance) {
+       collSpace.addSegment(c.segment);
+     }
+   }
+ }
+ collSpace.handleCollision();
+
 }
 </pre>
 </div>
@@ -399,7 +550,7 @@ void removed(Entity entity) {}
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-05-20 21:46:57.162</div>
+          <div>This page was generated at 2013-07-26 14:44:11.544</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>

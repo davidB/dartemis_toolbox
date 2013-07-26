@@ -1,0 +1,72 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>utils_dartemis Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="favicon.ico">
+        
+        </head>
+        <body data-library="utils_dartemis">
+        <div class="page">
+        <div class="header">
+          <a href="index.html"><div class="logo"></div></a>
+          <a href="index.html">Dart Documentation</a>
+         &rsaquo; <a href="utils_dartemis.html">utils_dartemis</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+<h2><strong>utils_dartemis</strong> library</h2>
+<div>
+<h3>Functions</h3>
+<div class="method"><h4 id="addNewEntity">
+<button class="show-code">Code</button>
+dynamic <strong>addNewEntity</strong>(world, <a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;Component&gt; cs, {<a href="http://api.dartlang.org/dart_core/String.html">String</a> player, <a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt; groups}) <a class="anchor-link" href="#addNewEntity"
+              title="Permalink to addNewEntity">#</a></h4>
+<div class="doc">
+<pre class="source">
+addNewEntity(world, List&lt;Component&gt; cs, {String player, List&lt;String&gt; groups}) {
+ var e = world.createEntity();
+ cs.forEach((c) =&gt; e.addComponent(c));
+ if (groups != null) {
+   var gm = (world.getManager(GroupManager) as GroupManager);
+   groups.forEach((group) =&gt; gm.add(e, group));
+ }
+ if (player != null) {
+   (world.getManager(PlayerManager) as PlayerManager).setPlayer(e, player);
+ }
+ world.addEntity(e);
+ return e;
+}
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Classes</h3>
+          <div class="type">
+          <h4>
+            <a href="utils_dartemis/ComponentMapper0.html"><strong>ComponentMapper0</strong></a>
+          </h4>
+          </div>
+          
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-07-26 14:44:11.566</div>
+        </div>
+        <script async src="client-live-nav.js"></script>
+        </body></html>
+        

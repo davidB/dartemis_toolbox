@@ -35,10 +35,10 @@
 <pre class="source">
 class Constraint_Pin implements Constraint{
  /// position of the pin
- final vec3 pin;
- final vec3 a;
+ final Vector3 pin;
+ final Vector3 a;
 
- Constraint_Pin(vec3 v) : pin = v.clone(), a = v;
+ Constraint_Pin(Vector3 v) : pin = v.clone(), a = v;
 
  relax(stepCoef) {
    a.setFrom(pin);
@@ -51,13 +51,19 @@ class Constraint_Pin implements Constraint{
 <span class="type-box"><span class="icon-class"></span><a href="../system_verlet/Constraint.html">Constraint</a></span></p>
 <div>
 <h3>Constructors</h3>
-<div class="method"><h4 id="Constraint_Pin">
+<div class="method"><h4 id="">
 <button class="show-code">Code</button>
-new <strong>Constraint_Pin</strong>(vec3 v) <a class="anchor-link" href="#Constraint_Pin"
+new <strong>Constraint_Pin</strong>(Vector3 v) <a class="anchor-link" href="#"
               title="Permalink to Constraint_Pin.Constraint_Pin">#</a></h4>
 <div class="doc">
+<div class="inherited">
+<p>Creates a new <a class="crossref" href="../dart_core/Object.html">Object</a> instance.</p>
+<p><a class="crossref" href="../dart_core/Object.html">Object</a> instances have no meaningful state, and are only useful
+through their identity. An <a class="crossref" href="../dart_core/Object.html">Object</a> instance is equal to itself
+only.</p>
+<div class="docs-inherited-from">docs inherited from <a href="http://api.dartlang.org/dart_core/Object.html">Object</a> </div></div>
 <pre class="source">
-Constraint_Pin(vec3 v) : pin = v.clone(), a = v;
+Constraint_Pin(Vector3 v) : pin = v.clone(), a = v;
 </pre>
 </div>
 </div>
@@ -66,26 +72,26 @@ Constraint_Pin(vec3 v) : pin = v.clone(), a = v;
 <h3>Properties</h3>
 <div class="field"><h4 id="a">
 <button class="show-code">Code</button>
-final vec3         <strong>a</strong> <a class="anchor-link"
+final Vector3         <strong>a</strong> <a class="anchor-link"
             href="#a"
             title="Permalink to Constraint_Pin.a">#</a>
         </h4>
         <div class="doc">
 <pre class="source">
-final vec3 a
+final Vector3 a
 </pre>
 </div>
 </div>
 <div class="field"><h4 id="pin">
 <button class="show-code">Code</button>
-final vec3         <strong>pin</strong> <a class="anchor-link"
+final Vector3         <strong>pin</strong> <a class="anchor-link"
             href="#pin"
             title="Permalink to Constraint_Pin.pin">#</a>
         </h4>
         <div class="doc">
 <p>position of the pin</p>
 <pre class="source">
-final vec3 pin
+final Vector3 pin
 </pre>
 </div>
 </div>
@@ -109,7 +115,7 @@ relax(stepCoef) {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-05-20 21:46:57.153</div>
+          <div>This page was generated at 2013-07-26 14:44:11.531</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>

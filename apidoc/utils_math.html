@@ -1,0 +1,334 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>utils_math Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="favicon.ico">
+        
+        </head>
+        <body data-library="utils_math">
+        <div class="page">
+        <div class="header">
+          <a href="index.html"><div class="logo"></div></a>
+          <a href="index.html">Dart Documentation</a>
+         &rsaquo; <a href="utils_math.html">utils_math</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+<h2><strong>utils_math</strong> library</h2>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="VX_AXIS">
+<button class="show-code">Code</button>
+final         <strong>VX_AXIS</strong> <a class="anchor-link"
+            href="#VX_AXIS"
+            title="Permalink to VX_AXIS">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final VX_AXIS = new Vector3(1.0, 0.0, 0.0)
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="VY_AXIS">
+<button class="show-code">Code</button>
+final         <strong>VY_AXIS</strong> <a class="anchor-link"
+            href="#VY_AXIS"
+            title="Permalink to VY_AXIS">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final VY_AXIS = new Vector3(0.0, 1.0, 0.0)
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="VZ_AXIS">
+<button class="show-code">Code</button>
+final         <strong>VZ_AXIS</strong> <a class="anchor-link"
+            href="#VZ_AXIS"
+            title="Permalink to VZ_AXIS">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final VZ_AXIS = new Vector3(0.0, 0.0, 1.0)
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="VZERO">
+<button class="show-code">Code</button>
+final         <strong>VZERO</strong> <a class="anchor-link"
+            href="#VZERO"
+            title="Permalink to VZERO">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final VZERO = new Vector3.zero()
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Functions</h3>
+<div class="method"><h4 id="extractMinMaxProjection">
+<button class="show-code">Code</button>
+<a href="utils_math/MinMax.html">MinMax</a> <strong>extractMinMaxProjection</strong>(<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;Vector3&gt; vs, Vector3 axis, <a href="utils_math/MinMax.html">MinMax</a> out) <a class="anchor-link" href="#extractMinMaxProjection"
+              title="Permalink to extractMinMaxProjection">#</a></h4>
+<div class="doc">
+<p>the MinMax use axis as unit vector, and (0,0,0) as origin point.</p>
+<pre class="source">
+MinMax extractMinMaxProjection(List&lt;Vector3&gt; vs, Vector3 axis, MinMax out) {
+ var p = vs[0].dot(axis);
+ out.min = p;
+ out.max = p;
+ for (int i = 1; i &lt; vs.length; i++) {
+   p = vs[i].dot(axis);
+   if (p &lt; out.min) out.min = p;
+   if (p &gt; out.max) out.max = p;
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="extractAabbPoly2">
+<button class="show-code">Code</button>
+Aabb3 <strong>extractAabbPoly2</strong>(<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;Vector3&gt; vs0, <a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;Vector3&gt; vs1, Aabb3 out) <a class="anchor-link" href="#extractAabbPoly2"
+              title="Permalink to extractAabbPoly2">#</a></h4>
+<div class="doc">
+<pre class="source">
+Aabb3 extractAabbPoly2(List&lt;Vector3&gt; vs0, List&lt;Vector3&gt; vs1, Aabb3 out){
+ var min = out.min;
+ var max = out.max;
+
+ min.setFrom(vs0[0]);
+ max.setFrom(vs0[0]);
+ var vs = vs0;
+ for (int i = vs.length - 1; i &gt; 0 ; --i) {
+   var v = vs[i];
+   if (min.x &gt; v.x) min.x = v.x;
+   if (min.y &gt; v.y) min.y = v.y;
+   if (min.z &gt; v.z) min.z = v.z;
+   if (max.x &lt; v.x) max.x = v.x;
+   if (max.y &lt; v.y) max.y = v.y;
+   if (max.z &lt; v.z) max.z = v.z;
+ }
+ vs = vs1;
+ for (int i = vs.length - 1; i &gt;= 0; --i) {
+   var v = vs[i];
+   if (min.x &gt; v.x) min.x = v.x;
+   if (min.y &gt; v.y) min.y = v.y;
+   if (min.z &gt; v.z) min.z = v.z;
+   if (max.x &lt; v.x) max.x = v.x;
+   if (max.y &lt; v.y) max.y = v.y;
+   if (max.z &lt; v.z) max.z = v.z;
+ }
+
+ return out;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="extractAabbPoly">
+<button class="show-code">Code</button>
+Aabb3 <strong>extractAabbPoly</strong>(<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;Vector3&gt; vs, Aabb3 out) <a class="anchor-link" href="#extractAabbPoly"
+              title="Permalink to extractAabbPoly">#</a></h4>
+<div class="doc">
+<pre class="source">
+Aabb3 extractAabbPoly(List&lt;Vector3&gt; vs, Aabb3 out){
+ var min = out.min;
+ var max = out.max;
+
+ min.setFrom(vs[0]);
+ max.setFrom(vs[0]);
+ for (int i = vs.length - 1; i &gt; 0 ; --i) {
+   var v = vs[i];
+   if (min.x &gt; v.x) min.x = v.x;
+   if (min.y &gt; v.y) min.y = v.y;
+   if (min.z &gt; v.z) min.z = v.z;
+   if (max.x &lt; v.x) max.x = v.x;
+   if (max.y &lt; v.y) max.y = v.y;
+   if (max.z &lt; v.z) max.z = v.z;
+ }
+
+ return out;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="extractAabbDisc2">
+<button class="show-code">Code</button>
+Aabb3 <strong>extractAabbDisc2</strong>(Vector3 v0, Vector3 v1, <a href="http://api.dartlang.org/dart_core/double.html">double</a> radius, Aabb3 out) <a class="anchor-link" href="#extractAabbDisc2"
+              title="Permalink to extractAabbDisc2">#</a></h4>
+<div class="doc">
+<pre class="source">
+Aabb3 extractAabbDisc2(Vector3 v0, Vector3 v1, double radius, Aabb3 out){
+ var min = out.min;
+ var max = out.max;
+ if (v0.x &lt; v1.x) {
+   min.x = v0.x - radius;
+   max.x = v1.x + radius;
+ } else {
+   min.x = v1.x - radius;
+   max.x = v0.x + radius;
+ }
+ if (v0.y &lt; v1.y) {
+   min.y = v0.y - radius;
+   max.y = v1.y + radius;
+ } else {
+   min.y = v1.y - radius;
+   max.y = v0.y + radius;
+ }
+ if (v0.z &lt; v1.z) {
+   min.z = v0.z - radius;
+   max.z = v1.z + radius;
+ } else {
+   min.z = v1.z - radius;
+   max.z = v0.z + radius;
+ }
+ //out.min.setValues(math.min(v0.x, v1.x) - radius, math.min(v0.y, v1.y) - radius, math.min(v0.z, v1.z) - radius);
+ //out.max.setValues(math.max(v0.x, v1.x) + radius, math.max(v0.y, v1.y) + radius, math.max(v0.z, v1.z) + radius);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="extractAabbDisc">
+<button class="show-code">Code</button>
+Aabb3 <strong>extractAabbDisc</strong>(Vector3 v, <a href="http://api.dartlang.org/dart_core/double.html">double</a> radius, Aabb3 out) <a class="anchor-link" href="#extractAabbDisc"
+              title="Permalink to extractAabbDisc">#</a></h4>
+<div class="doc">
+<pre class="source">
+Aabb3 extractAabbDisc(Vector3 v, double radius, Aabb3 out){
+ out.min.setValues(v.x - radius, v.y - radius, v.z - radius);
+ out.max.setValues(v.x + radius, v.y + radius, v.z + radius);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="extractCenter">
+<button class="show-code">Code</button>
+Vector3 <strong>extractCenter</strong>(<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;Vector3&gt; shape, Vector3 out) <a class="anchor-link" href="#extractCenter"
+              title="Permalink to extractCenter">#</a></h4>
+<div class="doc">
+<pre class="source">
+Vector3 extractCenter(List&lt;Vector3&gt; shape, Vector3 out) {
+ out.x = 0.0;
+ out.y = 0.0;
+
+ for (int i = 0; i &lt; shape.length; i++) {
+   var v = shape[i];
+   out.x += v.x;
+   out.y += v.y;
+ }
+
+ out.x /= shape.length;
+ out.y /= shape.length;
+ return out;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="lookAt">
+<button class="show-code">Code</button>
+Vector3 <strong>lookAt</strong>(Vector3 target, Vector3 position3d, Vector3 out, [Vector3 up]) <a class="anchor-link" href="#lookAt"
+              title="Permalink to lookAt">#</a></h4>
+<div class="doc">
+<p>return 
+<span class="param">out</span></p>
+<pre class="source">
+Vector3 lookAt(Vector3 target, Vector3 position3d, Vector3 out, [Vector3 up]) {
+ up = (up == null) ? VY_AXIS : up;
+ var m = makeViewMatrix(position3d, target, up).getRotation();
+ // code from (euler order XYZ)
+ // https://github.com/mrdoob/three.js/blob/master/src/math/Vector3.js
+ out.y = math.asin( clamp(m.row2.x, 1.0, -1.0 ) );
+ if ( m.row2.x.abs() &lt; 0.99999 ) {
+   out.x = math.atan2( - m.row2.y, m.row2.z );
+   out.z = math.atan2( - m.row1.x, m.row0.x );
+ } else {
+   out.x = math.atan2( m.row1.z, m.row1.y );
+   out.z = 0.0;
+ }
+ return out;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="isSeparated">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>isSeparated</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> minA, <a href="http://api.dartlang.org/dart_core/double.html">double</a> maxA, <a href="http://api.dartlang.org/dart_core/double.html">double</a> minB, <a href="http://api.dartlang.org/dart_core/double.html">double</a> maxB) <a class="anchor-link" href="#isSeparated"
+              title="Permalink to isSeparated">#</a></h4>
+<div class="doc">
+<pre class="source">
+bool isSeparated( double minA, double maxA, double minB, double maxB ) {
+ return (maxA &lt; minB) || (maxB &lt; minA);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="intervalDistance">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a> <strong>intervalDistance</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> minA, <a href="http://api.dartlang.org/dart_core/double.html">double</a> maxA, <a href="http://api.dartlang.org/dart_core/double.html">double</a> minB, <a href="http://api.dartlang.org/dart_core/double.html">double</a> maxB) <a class="anchor-link" href="#intervalDistance"
+              title="Permalink to intervalDistance">#</a></h4>
+<div class="doc">
+<p>Calculate the distance between the two intervals</p>
+<pre class="source">
+double intervalDistance( double minA, double maxA, double minB, double maxB ) {
+ return ( minA &lt; minB ) ? minB - maxA : minA - maxB;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="clamp">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a> <strong>clamp</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> v, <a href="http://api.dartlang.org/dart_core/double.html">double</a> max, <a href="http://api.dartlang.org/dart_core/double.html">double</a> min) <a class="anchor-link" href="#clamp"
+              title="Permalink to clamp">#</a></h4>
+<div class="doc">
+<pre class="source">
+double clamp(double v, double max, double min) =&gt; math.min(math.max(v, min), max );
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Abstract Classes</h3>
+          <div class="type">
+          <h4>
+            <a href="utils_math/IntersectionFinder.html"><strong>IntersectionFinder</strong></a>
+          </h4>
+          </div>
+          
+</div>
+<div>
+<h3>Classes</h3>
+          <div class="type">
+          <h4>
+            <a href="utils_math/IntersectionFinderXY.html"><strong>IntersectionFinderXY</strong></a>
+          </h4>
+          </div>
+          
+          <div class="type">
+          <h4>
+            <a href="utils_math/MinMax.html"><strong>MinMax</strong></a>
+          </h4>
+          </div>
+          
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-07-26 14:44:11.574</div>
+        </div>
+        <script async src="client-live-nav.js"></script>
+        </body></html>
+        

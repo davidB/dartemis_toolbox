@@ -1,0 +1,240 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>Checker_MvtAsPoly4 class / collisions Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="collisions" data-type="Checker_MvtAsPoly4">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../collisions.html">collisions</a> &rsaquo; <a href="../collisions/Checker_MvtAsPoly4.html">Checker_MvtAsPoly4</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>Checker_MvtAsPoly4</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p>Check by intersection of polygon particles are converted into rectangle :
+ * width : start/end point x 2 radius (normal of displacement),
+ * longer : displacement
+Segment : previous<code>s.i1</code>, previous<code>s.i2</code>, current<code>s.i2</code>, current<code>s.i1</code> (ignore radius)</p>
+<pre class="source">
+class Checker_MvtAsPoly4 implements Checker{
+ final IntersectionFinder _intf = new IntersectionFinderXY();
+ var _v0 = new Vector3.zero();
+ var _poly0 = new List.generate(4, (i) =&gt; new Vector3.zero(), growable: false);
+ var _poly1 = new List.generate(4, (i) =&gt; new Vector3.zero(), growable: false);
+
+ /// Returns whether two particles A ([psA] + [iA]) and B [psB] + [iB]) intersect
+ /// [psA.collide[iA]] and [psB.collide[iB]] are set to true if collision.
+ /// Doesn't check if provided particles are the same or part of same group,... should be done before calling.
+ /// take care of radius of each particle
+ collideParticleParticle(Particles psA, int iA, Particles psB, int iB, Vector4 acol) {
+   var b = _intf.poly_poly(makePoly4(psA, iA, _poly0), makePoly4(psB, iB, _poly1));
+   if (b) {
+     psA.collide[iA] = -1;
+     psB.collide[iB] = -1;
+     var v = psA.position3d[iA];
+     acol.setValues(v.x, v.y, v.z, 1.0);
+   }
+   return b;
+ }
+
+ /// Returns whether the provided particle A and the segment [s]
+ /// Doesn't check if provided particles are the same or part of same group,... should be done before calling.
+ collideParticleSegment(Particles psA, int iA, Segment s, Vector4 scol) {
+   _poly1[0].setFrom(s.ps.position3dPrevious[s.i1]);
+   _poly1[1].setFrom(s.ps.position3dPrevious[s.i2]);
+   _poly1[2].setFrom(s.ps.position3d[s.i2]);
+   _poly1[3].setFrom(s.ps.position3d[s.i1]);
+   var b = _intf.poly_poly(makePoly4(psA, iA, _poly0), _poly1);
+   if (b) {
+     psA.collide[iA] = -1;
+     s.collide = -1;
+     //TODO project scol on segment (final position)
+     var v = psA.position3d[iA];
+     scol.setValues(v.x, v.y, v.z, 1.0);
+   }
+   return b;
+ }
+
+ // if no displacement (&lt; r/10) then an outside square is return;
+ makePoly4(Particles ps, int i, List&lt;Vector3&gt; out) {
+   var pn = ps.position3d[i];
+   var pp = ps.position3dPrevious[i];
+   // _v0.setFrom(pn).sub(pp);
+   var vx = pn.x - pp.x;
+   var vy = pn.y - pp.y;
+   //var l = _v0.length;
+   var l2 = vx * vx + vy * vy;
+   var r = ps.radius[i];
+   if ((l2 * 10) &lt; r) {
+     out[0].x = pn.x + r;
+     out[0].y = pn.y + r;
+     out[1].x = pn.x + r;
+     out[1].x = pn.y - r;
+     out[2].x = pn.x - r;
+     out[2].y = pn.y - r;
+     out[3].x = pn.x - r;
+     out[3].y = pn.y + r;
+   } else {
+     //var t = _v0.x;
+     //_v0.scale(r / l);
+     var rl = r / math.sqrt(l2);
+     var t = vx;
+     vx = -vy * rl;
+     vy = t *rl;
+     //out[0].setFrom(pp).add(_v0);
+     out[0].x = pp.x + vx;
+     out[0].y = pp.y + vy;
+     //out[1].setFrom(ps.position3dPrevious[i]).sub(_v0);
+     out[1].x = pp.x - vx;
+     out[1].y = pp.y - vy;
+     //out[2].setFrom(ps.position3d[i]).sub(_v0);
+     out[2].x = pn.x - vx;
+     out[2].y = pn.y - vy;
+     //out[3].setFrom(ps.position3d[i]).add(_v0);
+     out[3].x = pn.x + vx;
+     out[3].y = pn.y + vy;
+   }
+   return out;
+ }
+}
+</pre>
+</div>
+<h3>Implements</h3>
+<p>
+<span class="type-box"><span class="icon-class"></span><a href="../collisions/Checker.html">Checker</a></span></p>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="collideParticleParticle">
+<button class="show-code">Code</button>
+dynamic <strong>collideParticleParticle</strong>(<a href="../system_particles/Particles.html">Particles</a> psA, <a href="http://api.dartlang.org/dart_core/int.html">int</a> iA, <a href="../system_particles/Particles.html">Particles</a> psB, <a href="http://api.dartlang.org/dart_core/int.html">int</a> iB, Vector4 acol) <a class="anchor-link" href="#collideParticleParticle"
+              title="Permalink to Checker_MvtAsPoly4.collideParticleParticle">#</a></h4>
+<div class="doc">
+<p>Returns whether two particles A (
+<span class="param">psA</span> + 
+<span class="param">iA</span>) and B 
+<span class="param">psB</span> + 
+<span class="param">iB</span>) intersect
+[psA.collide[iA]] and [psB.collide[iB]] are set to true if collision.
+Doesn't check if provided particles are the same or part of same group,... should be done before calling.
+take care of radius of each particle</p>
+<pre class="source">
+collideParticleParticle(Particles psA, int iA, Particles psB, int iB, Vector4 acol) {
+ var b = _intf.poly_poly(makePoly4(psA, iA, _poly0), makePoly4(psB, iB, _poly1));
+ if (b) {
+   psA.collide[iA] = -1;
+   psB.collide[iB] = -1;
+   var v = psA.position3d[iA];
+   acol.setValues(v.x, v.y, v.z, 1.0);
+ }
+ return b;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="collideParticleSegment">
+<button class="show-code">Code</button>
+dynamic <strong>collideParticleSegment</strong>(<a href="../system_particles/Particles.html">Particles</a> psA, <a href="http://api.dartlang.org/dart_core/int.html">int</a> iA, <a href="../system_particles/Segment.html">Segment</a> s, Vector4 scol) <a class="anchor-link" href="#collideParticleSegment"
+              title="Permalink to Checker_MvtAsPoly4.collideParticleSegment">#</a></h4>
+<div class="doc">
+<p>Returns whether the provided particle A and the segment 
+<span class="param">s</span>
+Doesn't check if provided particles are the same or part of same group,... should be done before calling.</p>
+<pre class="source">
+collideParticleSegment(Particles psA, int iA, Segment s, Vector4 scol) {
+ _poly1[0].setFrom(s.ps.position3dPrevious[s.i1]);
+ _poly1[1].setFrom(s.ps.position3dPrevious[s.i2]);
+ _poly1[2].setFrom(s.ps.position3d[s.i2]);
+ _poly1[3].setFrom(s.ps.position3d[s.i1]);
+ var b = _intf.poly_poly(makePoly4(psA, iA, _poly0), _poly1);
+ if (b) {
+   psA.collide[iA] = -1;
+   s.collide = -1;
+   //TODO project scol on segment (final position)
+   var v = psA.position3d[iA];
+   scol.setValues(v.x, v.y, v.z, 1.0);
+ }
+ return b;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="makePoly4">
+<button class="show-code">Code</button>
+dynamic <strong>makePoly4</strong>(<a href="../system_particles/Particles.html">Particles</a> ps, <a href="http://api.dartlang.org/dart_core/int.html">int</a> i, <a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;Vector3&gt; out) <a class="anchor-link" href="#makePoly4"
+              title="Permalink to Checker_MvtAsPoly4.makePoly4">#</a></h4>
+<div class="doc">
+<pre class="source">
+makePoly4(Particles ps, int i, List&lt;Vector3&gt; out) {
+ var pn = ps.position3d[i];
+ var pp = ps.position3dPrevious[i];
+ // _v0.setFrom(pn).sub(pp);
+ var vx = pn.x - pp.x;
+ var vy = pn.y - pp.y;
+ //var l = _v0.length;
+ var l2 = vx * vx + vy * vy;
+ var r = ps.radius[i];
+ if ((l2 * 10) &lt; r) {
+   out[0].x = pn.x + r;
+   out[0].y = pn.y + r;
+   out[1].x = pn.x + r;
+   out[1].x = pn.y - r;
+   out[2].x = pn.x - r;
+   out[2].y = pn.y - r;
+   out[3].x = pn.x - r;
+   out[3].y = pn.y + r;
+ } else {
+   //var t = _v0.x;
+   //_v0.scale(r / l);
+   var rl = r / math.sqrt(l2);
+   var t = vx;
+   vx = -vy * rl;
+   vy = t *rl;
+   //out[0].setFrom(pp).add(_v0);
+   out[0].x = pp.x + vx;
+   out[0].y = pp.y + vy;
+   //out[1].setFrom(ps.position3dPrevious[i]).sub(_v0);
+   out[1].x = pp.x - vx;
+   out[1].y = pp.y - vy;
+   //out[2].setFrom(ps.position3d[i]).sub(_v0);
+   out[2].x = pn.x - vx;
+   out[2].y = pn.y - vy;
+   //out[3].setFrom(ps.position3d[i]).add(_v0);
+   out[3].x = pn.x + vx;
+   out[3].y = pn.y + vy;
+ }
+ return out;
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-07-26 14:44:11.242</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

@@ -39,10 +39,11 @@ class Emitter extends Component {
  final initializers = new List&lt;Initializer&gt;();
  IntGen counter = zero();
 
- /// true =&gt; generate one Entity with Particles
- /// false =&gt; genere several empty Entity (no Particles,...)
- bool genParticles = true;
+ /// not null =&gt; generate one Entity with Particles
+ /// null =&gt; genere several empty Entity (no Particles,...)
+ ParticlesConstructor genParticles = null;
  bool once = false;
+
 }
 </pre>
 </div>
@@ -80,15 +81,15 @@ IntGen counter = zero()
 </div>
 <div class="field"><h4 id="genParticles">
 <button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_core/bool.html">bool</a>         <strong>genParticles</strong> <a class="anchor-link"
+<a href="../system_particles/ParticlesConstructor.html">ParticlesConstructor</a>         <strong>genParticles</strong> <a class="anchor-link"
             href="#genParticles"
             title="Permalink to Emitter.genParticles">#</a>
         </h4>
         <div class="doc">
-<p>true => generate one Entity with Particles
-false => genere several empty Entity (no Particles,...)</p>
+<p>not null => generate one Entity with Particles
+null => genere several empty Entity (no Particles,...)</p>
 <pre class="source">
-bool genParticles = true
+ParticlesConstructor genParticles = null
 </pre>
 </div>
 </div>
@@ -121,7 +122,7 @@ bool once = false
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-05-20 21:46:56.681</div>
+          <div>This page was generated at 2013-07-26 14:44:11.402</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>

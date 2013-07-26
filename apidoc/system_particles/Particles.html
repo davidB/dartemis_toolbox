@@ -35,14 +35,61 @@
 <pre class="source">
 class Particles extends Component {
  static final CT = ComponentTypeManager.getTypeFor(Particles);
- final List&lt;Particle&gt; l;
+ final int length;
+ List&lt;Vector3&gt; position3d;
+ //List&lt;Vector3&gt; get position3d =&gt; _position3d;
+ /// all the positions in a single list (can be used in webgl to set vertices in one call)
+ final Float32List position3dBuff;
+ final List&lt;Vector3&gt; position3dPrevious;
 
- Particles([nb = 0]) :
-   l = (nb == 0)
-     ? new List&lt;Particle&gt;()
-     : new List.generate(nb, (i) =&gt; new Particle())
-     ;
+ final ItemOption&lt;int&gt; color;
 
+ /// The lifetime of the particle, in seconds.
+ //final ItemOption&lt;double&gt; lifetime; = double.INFINITY;
+
+ /// The mass of the particle ( 1.0 is the default ) is used to resolve Constraint distance.
+ final ItemOption&lt;double&gt; mass;
+ /// The radius of the particle, for collision approximation
+ final ItemOption&lt;double&gt; radius;
+ /// if the particule collide
+ final ItemOption&lt;int&gt; collide;
+ bool intraCollide;
+ /// the (accumulated) acceleration on particule
+ final ItemOption&lt;Vector3&gt; acc;
+ /// the inertia on particule how it keep movement (velocity)
+ final ItemOption&lt;double&gt; inertia;
+ /// link to extra data, can be the host Entity or array, map, structure
+ /// for energy, ttl, kind,...
+ var extradata;
+
+ Particles(length, {
+   withPrevious: true,
+   withColors: false, color0: 0x000000ff,
+   withMass:   false, mass0: 1.0,
+   withRadius: false, radius0: 1.0,
+   withCollides: false, collide0: 0,
+   withAccs: false, acc0: null,
+   withInertias: false, inertia0: 1.0,
+   this.intraCollide: false
+ }) :
+   this.length = length,
+   position3dBuff = new Float32List(length * 3),
+   position3dPrevious = withPrevious ? new List.generate(length, (i) =&gt; new Vector3.zero()) : null,
+   color = withColors ? new ItemSome(new List.generate(length, (i) =&gt; color0)) : new ItemDefault(color0),
+   mass = withMass ? new ItemSome(new List.generate(length, (i) =&gt; mass0)) : new ItemDefault(mass0),
+   radius = withRadius ? new ItemSome(new List.generate(length, (i) =&gt; radius0)) : new ItemDefault(radius0),
+   collide = withCollides ? new ItemSome(new List.generate(length, (i) =&gt; collide0)) : new ItemDefault(collide0),
+   acc = withAccs ? new ItemSome(new List.generate(length, (i) =&gt; acc0 == null ? new Vector3.zero() : new Vector3.copy(acc0))) : new ItemDefault(acc0 == null ? new Vector3.zero() : acc0),
+   inertia = withInertias ? new ItemSome(new List.generate(length, (i) =&gt; inertia0)) : new ItemDefault(inertia0)
+ {
+   position3d = new List.generate(length, (i) =&gt; new Vector3.view(new Float32List.view(position3dBuff.buffer, i * 4 * 3, 3)));
+ }
+
+ copyPosition3dIntoPrevious() {
+   for (int i = length -1; i &gt; -1; --i) {
+     position3dPrevious[i].setFrom(position3d[i]);
+   }
+ }
 }
 </pre>
 </div>
@@ -66,32 +113,213 @@ static final CT = ComponentTypeManager.getTypeFor(Particles)
 </div>
 <div>
 <h3>Constructors</h3>
-<div class="method"><h4 id="Particles">
+<div class="method"><h4 id="">
 <button class="show-code">Code</button>
-new <strong>Particles</strong>([nb = 0]) <a class="anchor-link" href="#Particles"
+new <strong>Particles</strong>(length, {withPrevious: true, withColors: false, color0: 0x000000ff, withMass: false, mass0: 1.0, withRadius: false, radius0: 1.0, withCollides: false, collide0: 0, withAccs: false, acc0: null, withInertias: false, inertia0: 1.0, <a href="http://api.dartlang.org/dart_core/bool.html">bool</a> intraCollide: false}) <a class="anchor-link" href="#"
               title="Permalink to Particles.Particles">#</a></h4>
 <div class="doc">
+<div class="inherited">
+<p>Creates a new <a class="crossref" href="../dart_core/Object.html">Object</a> instance.</p>
+<p><a class="crossref" href="../dart_core/Object.html">Object</a> instances have no meaningful state, and are only useful
+through their identity. An <a class="crossref" href="../dart_core/Object.html">Object</a> instance is equal to itself
+only.</p>
+<div class="docs-inherited-from">docs inherited from <a href="http://api.dartlang.org/dart_core/Object.html">Object</a> </div></div>
 <pre class="source">
-Particles([nb = 0]) :
- l = (nb == 0)
-   ? new List&lt;Particle&gt;()
-   : new List.generate(nb, (i) =&gt; new Particle())
-   ;
+Particles(length, {
+ withPrevious: true,
+ withColors: false, color0: 0x000000ff,
+ withMass:   false, mass0: 1.0,
+ withRadius: false, radius0: 1.0,
+ withCollides: false, collide0: 0,
+ withAccs: false, acc0: null,
+ withInertias: false, inertia0: 1.0,
+ this.intraCollide: false
+}) :
+ this.length = length,
+ position3dBuff = new Float32List(length * 3),
+ position3dPrevious = withPrevious ? new List.generate(length, (i) =&gt; new Vector3.zero()) : null,
+ color = withColors ? new ItemSome(new List.generate(length, (i) =&gt; color0)) : new ItemDefault(color0),
+ mass = withMass ? new ItemSome(new List.generate(length, (i) =&gt; mass0)) : new ItemDefault(mass0),
+ radius = withRadius ? new ItemSome(new List.generate(length, (i) =&gt; radius0)) : new ItemDefault(radius0),
+ collide = withCollides ? new ItemSome(new List.generate(length, (i) =&gt; collide0)) : new ItemDefault(collide0),
+ acc = withAccs ? new ItemSome(new List.generate(length, (i) =&gt; acc0 == null ? new Vector3.zero() : new Vector3.copy(acc0))) : new ItemDefault(acc0 == null ? new Vector3.zero() : acc0),
+ inertia = withInertias ? new ItemSome(new List.generate(length, (i) =&gt; inertia0)) : new ItemDefault(inertia0)
+{
+ position3d = new List.generate(length, (i) =&gt; new Vector3.view(new Float32List.view(position3dBuff.buffer, i * 4 * 3, 3)));
+}
 </pre>
 </div>
 </div>
 </div>
 <div>
 <h3>Properties</h3>
-<div class="field"><h4 id="l">
+<div class="field"><h4 id="acc">
 <button class="show-code">Code</button>
-final <a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;<a href="../system_particles/Particle.html">Particle</a>&gt;         <strong>l</strong> <a class="anchor-link"
-            href="#l"
-            title="Permalink to Particles.l">#</a>
+final <a href="../utils/ItemOption.html">ItemOption</a>&lt;Vector3&gt;         <strong>acc</strong> <a class="anchor-link"
+            href="#acc"
+            title="Permalink to Particles.acc">#</a>
+        </h4>
+        <div class="doc">
+<p>the (accumulated) acceleration on particule</p>
+<pre class="source">
+final ItemOption&lt;Vector3&gt; acc
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="collide">
+<button class="show-code">Code</button>
+final <a href="../utils/ItemOption.html">ItemOption</a>&lt;<a href="http://api.dartlang.org/dart_core/int.html">int</a>&gt;         <strong>collide</strong> <a class="anchor-link"
+            href="#collide"
+            title="Permalink to Particles.collide">#</a>
+        </h4>
+        <div class="doc">
+<p>if the particule collide</p>
+<pre class="source">
+final ItemOption&lt;int&gt; collide
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="color">
+<button class="show-code">Code</button>
+final <a href="../utils/ItemOption.html">ItemOption</a>&lt;<a href="http://api.dartlang.org/dart_core/int.html">int</a>&gt;         <strong>color</strong> <a class="anchor-link"
+            href="#color"
+            title="Permalink to Particles.color">#</a>
         </h4>
         <div class="doc">
 <pre class="source">
-final List&lt;Particle&gt; l
+final ItemOption&lt;int&gt; color
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="extradata">
+<button class="show-code">Code</button>
+var         <strong>extradata</strong> <a class="anchor-link"
+            href="#extradata"
+            title="Permalink to Particles.extradata">#</a>
+        </h4>
+        <div class="doc">
+<p>link to extra data, can be the host Entity or array, map, structure
+for energy, ttl, kind,...</p>
+<pre class="source">
+var extradata
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="inertia">
+<button class="show-code">Code</button>
+final <a href="../utils/ItemOption.html">ItemOption</a>&lt;<a href="http://api.dartlang.org/dart_core/double.html">double</a>&gt;         <strong>inertia</strong> <a class="anchor-link"
+            href="#inertia"
+            title="Permalink to Particles.inertia">#</a>
+        </h4>
+        <div class="doc">
+<p>the inertia on particule how it keep movement (velocity)</p>
+<pre class="source">
+final ItemOption&lt;double&gt; inertia
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="intraCollide">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a>         <strong>intraCollide</strong> <a class="anchor-link"
+            href="#intraCollide"
+            title="Permalink to Particles.intraCollide">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+bool intraCollide
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="length">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>length</strong> <a class="anchor-link"
+            href="#length"
+            title="Permalink to Particles.length">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final int length
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="mass">
+<button class="show-code">Code</button>
+final <a href="../utils/ItemOption.html">ItemOption</a>&lt;<a href="http://api.dartlang.org/dart_core/double.html">double</a>&gt;         <strong>mass</strong> <a class="anchor-link"
+            href="#mass"
+            title="Permalink to Particles.mass">#</a>
+        </h4>
+        <div class="doc">
+<p>The lifetime of the particle, in seconds.
+The mass of the particle ( 1.0 is the default ) is used to resolve Constraint distance.</p>
+<pre class="source">
+final ItemOption&lt;double&gt; mass
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="position3d">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;Vector3&gt;         <strong>position3d</strong> <a class="anchor-link"
+            href="#position3d"
+            title="Permalink to Particles.position3d">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+List&lt;Vector3&gt; position3d
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="position3dBuff">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_typed_data/Float32List.html">Float32List</a>         <strong>position3dBuff</strong> <a class="anchor-link"
+            href="#position3dBuff"
+            title="Permalink to Particles.position3dBuff">#</a>
+        </h4>
+        <div class="doc">
+<p>all the positions in a single list (can be used in webgl to set vertices in one call)</p>
+<pre class="source">
+final Float32List position3dBuff
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="position3dPrevious">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;Vector3&gt;         <strong>position3dPrevious</strong> <a class="anchor-link"
+            href="#position3dPrevious"
+            title="Permalink to Particles.position3dPrevious">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final List&lt;Vector3&gt; position3dPrevious
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="radius">
+<button class="show-code">Code</button>
+final <a href="../utils/ItemOption.html">ItemOption</a>&lt;<a href="http://api.dartlang.org/dart_core/double.html">double</a>&gt;         <strong>radius</strong> <a class="anchor-link"
+            href="#radius"
+            title="Permalink to Particles.radius">#</a>
+        </h4>
+        <div class="doc">
+<p>The radius of the particle, for collision approximation</p>
+<pre class="source">
+final ItemOption&lt;double&gt; radius
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="copyPosition3dIntoPrevious">
+<button class="show-code">Code</button>
+dynamic <strong>copyPosition3dIntoPrevious</strong>() <a class="anchor-link" href="#copyPosition3dIntoPrevious"
+              title="Permalink to Particles.copyPosition3dIntoPrevious">#</a></h4>
+<div class="doc">
+<pre class="source">
+copyPosition3dIntoPrevious() {
+ for (int i = length -1; i &gt; -1; --i) {
+   position3dPrevious[i].setFrom(position3d[i]);
+ }
+}
 </pre>
 </div>
 </div>
@@ -100,7 +328,7 @@ final List&lt;Particle&gt; l
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-05-20 21:46:57.013</div>
+          <div>This page was generated at 2013-07-26 14:44:11.468</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>

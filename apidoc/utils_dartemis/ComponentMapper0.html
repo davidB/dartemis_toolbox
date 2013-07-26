@@ -1,0 +1,147 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>ComponentMapper0 class / utils_dartemis Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="utils_dartemis" data-type="ComponentMapper0">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../utils_dartemis.html">utils_dartemis</a> &rsaquo; <a href="../utils_dartemis/ComponentMapper0.html">ComponentMapper0</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>ComponentMapper0</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p>Non generic version of ComponentMapper from dartemis (remove type cast)
+High performance component retrieval from entities. Use this wherever you need
+to retrieve components from entities often and fast.</p>
+<pre class="source">
+class ComponentMapper0 {
+ ComponentType _type;
+ Bag&lt;Component&gt; _components;
+
+ ComponentMapper0(Type componentType, World world) {
+   this._type = ComponentTypeManager.getTypeFor(componentType);
+   _components = world.componentManager.getComponentsByType(this._type);
+ }
+
+ /**
+  * Fast but unsafe retrieval of a component for this entity.
+  * No bounding checks, so this could throw an ArrayIndexOutOfBoundsExeption,
+  * however in most scenarios you already know the entity possesses this component.
+  */
+ get(Entity e) =&gt; _components[e.id];
+
+ /**
+  * Fast and safe retrieval of a component for this entity.
+  * If the entity does not have this component then null is returned.
+  */
+ getSafe(Entity e) {
+   if(_components.isIndexWithinBounds(e.id)) {
+     return _components[e.id];
+   }
+   return null;
+ }
+
+ /**
+  * Checks if the entity has this type of component.
+  */
+ bool has(Entity e) =&gt; getSafe(e) != null;
+}
+</pre>
+</div>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="">
+<button class="show-code">Code</button>
+new <strong>ComponentMapper0</strong>(<a href="http://api.dartlang.org/dart_core/Type.html">Type</a> componentType, World world) <a class="anchor-link" href="#"
+              title="Permalink to ComponentMapper0.ComponentMapper0">#</a></h4>
+<div class="doc">
+<div class="inherited">
+<p>Creates a new <a class="crossref" href="../dart_core/Object.html">Object</a> instance.</p>
+<p><a class="crossref" href="../dart_core/Object.html">Object</a> instances have no meaningful state, and are only useful
+through their identity. An <a class="crossref" href="../dart_core/Object.html">Object</a> instance is equal to itself
+only.</p>
+<div class="docs-inherited-from">docs inherited from <a href="http://api.dartlang.org/dart_core/Object.html">Object</a> </div></div>
+<pre class="source">
+ComponentMapper0(Type componentType, World world) {
+ this._type = ComponentTypeManager.getTypeFor(componentType);
+ _components = world.componentManager.getComponentsByType(this._type);
+}
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="get">
+<button class="show-code">Code</button>
+dynamic <strong>get</strong>(Entity e) <a class="anchor-link" href="#get"
+              title="Permalink to ComponentMapper0.get">#</a></h4>
+<div class="doc">
+<p>Fast but unsafe retrieval of a component for this entity.
+No bounding checks, so this could throw an ArrayIndexOutOfBoundsExeption,
+however in most scenarios you already know the entity possesses this component.</p>
+<pre class="source">
+get(Entity e) =&gt; _components[e.id];
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="getSafe">
+<button class="show-code">Code</button>
+dynamic <strong>getSafe</strong>(Entity e) <a class="anchor-link" href="#getSafe"
+              title="Permalink to ComponentMapper0.getSafe">#</a></h4>
+<div class="doc">
+<p>Fast and safe retrieval of a component for this entity.
+If the entity does not have this component then null is returned.</p>
+<pre class="source">
+getSafe(Entity e) {
+ if(_components.isIndexWithinBounds(e.id)) {
+   return _components[e.id];
+ }
+ return null;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="has">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>has</strong>(Entity e) <a class="anchor-link" href="#has"
+              title="Permalink to ComponentMapper0.has">#</a></h4>
+<div class="doc">
+<p>Checks if the entity has this type of component.</p>
+<pre class="source">
+bool has(Entity e) =&gt; getSafe(e) != null;
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-07-26 14:44:11.569</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

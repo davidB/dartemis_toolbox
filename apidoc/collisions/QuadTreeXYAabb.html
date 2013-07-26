@@ -1,0 +1,375 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>QuadTreeXYAabb class / collisions Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="collisions" data-type="QuadTreeXYAabb">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../collisions.html">collisions</a> &rsaquo; <a href="../collisions/QuadTreeXYAabb.html">QuadTreeXYAabb</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>QuadTreeXYAabb</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p>/// see
+/// * <a href="http://en.wikipedia.org/wiki/Quadtree">Quadtree</a> at wikipedia
+/// * <a href="http://www.mikechambers.com/blog/2011/03/21/javascript-quadtree-implementation/">JavaScript QuadTree Implementation</a>
+/// * <a href="http://gamedev.tutsplus.com/tutorials/implementation/quick-tip-use-quadtrees-to-detect-likely-collisions-in-2d-space/">Quick Tip: Use Quadtrees to Detect Likely Collisions in 2D Space</a>
+see
+<em> <a href="http://en.wikipedia.org/wiki/Quadtree">Quadtree</a> at wikipedia
+</em> <a href="http://www.mikechambers.com/blog/2011/03/21/javascript-quadtree-implementation/">JavaScript QuadTree Implementation</a>
+* <a href="http://gamedev.tutsplus.com/tutorials/implementation/quick-tip-use-quadtrees-to-detect-likely-collisions-in-2d-space/">Quick Tip: Use Quadtrees to Detect Likely Collisions in 2D Space</a>
+TODO add testcase</p>
+<pre class="source">
+class QuadTreeXYAabb{
+ /// (x, y, width, height) bounds of the QuadTree
+ final _dim = new Aabb3();
+ final _splitPoint = new Vector3.zero();
+
+ /// Whether the QuadTree will contain points (true), or items with bounds (width / height)(false).
+ final int maxDepth;
+ /// The maximum number of children that a node can contain before it is split into sub-nodes.
+ final int maxChildren;
+
+ //interleave data [AAbb3, obj, AAbb3, obj, ....]
+ final _children = new List();
+ //TODO optimize to reuse nodes (recycle, pool)
+ final _nodes = new List&lt;QuadTreeXYAabb&gt;(4);
+ var _isLeaf = true;
+
+ QuadTreeXYAabb(x, y, w, h, [this.maxDepth = 4, int maxChildren = 4]): this.maxChildren = maxChildren &lt;&lt; 1 {
+   _dim.min.setValues(x, y, 0.0);
+   _dim.max.setValues(x + w, y + h, 0.0);
+   _splitPoint.setFrom(_dim.min).add(_dim.max).scale(0.5);
+ }
+
+ get isLeaf =&gt; _isLeaf;
+ get nbItems =&gt; (_children.length &gt;&gt; 1) + ((_isLeaf)? 0 : (_nodes[0].nbItems + _nodes[1].nbItems + _nodes[2].nbItems + _nodes[3].nbItems));
+ get nbItemsL0 =&gt; _children.length &gt;&gt; 1;
+
+ /// use [reset] to reset the instance instead of create a new one with same bounds.
+ reset() {
+   _children.clear();
+   _isLeaf = true;
+ }
+
+ bool insert(Aabb3 v, obj) {
+   var r = findRegion(v);
+   if (r != null) {
+     r._insert(v, obj);
+//      if (this.maxDepth == 10) {
+//        obj.ps.color[obj.i] = (r.maxDepth == 10)? 0x0000ffff : 0x00ff00ff;
+//      }
+   }
+   return (r != null);
+ }
+
+ QuadTreeXYAabb findRegion(Aabb3 v) {
+   if (v.min.x &lt; _dim.min.x || v.max.x &gt; _dim.max.x || (v.min.y &lt; _dim.min.y) || v.max.y &gt; _dim.max.y) {
+     return null;
+   }
+   return _findRegion(v);
+ }
+
+ _findRegion(Aabb3 v) {
+   var r = null;
+   if (!_isLeaf) {
+     var n = (v.min.y &lt;= _splitPoint.y)?  0 : 2;
+     n = (v.min.x &lt;= _splitPoint.x)?  n : n + 1;
+     r = _nodes[n].findRegion(v);
+   }
+   return (r == null) ? this : r;
+ }
+
+ _insert(Aabb3 v, obj) {
+   if (_isLeaf &amp;&amp; maxDepth &gt; 0 &amp;&amp; _children.length &gt;= maxChildren) {
+     _split();
+     var data = new List.from(_children, growable: false); // TODO use a static arrays
+     _children.clear();
+     for (var i = 0; i &lt; data.length; i +=2) {
+       insert(data[i], data[i+1]);
+     }
+     insert(v, obj);
+   } else {
+     _children.add(v);
+     _children.add(obj);
+   }
+ }
+
+ _split() {
+   if(_nodes[0] == null) {
+     var x = _dim.min.x;
+     var y = _dim.min.y;
+     var w2 = _splitPoint.x - _dim.min.x;
+     var h2 = _splitPoint.y - _dim.min.y;
+     var m = maxChildren &gt;&gt; 1;
+     var d = maxDepth - 1;
+     _nodes[0] = new QuadTreeXYAabb(x     , y     , w2, h2, d, m);
+     _nodes[1] = new QuadTreeXYAabb(x + w2, y     , w2, h2, d, m);
+     _nodes[2] = new QuadTreeXYAabb(x     , y + h2, w2, h2, d, m);
+     _nodes[3] = new QuadTreeXYAabb(x + w2, y + h2, w2, h2, d, m);
+   } else {
+     _nodes[0].reset();
+     _nodes[1].reset();
+     _nodes[2].reset();
+     _nodes[3].reset();
+   }
+   _isLeaf = false;
+ }
+
+ retrieve(Aabb3 v, List out) {
+   var reg = findRegion(v);
+   if (reg !=null &amp;&amp; reg != this) {
+     reg.retrieve(out, v);
+   }
+   for (var i = 1; i &lt; _children.length; i +=2) {
+     out.add(_children[i]);
+   }
+   return out;
+ }
+
+ scan(Function f) {
+   for (var i = 1; i &lt; _children.length; i +=2) {
+     var a1 = _children[i];
+     for (var j = i + 2; j &lt; _children.length; j +=2) {
+       f(a1, _children[j]);
+     }
+     _scanVsNodes(f, a1);
+   }
+   if (!_isLeaf) {
+     for (var i = 0; i &lt; 4; ++i) {
+       _nodes[i].scan(f);
+     }
+   }
+ }
+
+ _scanVsNodes(Function f, a1) {
+   if (_isLeaf) return;
+
+   for (var i = 0; i &lt; 4; ++i) {
+     var n = _nodes[i];
+     n._scanVsChildren(f, a1);
+     n._scanVsNodes(f, a1);
+   }
+ }
+
+ _scanVsChildren(Function f, a1) {
+   for (var i = 1; i &lt; _children.length; i +=2) {
+     f(a1, _children[i]);
+   }
+ }
+
+}
+</pre>
+</div>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="">
+<button class="show-code">Code</button>
+new <strong>QuadTreeXYAabb</strong>(x, y, w, h, [<a href="http://api.dartlang.org/dart_core/int.html">int</a> maxDepth = 4, <a href="http://api.dartlang.org/dart_core/int.html">int</a> maxChildren = 4]) <a class="anchor-link" href="#"
+              title="Permalink to QuadTreeXYAabb.QuadTreeXYAabb">#</a></h4>
+<div class="doc">
+<div class="inherited">
+<p>Creates a new <a class="crossref" href="../dart_core/Object.html">Object</a> instance.</p>
+<p><a class="crossref" href="../dart_core/Object.html">Object</a> instances have no meaningful state, and are only useful
+through their identity. An <a class="crossref" href="../dart_core/Object.html">Object</a> instance is equal to itself
+only.</p>
+<div class="docs-inherited-from">docs inherited from <a href="http://api.dartlang.org/dart_core/Object.html">Object</a> </div></div>
+<pre class="source">
+QuadTreeXYAabb(x, y, w, h, [this.maxDepth = 4, int maxChildren = 4]): this.maxChildren = maxChildren &lt;&lt; 1 {
+ _dim.min.setValues(x, y, 0.0);
+ _dim.max.setValues(x + w, y + h, 0.0);
+ _splitPoint.setFrom(_dim.min).add(_dim.max).scale(0.5);
+}
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="isLeaf">
+<button class="show-code">Code</button>
+final         <strong>isLeaf</strong> <a class="anchor-link"
+            href="#isLeaf"
+            title="Permalink to QuadTreeXYAabb.isLeaf">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+get isLeaf =&gt; _isLeaf;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="maxChildren">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>maxChildren</strong> <a class="anchor-link"
+            href="#maxChildren"
+            title="Permalink to QuadTreeXYAabb.maxChildren">#</a>
+        </h4>
+        <div class="doc">
+<p>The maximum number of children that a node can contain before it is split into sub-nodes.</p>
+<pre class="source">
+final int maxChildren
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="maxDepth">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>maxDepth</strong> <a class="anchor-link"
+            href="#maxDepth"
+            title="Permalink to QuadTreeXYAabb.maxDepth">#</a>
+        </h4>
+        <div class="doc">
+<p>Whether the QuadTree will contain points (true), or items with bounds (width / height)(false).</p>
+<pre class="source">
+final int maxDepth
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="nbItems">
+<button class="show-code">Code</button>
+final         <strong>nbItems</strong> <a class="anchor-link"
+            href="#nbItems"
+            title="Permalink to QuadTreeXYAabb.nbItems">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+get nbItems =&gt; (_children.length &gt;&gt; 1) + ((_isLeaf)? 0 : (_nodes[0].nbItems + _nodes[1].nbItems + _nodes[2].nbItems + _nodes[3].nbItems));
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="nbItemsL0">
+<button class="show-code">Code</button>
+final         <strong>nbItemsL0</strong> <a class="anchor-link"
+            href="#nbItemsL0"
+            title="Permalink to QuadTreeXYAabb.nbItemsL0">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+get nbItemsL0 =&gt; _children.length &gt;&gt; 1;
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="findRegion">
+<button class="show-code">Code</button>
+<a href="../collisions/QuadTreeXYAabb.html">QuadTreeXYAabb</a> <strong>findRegion</strong>(Aabb3 v) <a class="anchor-link" href="#findRegion"
+              title="Permalink to QuadTreeXYAabb.findRegion">#</a></h4>
+<div class="doc">
+<pre class="source">
+QuadTreeXYAabb findRegion(Aabb3 v) {
+ if (v.min.x &lt; _dim.min.x || v.max.x &gt; _dim.max.x || (v.min.y &lt; _dim.min.y) || v.max.y &gt; _dim.max.y) {
+   return null;
+ }
+ return _findRegion(v);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="insert">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>insert</strong>(Aabb3 v, obj) <a class="anchor-link" href="#insert"
+              title="Permalink to QuadTreeXYAabb.insert">#</a></h4>
+<div class="doc">
+<pre class="source">
+bool insert(Aabb3 v, obj) {
+ var r = findRegion(v);
+ if (r != null) {
+   r._insert(v, obj);
+//      if (this.maxDepth == 10) {
+//        obj.ps.color[obj.i] = (r.maxDepth == 10)? 0x0000ffff : 0x00ff00ff;
+//      }
+ }
+ return (r != null);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="reset">
+<button class="show-code">Code</button>
+dynamic <strong>reset</strong>() <a class="anchor-link" href="#reset"
+              title="Permalink to QuadTreeXYAabb.reset">#</a></h4>
+<div class="doc">
+<p>use <a class="crossref" href="../collisions/QuadTreeXYAabb.html#reset">reset</a> to reset the instance instead of create a new one with same bounds.</p>
+<pre class="source">
+reset() {
+ _children.clear();
+ _isLeaf = true;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="retrieve">
+<button class="show-code">Code</button>
+dynamic <strong>retrieve</strong>(Aabb3 v, <a href="http://api.dartlang.org/dart_core/List.html">List</a> out) <a class="anchor-link" href="#retrieve"
+              title="Permalink to QuadTreeXYAabb.retrieve">#</a></h4>
+<div class="doc">
+<pre class="source">
+retrieve(Aabb3 v, List out) {
+ var reg = findRegion(v);
+ if (reg !=null &amp;&amp; reg != this) {
+   reg.retrieve(out, v);
+ }
+ for (var i = 1; i &lt; _children.length; i +=2) {
+   out.add(_children[i]);
+ }
+ return out;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="scan">
+<button class="show-code">Code</button>
+dynamic <strong>scan</strong>(<a href="http://api.dartlang.org/dart_core/Function.html">Function</a> f) <a class="anchor-link" href="#scan"
+              title="Permalink to QuadTreeXYAabb.scan">#</a></h4>
+<div class="doc">
+<pre class="source">
+scan(Function f) {
+ for (var i = 1; i &lt; _children.length; i +=2) {
+   var a1 = _children[i];
+   for (var j = i + 2; j &lt; _children.length; j +=2) {
+     f(a1, _children[j]);
+   }
+   _scanVsNodes(f, a1);
+ }
+ if (!_isLeaf) {
+   for (var i = 0; i &lt; 4; ++i) {
+     _nodes[i].scan(f);
+   }
+ }
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-07-26 14:44:11.122</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

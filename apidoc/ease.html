@@ -48,6 +48,8 @@ final         <strong>all</strong> <a class="anchor-link"
 final all = new LinkedHashMap&lt;String, Ease&gt;()
  ..['linear'] = linear
  ..['random'] = random
+ ..['smoothstep'] = smoothstep
+ ..['smootherstep'] = smootherstep
  ..['inQuad'] = inQuad
  ..['outQuad'] = outQuad
  ..['inOutQuad'] = inOutQuad
@@ -621,6 +623,32 @@ num inQuad(double ratio, num change, num baseValue) {
 </pre>
 </div>
 </div>
+<div class="method"><h4 id="smootherstep">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>smootherstep</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> ratio, <a href="http://api.dartlang.org/dart_core/num.html">num</a> change, <a href="http://api.dartlang.org/dart_core/num.html">num</a> baseValue) <a class="anchor-link" href="#smootherstep"
+              title="Permalink to smootherstep">#</a></h4>
+<div class="doc">
+<pre class="source">
+num smootherstep(double ratio, num change, num baseValue) {
+ var r = ratio * ratio * ratio *( ratio *( ratio *6 - 15) + 10);
+ return change * r + baseValue;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="smoothstep">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>smoothstep</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> ratio, <a href="http://api.dartlang.org/dart_core/num.html">num</a> change, <a href="http://api.dartlang.org/dart_core/num.html">num</a> baseValue) <a class="anchor-link" href="#smoothstep"
+              title="Permalink to smoothstep">#</a></h4>
+<div class="doc">
+<pre class="source">
+num smoothstep(double ratio, num change, num baseValue) {
+ var r = ratio * ratio * (3 - 2 * ratio);
+ return change * r + baseValue;
+}
+</pre>
+</div>
+</div>
 <div class="method"><h4 id="random">
 <button class="show-code">Code</button>
 <a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>random</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> ratio, <a href="http://api.dartlang.org/dart_core/num.html">num</a> change, <a href="http://api.dartlang.org/dart_core/num.html">num</a> baseValue) <a class="anchor-link" href="#random"
@@ -640,7 +668,6 @@ num random(double ratio, num change, num baseValue) {
 <a href="http://api.dartlang.org/dart_core/num.html">num</a> <strong>linear</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> ratio, <a href="http://api.dartlang.org/dart_core/num.html">num</a> change, <a href="http://api.dartlang.org/dart_core/num.html">num</a> baseValue) <a class="anchor-link" href="#linear"
               title="Permalink to linear">#</a></h4>
 <div class="doc">
-<p>Performs a linear.</p>
 <pre class="source">
 num linear(double ratio, num change, num baseValue) {
  return change * ratio + baseValue;
@@ -744,7 +771,7 @@ chain(Ease f0, Ease f1) =&gt; (double ratio, num change, num baseValue) {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-05-20 21:46:56.558</div>
+          <div>This page was generated at 2013-07-26 14:44:11.329</div>
         </div>
         <script async src="client-live-nav.js"></script>
         </body></html>

@@ -83,18 +83,18 @@ static nullId() =&gt; null;
 </div>
 <div>
 <h3>Constructors</h3>
-<div class="method"><h4 id="ComponentProvider">
+<div class="method"><h4 id="">
 <button class="show-code">Code</button>
-new <strong>ComponentProvider</strong>(<a href="http://api.dartlang.org/dart_core/Type.html">Type</a> ctype, <a href="../system_entity_state/CreateComponent.html">CreateComponent</a> createComponent, [<a href="../system_entity_state/ComponentProviderId.html">ComponentProviderId</a> id = nullId]) <a class="anchor-link" href="#ComponentProvider"
+new <strong>ComponentProvider</strong>(<a href="http://api.dartlang.org/dart_core/Type.html">Type</a> ctype, <a href="../system_entity_state/CreateComponent.html">CreateComponent</a> createComponent, [<a href="../system_entity_state/ComponentProviderId.html">ComponentProviderId</a> id = nullId]) <a class="anchor-link" href="#"
               title="Permalink to ComponentProvider.ComponentProvider">#</a></h4>
 <div class="doc">
-<p>Creates a new <a class="crossref" href="../system_entity_state/ComponentProvider.html#ComponentProvider">ComponentProvider</a>.</p>
+<p>Creates a new <a class="crossref" href="../system_entity_state/ComponentProvider.html">ComponentProvider</a>.</p>
 <p>The 
-<span class="param">createComponent</span> always has to create a <code>Component</code> that is returned
-using the factory constructor of that <code>Component</code>. Do not return the same
-instance for multiple calls, because it can return to <code>ObjectPool</code>
+<span class="param">createComponent</span> always has to create a <a class="crossref" href="../dartemis/Component.html">Component</a> that is returned
+using the factory constructor of that <a class="crossref" href="../dartemis/Component.html">Component</a>. Do not return the same
+instance for multiple calls, because it can return to <a class="crossref" href="../dartemis/ObjectPool.html">ObjectPool</a>
 when it gets removed from the entity on a state change
-if it extends <code>Poolable</code>.</p>
+if it extends <a class="crossref" href="../dartemis/Poolable.html">Poolable</a>.</p>
 <pre class="source">
 ComponentProvider(Type ctype, this.createComponent, [this.id = nullId]) : type = ComponentTypeManager.getTypeFor(ctype);
 </pre>
@@ -145,7 +145,7 @@ final ComponentType type
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-05-20 21:46:56.982</div>
+          <div>This page was generated at 2013-07-26 14:44:11.427</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>

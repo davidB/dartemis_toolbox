@@ -30,54 +30,15 @@
 <div class="doc"><p>TODO lot of test (unit, ...)
 TODO benchmark, profiling, optimisation</p></div>
 <div>
-<h3>Properties</h3>
-<div class="field"><h4 id="VX_AXIS">
-<button class="show-code">Code</button>
-final         <strong>VX_AXIS</strong> <a class="anchor-link"
-            href="#VX_AXIS"
-            title="Permalink to VX_AXIS">#</a>
-        </h4>
-        <div class="doc">
-<pre class="source">
-final VX_AXIS = new vec3(1.0, 1.0, 0.0)
-</pre>
-</div>
-</div>
-<div class="field"><h4 id="VY_AXIS">
-<button class="show-code">Code</button>
-final         <strong>VY_AXIS</strong> <a class="anchor-link"
-            href="#VY_AXIS"
-            title="Permalink to VY_AXIS">#</a>
-        </h4>
-        <div class="doc">
-<pre class="source">
-final VY_AXIS = new vec3(0.0, 1.0, 0.0)
-</pre>
-</div>
-</div>
-<div class="field"><h4 id="VZERO">
-<button class="show-code">Code</button>
-final         <strong>VZERO</strong> <a class="anchor-link"
-            href="#VZERO"
-            title="Permalink to VZERO">#</a>
-        </h4>
-        <div class="doc">
-<pre class="source">
-final VZERO = new vec3.zero()
-</pre>
-</div>
-</div>
-</div>
-<div>
 <h3>Functions</h3>
 <div class="method"><h4 id="cone">
 <button class="show-code">Code</button>
-<a href="system_emitter/Vec3GenInto.html">Vec3GenInto</a> <strong>cone</strong>({vec3 apex, vec3 axis, <a href="http://api.dartlang.org/dart_core/double.html">double</a> angle: 0.0, <a href="http://api.dartlang.org/dart_core/double.html">double</a> height: 10.0, <a href="http://api.dartlang.org/dart_core/double.html">double</a> truncatedHeight: 0.0}) <a class="anchor-link" href="#cone"
+<a href="system_emitter/Vector3GenInto.html">Vector3GenInto</a> <strong>cone</strong>({Vector3 apex, Vector3 axis, <a href="http://api.dartlang.org/dart_core/double.html">double</a> angle: 0.0, <a href="http://api.dartlang.org/dart_core/double.html">double</a> height: 10.0, <a href="http://api.dartlang.org/dart_core/double.html">double</a> truncatedHeight: 0.0}) <a class="anchor-link" href="#cone"
               title="Permalink to cone">#</a></h4>
 <div class="doc">
 <pre class="source">
-Vec3GenInto cone({vec3 apex, vec3 axis, double angle : 0.0, double height : 10.0, double truncatedHeight : 0.0} ){
- apex = (apex == null) ? new vec3() : apex;
+Vector3GenInto cone({Vector3 apex, Vector3 axis, double angle : 0.0, double height : 10.0, double truncatedHeight : 0.0} ){
+ apex = (apex == null) ? new Vector3.zero() : apex;
  axis = (axis  == null)?  VY_AXIS : axis;
  var _perp1 = perpendicular(axis);
  var _perp2 = axis.cross( _perp1 ).normalize();
@@ -107,15 +68,15 @@ Vec3GenInto cone({vec3 apex, vec3 axis, double angle : 0.0, double height : 10.0
 </div>
 <div class="method"><h4 id="perpendicular">
 <button class="show-code">Code</button>
-vec3 <strong>perpendicular</strong>(vec3 v) <a class="anchor-link" href="#perpendicular"
+Vector3 <strong>perpendicular</strong>(Vector3 v) <a class="anchor-link" href="#perpendicular"
               title="Permalink to perpendicular">#</a></h4>
 <div class="doc">
 <pre class="source">
-vec3 perpendicular(vec3 v) {
+Vector3 perpendicular(Vector3 v) {
  if( v.x == 0 ) {
-   return new vec3( 1.0, 0.0, 0.0 );
+   return new Vector3( 1.0, 0.0, 0.0 );
  } else {
-   return new vec3( v.y, -v.x, 0 ).normalize();
+   return new Vector3( v.y, -v.x, 0.0 ).normalize();
  }
 }
 </pre>
@@ -123,11 +84,11 @@ vec3 perpendicular(vec3 v) {
 </div>
 <div class="method"><h4 id="line">
 <button class="show-code">Code</button>
-<a href="system_emitter/Vec3GenInto.html">Vec3GenInto</a> <strong>line</strong>(vec3 start, vec3 end, <a href="ease/Ease.html">Ease</a> easing) <a class="anchor-link" href="#line"
+<a href="system_emitter/Vector3GenInto.html">Vector3GenInto</a> <strong>line</strong>(Vector3 start, Vector3 end, <a href="ease/Ease.html">Ease</a> easing) <a class="anchor-link" href="#line"
               title="Permalink to line">#</a></h4>
 <div class="doc">
 <pre class="source">
-Vec3GenInto line(vec3 start, vec3 end, ease.Ease easing){
+Vector3GenInto line(Vector3 start, Vector3 end, ease.Ease easing){
  var length = end - start;
  var acc = 0.0;
  return (v, dt){
@@ -141,11 +102,11 @@ Vec3GenInto line(vec3 start, vec3 end, ease.Ease easing){
 </div>
 <div class="method"><h4 id="box">
 <button class="show-code">Code</button>
-<a href="system_emitter/Vec3GenInto.html">Vec3GenInto</a> <strong>box</strong>(vec3 center, vec3 offsets) <a class="anchor-link" href="#box"
+<a href="system_emitter/Vector3GenInto.html">Vector3GenInto</a> <strong>box</strong>(Vector3 center, Vector3 offsets) <a class="anchor-link" href="#box"
               title="Permalink to box">#</a></h4>
 <div class="doc">
 <pre class="source">
-Vec3GenInto box(vec3 center, vec3 offsets) =&gt; (v, dt){
+Vector3GenInto box(Vector3 center, Vector3 offsets) =&gt; (v, dt){
  v.setFrom(center);
  v.x += (_random.nextDouble() - 0.5) * 2 * offsets.x;
  v.y += (_random.nextDouble() - 0.5) * 2 * offsets.y;
@@ -157,12 +118,12 @@ Vec3GenInto box(vec3 center, vec3 offsets) =&gt; (v, dt){
 </div>
 <div class="method"><h4 id="constant">
 <button class="show-code">Code</button>
-<a href="system_emitter/Vec3GenInto.html">Vec3GenInto</a> <strong>constant</strong>(vec3 x) <a class="anchor-link" href="#constant"
+<a href="system_emitter/Vector3GenInto.html">Vector3GenInto</a> <strong>constant</strong>(Vector3 x) <a class="anchor-link" href="#constant"
               title="Permalink to constant">#</a></h4>
 <div class="doc">
 <p>always return a clone of x.</p>
 <pre class="source">
-Vec3GenInto constant(vec3 x) =&gt; (v, dt) =&gt; v.setFrom(x);
+Vector3GenInto constant(Vector3 x) =&gt; (v, dt) =&gt; v.setFrom(x);
 </pre>
 </div>
 </div>
@@ -236,7 +197,7 @@ Initializer particlesAddComponents(List&lt;Function&gt; fs) =&gt; (dt, Entity em
  es.forEach((e){
    var ps = e.getComponent(Particles.CT) as Particles;
    if (ps != null) {
-     fs.forEach((f) =&gt; e.addComponent(f(ps.l.length)));
+     fs.forEach((f) =&gt; e.addComponent(f(ps.length)));
    }
  });
 };
@@ -257,39 +218,26 @@ Initializer addComponents(List&lt;Function&gt; fs) =&gt; (dt, Entity emitter, Li
 </pre>
 </div>
 </div>
-<div class="method"><h4 id="addParticleInfo0s">
-<button class="show-code">Code</button>
-<a href="system_emitter/Initializer.html">Initializer</a> <strong>addParticleInfo0s</strong>() <a class="anchor-link" href="#addParticleInfo0s"
-              title="Permalink to addParticleInfo0s">#</a></h4>
-<div class="doc">
-<pre class="source">
-Initializer addParticleInfo0s() =&gt; particlesAddComponents([
- (lg) =&gt; new ParticleInfo0s(lg)
-]);
-</pre>
-</div>
-</div>
 <div class="method"><h4 id="particlesStartPositionPrevious">
 <button class="show-code">Code</button>
-<a href="system_emitter/Initializer.html">Initializer</a> <strong>particlesStartPositionPrevious</strong>(<a href="system_emitter/Vec3GenInto.html">Vec3GenInto</a> gen, <a href="http://api.dartlang.org/dart_core/bool.html">bool</a> fromEmitter) <a class="anchor-link" href="#particlesStartPositionPrevious"
+<a href="system_emitter/Initializer.html">Initializer</a> <strong>particlesStartPositionPrevious</strong>(<a href="system_emitter/Vector3GenInto.html">Vector3GenInto</a> gen, <a href="http://api.dartlang.org/dart_core/bool.html">bool</a> fromEmitter) <a class="anchor-link" href="#particlesStartPositionPrevious"
               title="Permalink to particlesStartPositionPrevious">#</a></h4>
 <div class="doc">
 <p>used to define a initial velocity if Verlet Simulator, also add Constraints Component
 should add after a Initializer that set position3d of particules</p>
 <pre class="source">
-Initializer particlesStartPositionPrevious(Vec3GenInto gen, bool fromEmitter) =&gt; (dt, Entity emitter, List&lt;Entity&gt; es) {
- var mat4 = new mat4.identity();
+Initializer particlesStartPositionPrevious(Vector3GenInto gen, bool fromEmitter) =&gt; (dt, Entity emitter, List&lt;Entity&gt; es) {
+ var m4 = new Matrix4.identity();
  if (fromEmitter) {
    var tf = emitter.getComponent(Transform.CT) as Transform;
-   mat4.rotateX(tf.rotation3d.x);
-   mat4.rotateY(tf.rotation3d.y);
-   mat4.rotateZ(tf.rotation3d.z);
+   m4.rotateX(tf.rotation3d.x);
+   m4.rotateY(tf.rotation3d.y);
+   m4.rotateZ(tf.rotation3d.z);
  }
- processParticules(es, (p) {
-    var v = gen(new vec3.zero(), dt);
-    v = mat4.rotate3(v);
-    v.add(p.position3d);
-    p.position3dPrevious = v;
+ processParticules(es, (ps, i) {
+    var v = gen(ps.position3dPrevious[i], dt);
+    v = m4.rotate3(v);
+    v.add(ps.position3d[i]);
  });
 };
 </pre>
@@ -297,17 +245,17 @@ Initializer particlesStartPositionPrevious(Vec3GenInto gen, bool fromEmitter) =&
 </div>
 <div class="method"><h4 id="particlesStartPosition">
 <button class="show-code">Code</button>
-<a href="system_emitter/Initializer.html">Initializer</a> <strong>particlesStartPosition</strong>(<a href="system_emitter/Vec3GenInto.html">Vec3GenInto</a> gen, <a href="http://api.dartlang.org/dart_core/bool.html">bool</a> fromEmitter) <a class="anchor-link" href="#particlesStartPosition"
+<a href="system_emitter/Initializer.html">Initializer</a> <strong>particlesStartPosition</strong>(<a href="system_emitter/Vector3GenInto.html">Vector3GenInto</a> gen, <a href="http://api.dartlang.org/dart_core/bool.html">bool</a> fromEmitter) <a class="anchor-link" href="#particlesStartPosition"
               title="Permalink to particlesStartPosition">#</a></h4>
 <div class="doc">
 <pre class="source">
-Initializer particlesStartPosition(Vec3GenInto gen, bool fromEmitter) =&gt; (dt, Entity emitter, List&lt;Entity&gt; es) {
+Initializer particlesStartPosition(Vector3GenInto gen, bool fromEmitter) =&gt; (dt, Entity emitter, List&lt;Entity&gt; es) {
  var tf = emitter.getComponent(Transform.CT) as Transform;
  var pos = tf.position3d;
- processParticules(es, (p) {
-   gen(p.position3d, dt);
+ processParticules(es, (ps, i) {
+   gen(ps.position3d[i], dt);
    //print(p.position3d);
-   if (fromEmitter) p.position3d.add(pos);
+   if (fromEmitter) ps.position3d[i].add(pos);
  });
 };
 </pre>
@@ -315,16 +263,18 @@ Initializer particlesStartPosition(Vec3GenInto gen, bool fromEmitter) =&gt; (dt,
 </div>
 <div class="method"><h4 id="processParticules">
 <button class="show-code">Code</button>
-dynamic <strong>processParticules</strong>(<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;Entity&gt; es, f(Particule)) <a class="anchor-link" href="#processParticules"
+dynamic <strong>processParticules</strong>(<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;Entity&gt; es, f(Particules, i)) <a class="anchor-link" href="#processParticules"
               title="Permalink to processParticules">#</a></h4>
 <div class="doc">
 <pre class="source">
-processParticules(List&lt;Entity&gt; es, f(Particule)) {
+processParticules(List&lt;Entity&gt; es, f(Particules, i)) {
  es.forEach((e) {
    var ps = e.getComponent(Particles.CT) as Particles;
    if (ps != null) {
      //print("init on ${ps.l.length} particles");
-     ps.l.forEach(f);
+     for(var i = 0; i &lt; ps.length; i++) {
+       f(ps, i);
+     }
    }
  });
 }
@@ -363,7 +313,7 @@ processParticules(List&lt;Entity&gt; es, f(Particule)) {
           
           <div class="type">
           <h4>
-            <a href="system_emitter/Vec3GenInto.html"><strong>Vec3GenInto</strong></a>
+            <a href="system_emitter/Vector3GenInto.html"><strong>Vector3GenInto</strong></a>
           </h4>
           </div>
           
@@ -372,7 +322,7 @@ processParticules(List&lt;Entity&gt; es, f(Particule)) {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-05-20 21:46:56.660</div>
+          <div>This page was generated at 2013-07-26 14:44:11.377</div>
         </div>
         <script async src="client-live-nav.js"></script>
         </body></html>

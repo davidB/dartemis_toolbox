@@ -1,0 +1,260 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>Space_QuadtreeXY class / collisions Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="collisions" data-type="Space_QuadtreeXY">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../collisions.html">collisions</a> &rsaquo; <a href="../collisions/Space_QuadtreeXY.html">Space_QuadtreeXY</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>Space_QuadtreeXY</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p>Raw space (no optimisation, no grid, no quadtree, no ...) every particles
+are check against every particles (inter <a class="crossref" href="../system_particles/Particles.html">Particles</a> and intra <a class="crossref" href="../system_particles/Particles.html">Particles</a> group)
+and check against every <a class="crossref" href="../system_particles/Segment.html">Segment</a></p>
+<pre class="source">
+class Space_QuadtreeXY implements Space{
+ final QuadTreeXYAabb _grid;
+ final Checker checker;
+ final Resolver resolver;
+ final Vector4 _scol = new Vector4.zero();
+
+ final _pool = new _ProviderStack&lt;_SQE&gt;()
+   ..createE = _SQE.ctor
+   ..resetE =  _SQE.reset
+   ;
+
+ Space_QuadtreeXY(this.checker, this.resolver, {QuadTreeXYAabb grid}) : _grid = (grid == null)? new QuadTreeXYAabb(-500.0, -500.0, 1000.0, 1000.0, 10) : grid;
+
+ void reset() {
+   _grid.reset();
+   _pool.reset();
+ }
+
+ /// return true if at least one [ps].collide != 0 (the Particles [ps] is included in the space)
+ bool addParticles(Particles ps) {
+   if (ps.length &lt; 1) return false;
+   var b = false;
+   for(int i = ps.length - 1; i &gt;= 0; --i) {
+     b  = b || ps.collide[i] != 0;
+   }
+   if (b) {
+     for(int i = ps.length - 1; i &gt;= 0; --i) {
+       ps.collide[i] = 1;
+       var e = _pool.provide();
+       e.ps = ps;
+       e.i = i;
+       extractAabbDisc(ps.position3d[i], ps.radius[i], e.aabb);
+       _grid.insert(e.aabb, e);
+     }
+   }
+   return b;
+ }
+
+ /// return true if [seg].collide != 0 (the Segment [seg] is include in the space)
+ bool addSegment(Segment seg) {
+   if (seg.collide != 0) {
+     seg.collide = 1;
+     var e = _pool.provide();
+     e.segment = seg;
+     extractAabbDisc2(seg.ps.position3d[seg.i1], seg.ps.position3d[seg.i2], 0.0, e.aabb);
+     _grid.insert(e.aabb, e);
+     return true;
+   }
+   return false;
+ }
+
+ void handleCollision() {
+   _grid.scan(_handle0);
+ }
+
+ _handle0(_SQE e1, _SQE e2) {
+   if (e1.ps != null &amp;&amp; e2.ps != null) _handlePP(e1, e2);
+   else if (e1.ps != null &amp;&amp; e2.segment.ps != null) _handlePS(e1, e2);
+   else if (e2.ps != null &amp;&amp; e1.segment.ps != null) _handlePS(e2, e1);
+   else {
+     // segment vs segment collision not managed
+   }
+ }
+
+ _handlePP(_SQE e1, _SQE e2) {
+   if (e1.ps != e2.ps  || e1.ps.intraCollide) {
+     if(checker.collideParticleParticle(e1.ps, e1.i, e2.ps, e2.i, _scol)){
+       resolver.notifyCollisionParticleParticle(e1.ps, e1.i, e2.ps, e2.i, _scol.w);
+     }
+   }
+ }
+
+ _handlePS(_SQE e1, _SQE e2) {
+   if (e1.ps != e2.segment.ps  || e1.ps.intraCollide) {
+     if (checker.collideParticleSegment(e1.ps, e1.i, e2.segment, _scol)) {
+       resolver.notifyCollisionParticleSegment(e1.ps, e1.i, e2.segment, _scol.w);
+     }
+   }
+ }
+
+}
+</pre>
+</div>
+<h3>Implements</h3>
+<p>
+<span class="type-box"><span class="icon-class"></span><a href="../collisions/Space.html">Space</a></span></p>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="">
+<button class="show-code">Code</button>
+new <strong>Space_QuadtreeXY</strong>(<a href="../collisions/Checker.html">Checker</a> checker, <a href="../collisions/Resolver.html">Resolver</a> resolver, {<a href="../collisions/QuadTreeXYAabb.html">QuadTreeXYAabb</a> grid}) <a class="anchor-link" href="#"
+              title="Permalink to Space_QuadtreeXY.Space_QuadtreeXY">#</a></h4>
+<div class="doc">
+<div class="inherited">
+<p>Creates a new <a class="crossref" href="../dart_core/Object.html">Object</a> instance.</p>
+<p><a class="crossref" href="../dart_core/Object.html">Object</a> instances have no meaningful state, and are only useful
+through their identity. An <a class="crossref" href="../dart_core/Object.html">Object</a> instance is equal to itself
+only.</p>
+<div class="docs-inherited-from">docs inherited from <a href="http://api.dartlang.org/dart_core/Object.html">Object</a> </div></div>
+<pre class="source">
+Space_QuadtreeXY(this.checker, this.resolver, {QuadTreeXYAabb grid}) : _grid = (grid == null)? new QuadTreeXYAabb(-500.0, -500.0, 1000.0, 1000.0, 10) : grid;
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="checker">
+<button class="show-code">Code</button>
+final <a href="../collisions/Checker.html">Checker</a>         <strong>checker</strong> <a class="anchor-link"
+            href="#checker"
+            title="Permalink to Space_QuadtreeXY.checker">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final Checker checker
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="resolver">
+<button class="show-code">Code</button>
+final <a href="../collisions/Resolver.html">Resolver</a>         <strong>resolver</strong> <a class="anchor-link"
+            href="#resolver"
+            title="Permalink to Space_QuadtreeXY.resolver">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final Resolver resolver
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="addParticles">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>addParticles</strong>(<a href="../system_particles/Particles.html">Particles</a> ps) <a class="anchor-link" href="#addParticles"
+              title="Permalink to Space_QuadtreeXY.addParticles">#</a></h4>
+<div class="doc">
+<p>return true if at least one 
+<span class="param">ps</span>.collide != 0 (the Particles 
+<span class="param">ps</span> is included in the space)</p>
+<pre class="source">
+bool addParticles(Particles ps) {
+ if (ps.length &lt; 1) return false;
+ var b = false;
+ for(int i = ps.length - 1; i &gt;= 0; --i) {
+   b  = b || ps.collide[i] != 0;
+ }
+ if (b) {
+   for(int i = ps.length - 1; i &gt;= 0; --i) {
+     ps.collide[i] = 1;
+     var e = _pool.provide();
+     e.ps = ps;
+     e.i = i;
+     extractAabbDisc(ps.position3d[i], ps.radius[i], e.aabb);
+     _grid.insert(e.aabb, e);
+   }
+ }
+ return b;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="addSegment">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>addSegment</strong>(<a href="../system_particles/Segment.html">Segment</a> seg) <a class="anchor-link" href="#addSegment"
+              title="Permalink to Space_QuadtreeXY.addSegment">#</a></h4>
+<div class="doc">
+<p>return true if 
+<span class="param">seg</span>.collide != 0 (the Segment 
+<span class="param">seg</span> is include in the space)</p>
+<pre class="source">
+bool addSegment(Segment seg) {
+ if (seg.collide != 0) {
+   seg.collide = 1;
+   var e = _pool.provide();
+   e.segment = seg;
+   extractAabbDisc2(seg.ps.position3d[seg.i1], seg.ps.position3d[seg.i2], 0.0, e.aabb);
+   _grid.insert(e.aabb, e);
+   return true;
+ }
+ return false;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="handleCollision">
+<button class="show-code">Code</button>
+void <strong>handleCollision</strong>() <a class="anchor-link" href="#handleCollision"
+              title="Permalink to Space_QuadtreeXY.handleCollision">#</a></h4>
+<div class="doc">
+<pre class="source">
+void handleCollision() {
+ _grid.scan(_handle0);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="reset">
+<button class="show-code">Code</button>
+void <strong>reset</strong>() <a class="anchor-link" href="#reset"
+              title="Permalink to Space_QuadtreeXY.reset">#</a></h4>
+<div class="doc">
+<pre class="source">
+void reset() {
+ _grid.reset();
+ _pool.reset();
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-07-26 14:44:11.143</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

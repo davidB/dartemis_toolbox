@@ -1,0 +1,276 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>StartStopStats class / startstopstats Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="startstopstats" data-type="StartStopStats">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../startstopstats.html">startstopstats</a> &rsaquo; <a href="../startstopstats/StartStopStats.html">StartStopStats</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>StartStopStats</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<pre class="source">
+class StartStopStats {
+ Function displayFct;
+ double displayLast = 0.0;
+ double resetLast = 0.0;
+ double min;
+ double max;
+ double total;
+ int count;
+ double _pstart;
+
+ final _perf = window.performance;
+
+ get avg =&gt; (count == 0) ? 0.0 : total/count;
+
+ StartStopStats() {
+   reset();
+   start();
+ }
+
+ start() {
+   _pstart = _perf.now();
+ }
+
+ stop() {
+   var now = _perf.now();
+   store(now - _pstart);
+   if (displayFct != null) {
+     displayFct(this, now);
+   }
+ }
+
+ store(double t) {
+   if (min &gt; t) min = t;
+   if (max &lt; t) max = t;
+   count++;
+   total += t;
+ }
+
+ reset() {
+   resetLast = _perf.now();
+   min = double.MAX_FINITE;
+   max = double.MIN_POSITIVE;
+   total = 0.0;
+   count = 0;
+ }
+
+}
+</pre>
+</div>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="">
+<button class="show-code">Code</button>
+new <strong>StartStopStats</strong>() <a class="anchor-link" href="#"
+              title="Permalink to StartStopStats.StartStopStats">#</a></h4>
+<div class="doc">
+<div class="inherited">
+<p>Creates a new <a class="crossref" href="../dart_core/Object.html">Object</a> instance.</p>
+<p><a class="crossref" href="../dart_core/Object.html">Object</a> instances have no meaningful state, and are only useful
+through their identity. An <a class="crossref" href="../dart_core/Object.html">Object</a> instance is equal to itself
+only.</p>
+<div class="docs-inherited-from">docs inherited from <a href="http://api.dartlang.org/dart_core/Object.html">Object</a> </div></div>
+<pre class="source">
+StartStopStats() {
+ reset();
+ start();
+}
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="avg">
+<button class="show-code">Code</button>
+final         <strong>avg</strong> <a class="anchor-link"
+            href="#avg"
+            title="Permalink to StartStopStats.avg">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+get avg =&gt; (count == 0) ? 0.0 : total/count;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="count">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>count</strong> <a class="anchor-link"
+            href="#count"
+            title="Permalink to StartStopStats.count">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+int count
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="displayFct">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/Function.html">Function</a>         <strong>displayFct</strong> <a class="anchor-link"
+            href="#displayFct"
+            title="Permalink to StartStopStats.displayFct">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+Function displayFct
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="displayLast">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>displayLast</strong> <a class="anchor-link"
+            href="#displayLast"
+            title="Permalink to StartStopStats.displayLast">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+double displayLast = 0.0
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="max">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>max</strong> <a class="anchor-link"
+            href="#max"
+            title="Permalink to StartStopStats.max">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+double max
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="min">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>min</strong> <a class="anchor-link"
+            href="#min"
+            title="Permalink to StartStopStats.min">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+double min
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="resetLast">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>resetLast</strong> <a class="anchor-link"
+            href="#resetLast"
+            title="Permalink to StartStopStats.resetLast">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+double resetLast = 0.0
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="total">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a>         <strong>total</strong> <a class="anchor-link"
+            href="#total"
+            title="Permalink to StartStopStats.total">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+double total
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="reset">
+<button class="show-code">Code</button>
+dynamic <strong>reset</strong>() <a class="anchor-link" href="#reset"
+              title="Permalink to StartStopStats.reset">#</a></h4>
+<div class="doc">
+<pre class="source">
+reset() {
+ resetLast = _perf.now();
+ min = double.MAX_FINITE;
+ max = double.MIN_POSITIVE;
+ total = 0.0;
+ count = 0;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="start">
+<button class="show-code">Code</button>
+dynamic <strong>start</strong>() <a class="anchor-link" href="#start"
+              title="Permalink to StartStopStats.start">#</a></h4>
+<div class="doc">
+<pre class="source">
+start() {
+ _pstart = _perf.now();
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="stop">
+<button class="show-code">Code</button>
+dynamic <strong>stop</strong>() <a class="anchor-link" href="#stop"
+              title="Permalink to StartStopStats.stop">#</a></h4>
+<div class="doc">
+<pre class="source">
+stop() {
+ var now = _perf.now();
+ store(now - _pstart);
+ if (displayFct != null) {
+   displayFct(this, now);
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="store">
+<button class="show-code">Code</button>
+dynamic <strong>store</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> t) <a class="anchor-link" href="#store"
+              title="Permalink to StartStopStats.store">#</a></h4>
+<div class="doc">
+<pre class="source">
+store(double t) {
+ if (min &gt; t) min = t;
+ if (max &lt; t) max = t;
+ count++;
+ total += t;
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-07-26 14:44:11.338</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

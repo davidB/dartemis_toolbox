@@ -36,20 +36,20 @@
 class Transform extends ComponentPoolable {
  static final CT = ComponentTypeManager.getTypeFor(Transform);
 
- vec3 position3d;
- vec3 rotation3d;
- vec3 scale3d;
+ Vector3 position3d;
+ Vector3 rotation3d;
+ Vector3 scale3d;
 
  // 2d view
- vec2 _position2d = new vec2.zero();
+ Vector2 _position2d = new Vector2.zero();
  double get angle =&gt; rotation3d.z;
  set angle(double v) =&gt; rotation3d.z = v;
- vec2 get position {
+ Vector2 get position {
    _position2d.x = position3d.x;
    _position2d.y = position3d.y;
    return _position2d;
  }
- set position(vec2 v) {
+ set position(Vector2 v) {
    position3d.x = v.x;
    position3d.y = v.y;
  }
@@ -57,30 +57,19 @@ class Transform extends ComponentPoolable {
  Transform._();
  static _ctor() =&gt; new Transform._();
  factory Transform.w2d(double x, double y, double a) {
-   return new Transform.w3d(new vec3(x, y, 0.0), new vec3(0.0, 0.0, a));
+   return new Transform.w3d(new Vector3(x, y, 0.0), new Vector3(0.0, 0.0, a));
  }
- factory Transform.w3d(vec3 position, [vec3 rotation, vec3 scale]) {
+ factory Transform.w3d(Vector3 position, [Vector3 rotation, Vector3 scale]) {
    var c = new Poolable.of(Transform, _ctor) as Transform;
    c.position3d = position;
-   c.rotation3d = (rotation == null) ? new vec3(0.0, 0.0, 0.0) : rotation;
-   c.scale3d = (scale == null) ? new vec3(1.0, 1.0, 1.0) : scale;
+   c.rotation3d = (rotation == null) ? new Vector3(0.0, 0.0, 0.0) : rotation;
+   c.scale3d = (scale == null) ? new Vector3(1.0, 1.0, 1.0) : scale;
    return c;
  }
  /// this method mofidy the Transform (usefull for creation)
  /// return this
- Transform lookAt(vec3 target, [vec3 up]) {
-   up = (up == null) ? new vec3(0.0, 1.0, 0.0) : up;
-   var m = makeViewMatrix(position3d, target, up).getRotation();
-   // code from (euler order XYZ)
-   // https://github.com/mrdoob/three.js/blob/master/src/math/Vector3.js
-   rotation3d.y = math.asin( clamp( m.row2.x, -1.0 ,1.0 ) );
-   if ( m.row2.x.abs() &lt; 0.99999 ) {
-     rotation3d.x = math.atan2( - m.row2.y, m.row2.z );
-     rotation3d.z = math.atan2( - m.row1.x, m.row0.x );
-   } else {
-     rotation3d.x = math.atan2( m.row1.z, m.row1.y );
-     rotation3d.z = 0.0;
-   }
+ Transform lookAt(Vector3 target, [Vector3 up]) {
+   math2.lookAt(target, position3d, rotation3d, up);
    return this;
  }
 }
@@ -106,29 +95,29 @@ static final CT = ComponentTypeManager.getTypeFor(Transform)
 </div>
 <div>
 <h3>Constructors</h3>
-<div class="method"><h4 id="Transform.w2d">
+<div class="method"><h4 id="w2d">
 <button class="show-code">Code</button>
-factory <strong>Transform.w2d</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> x, <a href="http://api.dartlang.org/dart_core/double.html">double</a> y, <a href="http://api.dartlang.org/dart_core/double.html">double</a> a) <a class="anchor-link" href="#Transform.w2d"
+factory <strong>Transform.w2d</strong>(<a href="http://api.dartlang.org/dart_core/double.html">double</a> x, <a href="http://api.dartlang.org/dart_core/double.html">double</a> y, <a href="http://api.dartlang.org/dart_core/double.html">double</a> a) <a class="anchor-link" href="#w2d"
               title="Permalink to Transform.Transform.w2d">#</a></h4>
 <div class="doc">
 <pre class="source">
 factory Transform.w2d(double x, double y, double a) {
- return new Transform.w3d(new vec3(x, y, 0.0), new vec3(0.0, 0.0, a));
+ return new Transform.w3d(new Vector3(x, y, 0.0), new Vector3(0.0, 0.0, a));
 }
 </pre>
 </div>
 </div>
-<div class="method"><h4 id="Transform.w3d">
+<div class="method"><h4 id="w3d">
 <button class="show-code">Code</button>
-factory <strong>Transform.w3d</strong>(vec3 position, [vec3 rotation, vec3 scale]) <a class="anchor-link" href="#Transform.w3d"
+factory <strong>Transform.w3d</strong>(Vector3 position, [Vector3 rotation, Vector3 scale]) <a class="anchor-link" href="#w3d"
               title="Permalink to Transform.Transform.w3d">#</a></h4>
 <div class="doc">
 <pre class="source">
-factory Transform.w3d(vec3 position, [vec3 rotation, vec3 scale]) {
+factory Transform.w3d(Vector3 position, [Vector3 rotation, Vector3 scale]) {
  var c = new Poolable.of(Transform, _ctor) as Transform;
  c.position3d = position;
- c.rotation3d = (rotation == null) ? new vec3(0.0, 0.0, 0.0) : rotation;
- c.scale3d = (scale == null) ? new vec3(1.0, 1.0, 1.0) : scale;
+ c.rotation3d = (rotation == null) ? new Vector3(0.0, 0.0, 0.0) : rotation;
+ c.scale3d = (scale == null) ? new Vector3(1.0, 1.0, 1.0) : scale;
  return c;
 }
 </pre>
@@ -154,20 +143,20 @@ set angle(double v) =&gt; rotation3d.z = v;
 </div>
 <div class="field"><h4 id="position">
 <button class="show-code">Code</button>
-vec2         <strong>position</strong> <a class="anchor-link"
+Vector2         <strong>position</strong> <a class="anchor-link"
             href="#position"
             title="Permalink to Transform.position">#</a>
         </h4>
         <div class="doc">
 <pre class="source">
-vec2 get position {
+Vector2 get position {
  _position2d.x = position3d.x;
  _position2d.y = position3d.y;
  return _position2d;
 }
 </pre>
 <pre class="source">
-set position(vec2 v) {
+set position(Vector2 v) {
  position3d.x = v.x;
  position3d.y = v.y;
 }
@@ -176,37 +165,37 @@ set position(vec2 v) {
 </div>
 <div class="field"><h4 id="position3d">
 <button class="show-code">Code</button>
-vec3         <strong>position3d</strong> <a class="anchor-link"
+Vector3         <strong>position3d</strong> <a class="anchor-link"
             href="#position3d"
             title="Permalink to Transform.position3d">#</a>
         </h4>
         <div class="doc">
 <pre class="source">
-vec3 position3d
+Vector3 position3d
 </pre>
 </div>
 </div>
 <div class="field"><h4 id="rotation3d">
 <button class="show-code">Code</button>
-vec3         <strong>rotation3d</strong> <a class="anchor-link"
+Vector3         <strong>rotation3d</strong> <a class="anchor-link"
             href="#rotation3d"
             title="Permalink to Transform.rotation3d">#</a>
         </h4>
         <div class="doc">
 <pre class="source">
-vec3 rotation3d
+Vector3 rotation3d
 </pre>
 </div>
 </div>
 <div class="field"><h4 id="scale3d">
 <button class="show-code">Code</button>
-vec3         <strong>scale3d</strong> <a class="anchor-link"
+Vector3         <strong>scale3d</strong> <a class="anchor-link"
             href="#scale3d"
             title="Permalink to Transform.scale3d">#</a>
         </h4>
         <div class="doc">
 <pre class="source">
-vec3 scale3d
+Vector3 scale3d
 </pre>
 </div>
 </div>
@@ -227,25 +216,14 @@ void cleanUp() {}
 </div>
 <div class="method"><h4 id="lookAt">
 <button class="show-code">Code</button>
-<a href="../system_transform/Transform.html">Transform</a> <strong>lookAt</strong>(vec3 target, [vec3 up]) <a class="anchor-link" href="#lookAt"
+<a href="../system_transform/Transform.html">Transform</a> <strong>lookAt</strong>(Vector3 target, [Vector3 up]) <a class="anchor-link" href="#lookAt"
               title="Permalink to Transform.lookAt">#</a></h4>
 <div class="doc">
 <p>this method mofidy the Transform (usefull for creation)
 return this</p>
 <pre class="source">
-Transform lookAt(vec3 target, [vec3 up]) {
- up = (up == null) ? new vec3(0.0, 1.0, 0.0) : up;
- var m = makeViewMatrix(position3d, target, up).getRotation();
- // code from (euler order XYZ)
- // https://github.com/mrdoob/three.js/blob/master/src/math/Vector3.js
- rotation3d.y = math.asin( clamp( m.row2.x, -1.0 ,1.0 ) );
- if ( m.row2.x.abs() &lt; 0.99999 ) {
-   rotation3d.x = math.atan2( - m.row2.y, m.row2.z );
-   rotation3d.z = math.atan2( - m.row1.x, m.row0.x );
- } else {
-   rotation3d.x = math.atan2( m.row1.z, m.row1.y );
-   rotation3d.z = 0.0;
- }
+Transform lookAt(Vector3 target, [Vector3 up]) {
+ math2.lookAt(target, position3d, rotation3d, up);
  return this;
 }
 </pre>
@@ -256,7 +234,7 @@ Transform lookAt(vec3 target, [vec3 up]) {
 void <strong>moveToPool</strong>() <a class="anchor-link" href="#moveToPool"
               title="Permalink to Transform.moveToPool">#</a></h4>
 <div class="inherited-from">inherited from Component_Poolable </div><div class="doc">
-<p>Calls the cleanup function and moves this object to the <code>ObjectPool</code>.</p>
+<p>Calls the cleanup function and moves this object to the <a class="crossref" href="../dartemis/ObjectPool.html">ObjectPool</a>.</p>
 <pre class="source">
 void moveToPool() {
  cleanUp();
@@ -270,7 +248,7 @@ void moveToPool() {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-05-20 21:46:57.121</div>
+          <div>This page was generated at 2013-07-26 14:44:11.520</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>

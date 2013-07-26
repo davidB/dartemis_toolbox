@@ -1,0 +1,202 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>Checker_ParticleMvt0 class / collisions Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="collisions" data-type="Checker_ParticleMvt0">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../collisions.html">collisions</a> &rsaquo; <a href="../collisions/Checker_ParticleMvt0.html">Checker_ParticleMvt0</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>Checker_ParticleMvt0</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p>Check against the last motion of particles and segment
+<strong>Ignore radius of each particle</strong></p>
+<pre class="source">
+class Checker_ParticleMvt0 implements Checker{
+ final IntersectionFinder _intf = new IntersectionFinderXY();
+ final _v0 = new Vector3.zero();
+ final _v1 = new Vector3.zero();
+ final _v2 = new Vector3.zero();
+ final _v3 = new Vector3.zero();
+ /// Returns whether two particles A ([psA] + [iA]) and B [psB] + [iB]) intersect
+ /// [psA.collide[iA]] and [psB.collide[iB]] are set to true if collision.
+ /// Doesn't check if provided particles are the same or part of same group,... should be done before calling.
+ /// * **Ignore radius of each particle**
+ /// * check against the movement of the particles A and B (previous -&gt; current)
+ collideParticleParticle(Particles psA, int iA, Particles psB, int iB, Vector4 acol) {
+   //var b = intf.sphere_sphere(psA.position3d[iA], psA.radius[iA], psB.position3d[iB], psA.radius[iB]);
+   var pa0 = psA.position3dPrevious[iA];
+   var pa1 = psA.position3d[iA];
+   var pb0 = psB.position3dPrevious[iB];
+   var pb1 = psB.position3d[iB];
+   if (pa0 == pa1){
+     pa0 = _v0.setFrom(pa0);
+     pa0.x = pa0.x - psA.radius[iA];
+     pa1 = _v1.setFrom(pb1);
+     pa1.x = pa1.x + psA.radius[iA];
+   }
+   if (pb0 == pb1){
+     pb0 = _v2.setFrom(pb0);
+     pb0.x = pb0.x - psB.radius[iB];
+     pb1 = _v3.setFrom(pb1);
+     pb1.x = pb1.x + psB.radius[iB];
+   }
+   var b = _intf.segment_segment(pa0, pa1, pb0, pb1, acol);
+   if (b) {
+     psA.collide[iA] = -1;
+     psB.collide[iB] = -1;
+   }
+   return b;
+ }
+
+ /// Returns whether the provided particle A and the segment from B intersect
+ /// Doesn't check if provided particles are the same or part of same group,... should be done before calling.
+ /// * **Ignore radius of each particle**
+ /// * check against the movement of the particle A (previous -&gt; current)
+ /// * **Ignore movement of segment**, only check against last position of the segment
+ collideParticleSegment(Particles psA, int iA, Segment s, Vector4 scol) {
+   var b = false;
+   //b = b || collideParticleSegment0(psA.position3dPrevious[iA], psA.position3d[iA], psA.radius[iA], s.ps.position3dPrevious[s.i1], s.ps.position3d[s.i1], s.ps.position3dPrevious[s.i2], s.ps.position3d[s.i2], intf, ci);
+   //b = b || intf.segment_sphere(s.ps.position3d[s.i1], s.ps.position3d[s.i2], psA.position3d[iA], psA.radius[iA]);
+   var pa0 = psA.position3dPrevious[iA];
+   var pa1 = psA.position3d[iA];
+   // create a segment perpendicular to input segment for immobile particle
+   if (pa0 == pa1){
+     _v3.setFrom(s.ps.position3d[s.i1]).sub(s.ps.position3d[s.i2]);
+     _v3.normalize().scale(psA.radius[iA]);
+     var t = _v3.x;
+     _v3.x = _v3.y;
+     _v3.y = t;
+     pa0 = _v0.setFrom(pa0).sub(_v3);
+     pa1 = _v1.setFrom(pa0).add(_v3);
+   }
+   b = b || _intf.segment_segment(pa0, pa1, s.ps.position3d[s.i1], s.ps.position3d[s.i2], scol);
+
+   if (b) {
+     psA.collide[iA] = -1;
+     s.collide = -1;
+   }
+   return b;
+ }
+}
+</pre>
+</div>
+<h3>Implements</h3>
+<p>
+<span class="type-box"><span class="icon-class"></span><a href="../collisions/Checker.html">Checker</a></span></p>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="collideParticleParticle">
+<button class="show-code">Code</button>
+dynamic <strong>collideParticleParticle</strong>(<a href="../system_particles/Particles.html">Particles</a> psA, <a href="http://api.dartlang.org/dart_core/int.html">int</a> iA, <a href="../system_particles/Particles.html">Particles</a> psB, <a href="http://api.dartlang.org/dart_core/int.html">int</a> iB, Vector4 acol) <a class="anchor-link" href="#collideParticleParticle"
+              title="Permalink to Checker_ParticleMvt0.collideParticleParticle">#</a></h4>
+<div class="doc">
+<p>Returns whether two particles A (
+<span class="param">psA</span> + 
+<span class="param">iA</span>) and B 
+<span class="param">psB</span> + 
+<span class="param">iB</span>) intersect
+[psA.collide[iA]] and [psB.collide[iB]] are set to true if collision.
+Doesn't check if provided particles are the same or part of same group,... should be done before calling.
+<em> </em><em>Ignore radius of each particle</em><em>
+</em> check against the movement of the particles A and B (previous -> current)</p>
+<pre class="source">
+collideParticleParticle(Particles psA, int iA, Particles psB, int iB, Vector4 acol) {
+ //var b = intf.sphere_sphere(psA.position3d[iA], psA.radius[iA], psB.position3d[iB], psA.radius[iB]);
+ var pa0 = psA.position3dPrevious[iA];
+ var pa1 = psA.position3d[iA];
+ var pb0 = psB.position3dPrevious[iB];
+ var pb1 = psB.position3d[iB];
+ if (pa0 == pa1){
+   pa0 = _v0.setFrom(pa0);
+   pa0.x = pa0.x - psA.radius[iA];
+   pa1 = _v1.setFrom(pb1);
+   pa1.x = pa1.x + psA.radius[iA];
+ }
+ if (pb0 == pb1){
+   pb0 = _v2.setFrom(pb0);
+   pb0.x = pb0.x - psB.radius[iB];
+   pb1 = _v3.setFrom(pb1);
+   pb1.x = pb1.x + psB.radius[iB];
+ }
+ var b = _intf.segment_segment(pa0, pa1, pb0, pb1, acol);
+ if (b) {
+   psA.collide[iA] = -1;
+   psB.collide[iB] = -1;
+ }
+ return b;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="collideParticleSegment">
+<button class="show-code">Code</button>
+dynamic <strong>collideParticleSegment</strong>(<a href="../system_particles/Particles.html">Particles</a> psA, <a href="http://api.dartlang.org/dart_core/int.html">int</a> iA, <a href="../system_particles/Segment.html">Segment</a> s, Vector4 scol) <a class="anchor-link" href="#collideParticleSegment"
+              title="Permalink to Checker_ParticleMvt0.collideParticleSegment">#</a></h4>
+<div class="doc">
+<p>Returns whether the provided particle A and the segment from B intersect
+Doesn't check if provided particles are the same or part of same group,... should be done before calling.
+<em> </em><em>Ignore radius of each particle</em><em>
+</em> check against the movement of the particle A (previous -> current)
+<em> </em><em>Ignore movement of segment</em>*, only check against last position of the segment</p>
+<pre class="source">
+collideParticleSegment(Particles psA, int iA, Segment s, Vector4 scol) {
+ var b = false;
+ //b = b || collideParticleSegment0(psA.position3dPrevious[iA], psA.position3d[iA], psA.radius[iA], s.ps.position3dPrevious[s.i1], s.ps.position3d[s.i1], s.ps.position3dPrevious[s.i2], s.ps.position3d[s.i2], intf, ci);
+ //b = b || intf.segment_sphere(s.ps.position3d[s.i1], s.ps.position3d[s.i2], psA.position3d[iA], psA.radius[iA]);
+ var pa0 = psA.position3dPrevious[iA];
+ var pa1 = psA.position3d[iA];
+ // create a segment perpendicular to input segment for immobile particle
+ if (pa0 == pa1){
+   _v3.setFrom(s.ps.position3d[s.i1]).sub(s.ps.position3d[s.i2]);
+   _v3.normalize().scale(psA.radius[iA]);
+   var t = _v3.x;
+   _v3.x = _v3.y;
+   _v3.y = t;
+   pa0 = _v0.setFrom(pa0).sub(_v3);
+   pa1 = _v1.setFrom(pa0).add(_v3);
+ }
+ b = b || _intf.segment_segment(pa0, pa1, s.ps.position3d[s.i1], s.ps.position3d[s.i2], scol);
+
+ if (b) {
+   psA.collide[iA] = -1;
+   s.collide = -1;
+ }
+ return b;
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-07-26 14:44:11.268</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        
