@@ -129,9 +129,12 @@ class Checker_MvtAsPoly4 implements Checker{
   /// Returns whether two particles A ([psA] + [iA]) and B [psB] + [iB]) intersect
   /// [psA.collide[iA]] and [psB.collide[iB]] are set to true if collision.
   /// Doesn't check if provided particles are the same or part of same group,... should be done before calling.
-  /// take care of radius of each particle
+  /// take care of radius of each particle, if any radius == 0.0 then no collision
   collideParticleParticle(Particles psA, int iA, Particles psB, int iB, Vector4 acol) {
-    var b = _intf.poly_poly(makePoly4(psA, iA, _poly0), makePoly4(psB, iB, _poly1));
+    //TODO optimisation (less computation if (psA.radius[iA] == 0.0 && psB.radius[iB] == 0.0) make segment_segment or no collision)
+    var b = (psA.radius[iA] == 0.0 || psB.radius[iB] == 0.0) ?
+      false
+      : _intf.poly_poly(makePoly4(psA, iA, _poly0), makePoly4(psB, iB, _poly1));
     if (b) {
       psA.collide[iA] = -1;
       psB.collide[iB] = -1;
@@ -144,11 +147,14 @@ class Checker_MvtAsPoly4 implements Checker{
   /// Returns whether the provided particle A and the segment [s]
   /// Doesn't check if provided particles are the same or part of same group,... should be done before calling.
   collideParticleSegment(Particles psA, int iA, Segment s, Vector4 scol) {
+    makePoly4(psA, iA, _poly0);
     _poly1[0].setFrom(s.ps.position3dPrevious[s.i1]);
     _poly1[1].setFrom(s.ps.position3dPrevious[s.i2]);
     _poly1[2].setFrom(s.ps.position3d[s.i2]);
     _poly1[3].setFrom(s.ps.position3d[s.i1]);
-    var b = _intf.poly_poly(makePoly4(psA, iA, _poly0), _poly1);
+    //proto2d.printPoly(_poly0, 0x0f0000ff);
+    //proto2d.printPoly(_poly1, 0x000f00ff);
+    var b = _intf.poly_poly(_poly0, _poly1);
     if (b) {
       psA.collide[iA] = -1;
       s.collide = -1;
@@ -163,40 +169,51 @@ class Checker_MvtAsPoly4 implements Checker{
   makePoly4(Particles ps, int i, List<Vector3> out) {
     var pn = ps.position3d[i];
     var pp = ps.position3dPrevious[i];
-    // _v0.setFrom(pn).sub(pp);
-    var vx = pn.x - pp.x;
-    var vy = pn.y - pp.y;
-    //var l = _v0.length;
-    var l2 = vx * vx + vy * vy;
     var r = ps.radius[i];
-    if ((l2 * 10) < r) {
-      out[0].x = pn.x + r;
-      out[0].y = pn.y + r;
-      out[1].x = pn.x + r;
-      out[1].x = pn.y - r;
-      out[2].x = pn.x - r;
-      out[2].y = pn.y - r;
-      out[3].x = pn.x - r;
-      out[3].y = pn.y + r;
+    if (r == 0.0) {
+      out[0].x = pp.x;
+      out[0].y = pp.y;
+      out[1].x = pp.x;
+      out[1].y = pp.y;
+      out[2].x = pn.x;
+      out[2].y = pn.y;
+      out[3].x = pn.x;
+      out[3].y = pn.y;
     } else {
-      //var t = _v0.x;
-      //_v0.scale(r / l);
-      var rl = r / math.sqrt(l2);
-      var t = vx;
-      vx = -vy * rl;
-      vy = t *rl;
-      //out[0].setFrom(pp).add(_v0);
-      out[0].x = pp.x + vx;
-      out[0].y = pp.y + vy;
-      //out[1].setFrom(ps.position3dPrevious[i]).sub(_v0);
-      out[1].x = pp.x - vx;
-      out[1].y = pp.y - vy;
-      //out[2].setFrom(ps.position3d[i]).sub(_v0);
-      out[2].x = pn.x - vx;
-      out[2].y = pn.y - vy;
-      //out[3].setFrom(ps.position3d[i]).add(_v0);
-      out[3].x = pn.x + vx;
-      out[3].y = pn.y + vy;
+      // _v0.setFrom(pn).sub(pp);
+      var vx = pn.x - pp.x;
+      var vy = pn.y - pp.y;
+      //var l = _v0.length;
+      var l2 = vx * vx + vy * vy;
+      if ((l2 * 10) < r) {
+        out[0].x = pn.x + r;
+        out[0].y = pn.y + r;
+        out[1].x = pn.x + r;
+        out[1].y = pn.y - r;
+        out[2].x = pn.x - r;
+        out[2].y = pn.y - r;
+        out[3].x = pn.x - r;
+        out[3].y = pn.y + r;
+      } else {
+        //var t = _v0.x;
+        //_v0.scale(r / l);
+        var rl = r / math.sqrt(l2);
+        var t = vx;
+        vx = -vy * rl;
+        vy = t * rl;
+        //out[0].setFrom(pp).add(_v0);
+        out[0].x = pp.x + vx;
+        out[0].y = pp.y + vy;
+        //out[1].setFrom(ps.position3dPrevious[i]).sub(_v0);
+        out[1].x = pp.x - vx;
+        out[1].y = pp.y - vy;
+        //out[2].setFrom(ps.position3d[i]).sub(_v0);
+        out[2].x = pn.x - vx;
+        out[2].y = pn.y - vy;
+        //out[3].setFrom(ps.position3d[i]).add(_v0);
+        out[3].x = pn.x + vx;
+        out[3].y = pn.y + vy;
+      }
     }
     return out;
   }
