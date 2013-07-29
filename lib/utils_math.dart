@@ -161,6 +161,7 @@ abstract class IntersectionFinder {
   bool sphere_sphere(Vector3 ca, double ra, Vector3 cb, double rb);
   bool aabb_aabb(Aabb3 b1, Aabb3 b2 );
   bool poly_poly(List<Vector3> a, List<Vector3> b);
+  bool poly_point(List<Vector3> a, Vector3 b);
 }
 
 /// TODO optimize: reduce Vector3 creation (each operation) by using instance cache (or by using x,y instead of vector)
@@ -263,7 +264,7 @@ class IntersectionFinderXY implements IntersectionFinder {
 
 
   // use SAT check intersection (first againts the longer poly (nb of edge))
-  // [a] and [b] should be clockwise concave polygone
+  // [a] and [b] should be clockwise concave polygone ???
   bool poly_poly(List<Vector3> a, List<Vector3> b) {
     var separated = false;
 
@@ -287,6 +288,29 @@ class IntersectionFinderXY implements IntersectionFinder {
 
       extractMinMaxProjection(a, axis, amm);
       extractMinMaxProjection(b, axis, bmm);
+      separated = isSeparated(amm.min, amm.max, bmm.min, bmm.max);
+    }
+    return separated;
+  }
+
+  // use SAT check intersection (first againts the longer poly (nb of edge))
+  bool poly_point(List<Vector3> a, Vector3 b) {
+    var axis = _v0;
+    MinMax amm = _mm0;
+    MinMax bmm = _mm1;
+
+    var separated = false;
+    for (var i = 0; (!separated) && (i < a.length); i++) {
+      // axis is the left normal of the side
+      axis.setFrom(a[(i+1) % a.length]).sub(a[i]);
+      var t = axis.x;
+      axis.x = - axis.y;
+      axis.y = t;
+
+      extractMinMaxProjection(a, axis, amm);
+      var p = b.dot(axis);
+      bmm.min = p;
+      bmm.max = p;
       separated = isSeparated(amm.min, amm.max, bmm.min, bmm.max);
     }
     return separated;
