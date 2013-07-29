@@ -277,7 +277,7 @@ final initDemo = {
     enableQuadtree(world, query('canvas#demo'), true, false);
     var defaultDraw = proto.drawComponentType([
       new proto.DrawComponentType(Particles.CT, proto.particles(5.0, fillStyle : foregroundcolors[0], strokeStyle : foregroundcolors[1])),
-      new proto.DrawComponentType(Constraints.CT, proto.drawConstraints(distanceStyleCollide : "#e20000"))
+      new proto.DrawComponentType(Constraints.CT, proto.constraints(distanceStyleCollide : "#e20000"))
     ]);
 
     ParticlesConstructor genP = (nb) => new Particles(nb, withCollides: true, collide0: 1, color0: 0x00A000FF, inertia0: 0.99);

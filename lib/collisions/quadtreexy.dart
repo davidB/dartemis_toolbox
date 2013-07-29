@@ -223,7 +223,7 @@ class QuadTreeXYAabb{
 
 }
 
-newDrawCanvas_QuadTreeXYAabb(QuadTreeXYAabb v, lineStyle, textStyle) => (g, Entity e, Vector2 area){
+newDrawCanvas_QuadTreeXYAabb(QuadTreeXYAabb v, lineStyle, textStyle) => (g, e, Vector2 area){
   g.beginPath();
   _debug_drawAxis(v, g);
   g.strokeStyle = lineStyle;

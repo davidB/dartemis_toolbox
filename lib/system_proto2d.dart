@@ -29,6 +29,20 @@ class Drawable extends Component {
   Drawable(this.draw);
 }
 
+class DrawComponentType {
+  final ComponentType ct;
+  final DrawCanvas draw;
+  DrawComponentType(this.ct, this.draw);
+}
+
+DrawCanvas drawComponentType(List<DrawComponentType> l) => (CanvasRenderingContext2D g, Entity e, area) {
+  l.forEach((i) {
+    if (e.getComponent(i.ct) != null) {
+      i.draw(g, e, area);
+    }
+  });
+};
+
 class System_Renderer extends EntityProcessingSystem {
   final CanvasRenderingContext2D _gVisible;
   final CanvasRenderingContext2D _g;
@@ -66,6 +80,9 @@ class System_Renderer extends EntityProcessingSystem {
     _drawMapper = new ComponentMapper<Drawable>(Drawable, world);
     _transformMapper = new ComponentMapper<Transform>(Transform, world);
     _initCanvasDimension();
+    if (printCanvas == null) {
+      printCanvas = _g;
+    }
   }
 
   void _initCanvasDimension() {
@@ -292,6 +309,18 @@ DrawCanvas particles(num radiusScale, {fillStyle, strokeStyle, strokeLineWidth :
   };
 }
 
+DrawCanvas constraints({pinStyle : "rgba(0,153,255,0.1)", distanceStyle : "#d8dde2", distanceStyleCollide : "#e2ddd8", angleStyle:"rgba(255,255,0,0.2)"}) => (CanvasRenderingContext2D g, Entity e, area) {
+  var cs = e.getComponent(Constraints.CT) as Constraints;
+  cs.l.forEach((x) {
+    if (distanceStyle != null && x is Constraint_Distance)
+      drawSegment(g, x.segment, distanceStyle, distanceStyleCollide);
+    else if (pinStyle != null && x is Constraint_Pin)
+      drawCPin(g, x, pinStyle);
+    else if (angleStyle != null && x is Constraint_AngleXY)
+      drawCAngle(g, x, angleStyle);
+  });
+};
+
 drawSegment(g, Segment x, strokeStyle, strokeStyleCollide) {
   var p1 = x.ps.position3d[x.i1];
   var p2 = x.ps.position3d[x.i2];
@@ -322,28 +351,19 @@ drawCAngle(g, Constraint_AngleXY x, strokeStyle) {
   g.lineWidth = tmp;
 }
 
-DrawCanvas drawConstraints({pinStyle : "rgba(0,153,255,0.1)", distanceStyle : "#d8dde2", distanceStyleCollide : "#e2ddd8", angleStyle:"rgba(255,255,0,0.2)"}) => (CanvasRenderingContext2D g, Entity e, area) {
-  var cs = e.getComponent(Constraints.CT) as Constraints;
-  cs.l.forEach((x) {
-    if (distanceStyle != null && x is Constraint_Distance)
-      drawSegment(g, x.segment, distanceStyle, distanceStyleCollide);
-    else if (pinStyle != null && x is Constraint_Pin)
-      drawCPin(g, x, pinStyle);
-    else if (angleStyle != null && x is Constraint_AngleXY)
-      drawCAngle(g, x, angleStyle);
-  });
-};
+var printCanvas = null;
 
-class DrawComponentType {
-  final ComponentType ct;
-  final DrawCanvas draw;
-  DrawComponentType(this.ct, this.draw);
+printPoly(List<Vector3> poly, int color) {
+  if (printCanvas == null) return;
+  var g = printCanvas;
+  g.beginPath();
+  g.moveTo(poly[poly.length - 1].x, poly[poly.length - 1].y);
+  for(var i = 0; i < poly.length; i++) {
+    g.lineTo(poly[i].x, poly[i].y);
+  }
+  var tmp = g.lineWidth;
+  g.lineWidth = 5;
+  g.strokeStyle = irgba_rgbaString(color);
+  g.stroke();
+  g.lineWidth = tmp;
 }
-
-DrawCanvas drawComponentType(List<DrawComponentType> l) => (CanvasRenderingContext2D g, Entity e, area) {
-  l.forEach((i) {
-    if (e.getComponent(i.ct) != null) {
-      i.draw(g, e, area);
-    }
-  });
-};
