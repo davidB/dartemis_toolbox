@@ -8,7 +8,6 @@ import 'dart:math' as math;
 import 'package:dartemis/dartemis.dart';
 import 'package:vector_math/vector_math.dart';
 import 'system_particles.dart';
-import 'utils_math.dart' as math2;
 import 'collisions.dart' as collisions;
 import 'utils_dartemis.dart';
 
