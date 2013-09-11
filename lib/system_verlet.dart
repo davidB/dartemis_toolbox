@@ -22,13 +22,13 @@ class Constraints extends Component {
   final l = new List<Constraint>();
 }
 
-class Body extends Component {
-  static final CT = ComponentTypeManager.getTypeFor(Body);
-
-  final List<Vector3> shape;
-
-  Body(this.shape);
-}
+//class Body extends Component {
+//  static final CT = ComponentTypeManager.getTypeFor(Body);
+//
+//  final List<Vector3> shape;
+//
+//  Body(this.shape);
+//}
 
 class System_Simulator extends IntervalEntitySystem {
   //ComponentMapper<Particles> _particlesMapper;
@@ -340,7 +340,11 @@ pinVector3(Vector3 v, Constraints cs) {
 }
 
 setCollideOfSegment(Entity e, collide) {
-  (e.getComponent(Constraints.CT) as Constraints).l.forEach((c){
-    if (c is Constraint_Distance) c.segment.collide = collide;
+  forEachSegment(e.getComponent(Constraints.CT), (s) => s.collide = collide);
+}
+
+forEachSegment(Constraints cs, f) {
+  cs.l.forEach((c){
+    if (c is Constraint_Distance) f(c.segment);
   });
 }

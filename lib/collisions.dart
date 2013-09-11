@@ -8,7 +8,7 @@ import 'package:vector_math/vector_math.dart';
 import 'system_particles.dart';
 import 'utils_math.dart';
 //import 'package:dartemis/dartemis.dart'; // for poolable
-import 'system_proto2d.dart' as proto2d;// for debug;
+//import 'system_proto2d.dart' as proto2d;// for debug;
 
 
 part 'collisions/checker.dart';

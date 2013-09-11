@@ -127,10 +127,14 @@ class QuadTreeXYAabb{
   }
 
   QuadTreeXYAabb findRegion(Aabb3 v) {
-    if (v.min.x < _dim.min.x || v.max.x > _dim.max.x || (v.min.y < _dim.min.y) || v.max.y > _dim.max.y) {
+    if (! _contains(v)) {
       return null;
     }
     return _findRegion(v);
+  }
+
+  _contains(Aabb3 v){
+    return !(v.min.x < _dim.min.x || v.max.x > _dim.max.x || (v.min.y < _dim.min.y) || v.max.y > _dim.max.y);
   }
 
   _findRegion(Aabb3 v) {
@@ -179,18 +183,30 @@ class QuadTreeXYAabb{
     _isLeaf = false;
   }
 
-  retrieve(Aabb3 v, List out) {
-    var reg = findRegion(v);
-    if (reg !=null && reg != this) {
-      reg.retrieve(out, v);
+//  retrieve(Aabb3 v, Function found) {
+//    var reg = findRegion(v);
+//    if (reg !=null && reg != this) {
+//      reg.retrieve(v, found);
+//    }
+//    for (var i = 1; i < _children.length; i +=2) {
+//      found(_children[i]);
+//    }
+//  }
+
+  scanNear(Aabb3 v, Function found) {
+    if (v.intersectsWith(_dim)) {
+      for (var j = 1; j < _children.length; j +=2) {
+        found(_children[j]);
+      }
+      if (!_isLeaf) {
+        for (var j = 0; j < 4; j +=1) {
+          _nodes[j].scanNear(v, found);
+        }
+      }
     }
-    for (var i = 1; i < _children.length; i +=2) {
-      out.add(_children[i]);
-    }
-    return out;
   }
 
-  scan(Function f) {
+  scanVs(Function f) {
     for (var i = 1; i < _children.length; i +=2) {
       var a1 = _children[i];
       for (var j = i + 2; j < _children.length; j +=2) {
@@ -200,7 +216,7 @@ class QuadTreeXYAabb{
     }
     if (!_isLeaf) {
       for (var i = 0; i < 4; ++i) {
-        _nodes[i].scan(f);
+        _nodes[i].scanVs(f);
       }
     }
   }

@@ -195,13 +195,13 @@ class IntersectionFinderXY implements IntersectionFinder {
     sa_x = sa2.x - sa1.x;     sa_y = sa2.y - sa1.y;
     sb_x = sb2.x - sb1.x;     sb_y = sb2.y - sb1.y;
 
-    var u = (sa_x * sb_y - sb_x * sa_y);
+    var u = (sa_x * sb_y - sa_y * sb_x); //cross product sa x sb
     // u == 0 if segment are parallele, with double approximation, use 0.0001
     //if (u < zeroEpsilon && u > -zeroEpsilon ) return false;
     if (u == 0) return false;
 
-    var s = ( sa_x * (sa1.y - sb1.y) - sa_y * (sa1.x - sb1.x)) / u;
-    var t = ( sb_x * (sa1.y - sb1.y) - sb_y * (sa1.x - sb1.x)) / u;
+    var s = ( (sb1.x - sa1.x) * sa_y - (sb1.y - sa1.y) * sa_x) / u;
+    var t = ( (sb1.x - sa1.x) * sb_y - (sb1.y - sa1.y) * sb_x) / u;
 
     if (s >= 0 && s <= 1 && t >= 0 && t <= 1) {
       acol.x = sa1.x + (t * sa_x);

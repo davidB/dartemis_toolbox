@@ -7,19 +7,39 @@ abstract class Space {
   bool addParticles(Particles ps);
   bool addSegment(Segment seg);
   void handleCollision();
+  scanNear(Vector3 v0, Vector3 v1, Function f);
 }
 
-class Space_Noop implements Space{
+class SpaceHelper {
+  final _int = new IntersectionFinderXY();
+  final Vector4 _scol = new Vector4.zero();
+
+  double findFirstIntersection(Space space, Vector3 v0, Vector3 v1){
+    var b = -1.0;
+    space.scanNear(v0, v1, (s) {
+      if (_int.segment_segment(v0, v1, s.ps.position3d[s.i1], s.ps.position3d[s.i2], _scol)) {
+        var b0 = _scol.w;
+        if (b0 >= 0.0 && b0 <= 1.0 && (b == -1.0 || b0 < b)) {
+          b = b0;
+        }
+      }
+    });
+    return b;
+  }
+}
+
+class Space_Noop extends Space{
   void reset() {}
   bool addParticles(Particles ps) => true;
   bool addSegment(Segment seg) => true;
   void handleCollision() {}
+  scanNear(Vector3 v0, Vector3 v1, Function f){}
 }
 
 /// Raw space (no optimisation, no grid, no quadtree, no ...) every particles
 /// are check against every particles (inter [Particles] and intra [Particles] group)
 /// and check against every [Segment]
-class Space_XY0 implements Space{
+class Space_XY0 extends Space{
 
   final List<Particles> _particlesS = new List();
   final List<Segment> _segments = new List();
@@ -119,12 +139,18 @@ class Space_XY0 implements Space{
       }
     }
   }
+
+  scanNear(Vector3 v0, Vector3 v1, Function f){
+    for(int iS = 0; iS < _segments.length; ++iS) {
+      f(_segments[iS]);
+    }
+  }
 }
 
 /// Raw space (no optimisation, no grid, no quadtree, no ...) every particles
 /// are check against every particles (inter [Particles] and intra [Particles] group)
 /// and check against every [Segment]
-class Space_QuadtreeXY implements Space{
+class Space_QuadtreeXY extends Space{
   final QuadTreeXYAabb _grid;
   final Checker checker;
   final Resolver resolver;
@@ -169,14 +195,13 @@ class Space_QuadtreeXY implements Space{
       var e = _pool.provide();
       e.segment = seg;
       extractAabbDisc2(seg.ps.position3d[seg.i1], seg.ps.position3d[seg.i2], 0.0, e.aabb);
-      _grid.insert(e.aabb, e);
-      return true;
+      return _grid.insert(e.aabb, e);
     }
     return false;
   }
 
   void handleCollision() {
-    _grid.scan(_handle0);
+    _grid.scanVs(_handle0);
   }
 
   _handle0(_SQE e1, _SQE e2) {
@@ -204,6 +229,13 @@ class Space_QuadtreeXY implements Space{
     }
   }
 
+  final _aabb = new Aabb3();
+  scanNear(Vector3 v0, Vector3 v1, Function f) {
+    extractAabbDisc2(v0, v1, 0.0, _aabb);
+    _grid.scanNear(_aabb, (x){
+      if (x.segment != null) f(x.segment);
+    });
+  }
 }
 
 class _SQE {
