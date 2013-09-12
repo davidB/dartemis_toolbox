@@ -30,8 +30,7 @@ class Constraints extends Component {
 //  Body(this.shape);
 //}
 
-class System_Simulator extends IntervalEntitySystem {
-  //ComponentMapper<Particles> _particlesMapper;
+class System_Simulator extends EntitySystem {
   ComponentMapper0 _particlesMapper;
   ComponentMapper0 _constraintsMapper;
   var _constraintss = new List<Constraints>(0);
@@ -41,12 +40,12 @@ class System_Simulator extends IntervalEntitySystem {
   /// eg : gravity
   final globalAccs = new Vector3(0.0, 0.0, 0.0);
   collisions.Space collSpace;
-  final double interval; // = 1000.0/30.0;
   double _timestep = -1.0;
+  final _motion = new Vector3.zero();
+  final _accs = new Vector3.zero();
 
-  System_Simulator({this.steps : 3, interval0 : 1000.0/30, collisions.Space space0: null}) :
-    super(interval0, Aspect.getAspectForAllOf([Particles])),
-    interval = interval0,
+  System_Simulator({this.steps : 3, collisions.Space space0: null}) :
+    super(Aspect.getAspectForAllOf([Particles])),
     collSpace = (space0 != null)? space0 : new collisions.Space_Noop()
     ;
 
@@ -55,17 +54,19 @@ class System_Simulator extends IntervalEntitySystem {
     _constraintsMapper = new ComponentMapper0(Constraints, world);
   }
 
+  bool checkProcessing() => true;
+
   void processEntities(ReadOnlyBag<Entity> entities) {
-    var deplacement = new Vector3.zero();
-    var accs = new Vector3.zero();
     collSpace.reset();
     //for (var pass = (delta ~/ interval) + 1; pass > 0; --pass) {
     //apply time corrected verlet [TCV](http://lonesock.net/article/verlet.html)
-    var dt = delta.toDouble() / 1000.0;
-    var timestepPrevious = (_timestep == -1) ?dt : _timestep;
-    _timestep = dt  ;
+    var dt = world.delta.toDouble() / 1000.0;
+    if (dt == 0.0) return;
+    var timestepPrevious = (_timestep == -1.0) ?dt : _timestep;
+    _timestep = dt;
     var timeScale = (_timestep / timestepPrevious);
     var timestep2 = _timestep * _timestep;
+
     entities.forEach((e){
       var ps = _particlesMapper.get(e);
       if (ps == null) return;
@@ -73,21 +74,12 @@ class System_Simulator extends IntervalEntitySystem {
         var position3d = ps.position3d[i];
         var position3dPrevious = ps.position3dPrevious[i];
         // calculate velocity
-        deplacement.setFrom(position3d).sub(position3dPrevious).scale(timeScale * ps.inertia[i]);
-
-//        // ground friction
-//        if (particles[i].pos.y >= this.height-1 && velocity.length2() > 0.000001) {
-//          var m = velocity.length();
-//          velocity.x /= m;
-//          velocity.y /= m;
-//          velocity.mutableScale(m*this.groundFriction);
-//        }
-
-        accs.setFrom(globalAccs);
-        accs.add(ps.acc[i]);
+        _motion.setFrom(position3d).sub(position3dPrevious).scale(timeScale * ps.inertia[i]);
+        _accs.setFrom(globalAccs);
+        _accs.add(ps.acc[i]);
         // Position Verlet integration
-        accs.scale(timestep2);
-        deplacement.add(accs);
+        _accs.scale(timestep2);
+        _motion.add(_accs);
         // follow http://lolengine.net/blog/2011/12/14/understanding-motion-in-games
         // Velocity Verlet integration
         // vec3 OldVel = Vel;
@@ -95,13 +87,13 @@ class System_Simulator extends IntervalEntitySystem {
         // Pos = Pos + (OldVel + Vel) * 0.5 * dt;
         // Pos = Pos + (2 * OldVel + Accel * dt) * 0.5 * dt;
         //forces.scale(_timestep1);
-        //deplacement.scale(2.0).add(forces).scale(0.5 * _timestep1);
+        //_motion.scale(2.0).add(forces).scale(0.5 * _timestep1);
 
 
         // save last good state
         // TODO optim : store future pos in previous and swap previous (with future) and current values in one swap (swap the list), but this optimisation will break existing code that keep vector of position (eg constraint)
         position3dPrevious.setFrom(position3d);
-        position3d.add(deplacement);
+        position3d.add(_motion);
       }
       collSpace.addParticles(ps);
     });
