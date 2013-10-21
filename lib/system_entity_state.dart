@@ -10,6 +10,14 @@ import "package:dartemis/dartemis.dart";
  * Based on <http://www.richardlord.net/blog/finite-state-machines-with-ash>
  */
 class EntityStateComponent extends Component {
+  static final CT = ComponentTypeManager.getTypeFor(EntityStateComponent);
+
+  /// helper function
+  static change(Entity e, int state) {
+    var esc = e.getComponent(CT)/* as EntityStateComponent*/;
+    if (esc != null) esc.state = state;
+  }
+
   int _currentState = null;
   int _previousState = null;
   Map<int, EntityState> _states;
@@ -73,12 +81,14 @@ class System_EntityState extends EntityProcessingSystem {
     if (current == next) {
       // nothing to do
     } else {
+      var addOrRemove = false;
       if (current != null) {
         //TODO optimize the computation of component diff
         current.forEach((provider) {
           var np = next.getByType(provider.type);
           if (np == null || np.id() != provider.id()) {
             e.removeComponentByType(provider.type);
+            addOrRemove = true;
           }
         });
       }
@@ -88,12 +98,13 @@ class System_EntityState extends EntityProcessingSystem {
         var components = world.componentManager.getComponentsByType(provider.type);
         if (components == null || !components.isIndexWithinBounds(e.id) || components[e.id] == null) {
           e.addComponent(provider.createComponent(e));
+          addOrRemove = true;
         }
       });
       next.modifiers.forEach((modifier){
-        modifier.applyE(e);
+        modifier.apply(e);
       });
-      e.changedInWorld();
+      if (addOrRemove) e.changedInWorld();
     }
   }
 }
@@ -143,7 +154,7 @@ class ComponentProvider {
 /**
  * Modify an existing component [c] of the entity.
  */
-typedef void ModifyComponent<T>(T c);
+typedef void ModifyComponent<T>(Entity e, T c);
 
 class ComponentModifier<T> {
   final ComponentType type;
@@ -153,12 +164,10 @@ class ComponentModifier<T> {
   //(see https://code.google.com/p/dart/source/browse/branches/bleeding_edge/dart/tests/language/type_parameter_literal_test.dart)
   ComponentModifier(Type ctype, this.modifyComponent) : type = ComponentTypeManager.getTypeFor(ctype);
 
-  void applyE(Entity e) {
+  void apply(Entity e) {
     var c = e.getComponent(type);
-    applyC(e.getComponent(type));
-  }
-  void applyC(T c) {
-    if (c != null) modifyComponent(c);
+    //applyC(e, e.getComponent(type));
+    if (c != null) modifyComponent(e, c);
   }
 }
 
