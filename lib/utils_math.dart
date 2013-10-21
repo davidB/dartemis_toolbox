@@ -124,24 +124,11 @@ Aabb3 extractAabbPoly(List<Vector3> vs, Aabb3 out){
   return out;
 }
 
-Aabb3 extractAabbPoly2(List<Vector3> vs0, List<Vector3> vs1, Aabb3 out){
-  var min = out.min;
-  var max = out.max;
+Aabb3 updateAabbPoly(List<Vector3> vs, Aabb3 inout){
+  var min = inout.min;
+  var max = inout.max;
 
-  min.setFrom(vs0[0]);
-  max.setFrom(vs0[0]);
-  var vs = vs0;
-  for (int i = vs.length - 1; i > 0 ; --i) {
-    var v = vs[i];
-    if (min.x > v.x) min.x = v.x;
-    if (min.y > v.y) min.y = v.y;
-    if (min.z > v.z) min.z = v.z;
-    if (max.x < v.x) max.x = v.x;
-    if (max.y < v.y) max.y = v.y;
-    if (max.z < v.z) max.z = v.z;
-  }
-  vs = vs1;
-  for (int i = vs.length - 1; i >= 0; --i) {
+  for (int i = vs.length - 1; i >= 0 ; --i) {
     var v = vs[i];
     if (min.x > v.x) min.x = v.x;
     if (min.y > v.y) min.y = v.y;
@@ -151,7 +138,7 @@ Aabb3 extractAabbPoly2(List<Vector3> vs0, List<Vector3> vs1, Aabb3 out){
     if (max.z < v.z) max.z = v.z;
   }
 
-  return out;
+  return inout;
 }
 
 MinMax resetMinMax(MinMax out) {
