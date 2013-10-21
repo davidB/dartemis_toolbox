@@ -29,6 +29,17 @@ final VX_AXIS = new Vector3(1.0, 0.0, 0.0);
 final VY_AXIS = new Vector3(0.0, 1.0, 0.0);
 final VZ_AXIS = new Vector3(0.0, 0.0, 1.0);
 
+eqV3(Vector3 v0, Vector3 v1) {
+  var s0 = v0.storage;
+  var s1 = v1.storage;
+  return s0[2] == s1[2] && s0[1] == s1[1] && s0[0] == s0[0];
+}
+
+eqV2(Vector3 v0, Vector3 v1) {
+  var s0 = v0.storage;
+  var s1 = v1.storage;
+  return s0[1] == s1[1] && s0[0] == s0[0];
+}
 /// return [out]
 Vector3 lookAt(Vector3 target, Vector3 position3d, Vector3 out, [Vector3 up]) {
   up = (up == null) ? VY_AXIS : up;
@@ -143,16 +154,27 @@ Aabb3 extractAabbPoly2(List<Vector3> vs0, List<Vector3> vs1, Aabb3 out){
   return out;
 }
 
+MinMax resetMinMax(MinMax out) {
+  out.min = double.INFINITY;
+  out.max = double.NEGATIVE_INFINITY;
+}
+
 /// the MinMax use axis as unit vector, and (0,0,0) as origin point.
 MinMax extractMinMaxProjection(List<Vector3> vs, Vector3 axis, MinMax out) {
   var p = vs[0].dot(axis);
   out.min = p;
   out.max = p;
   for (int i = 1; i < vs.length; i++) {
-    p = vs[i].dot(axis);
-    if (p < out.min) out.min = p;
-    if (p > out.max) out.max = p;
+    updateMinMaxProjection(vs[i], axis, out);
   }
+}
+
+/// Update the MinMax use axis as unit vector, and (0,0,0) as origin point.
+MinMax updateMinMaxProjection(Vector3 v, Vector3 axis, MinMax inout) {
+  var p = v.dot(axis);
+  if (p < inout.min) inout.min = p;
+  if (p > inout.max) inout.max = p;
+  return inout;
 }
 
 abstract class IntersectionFinder {
@@ -162,6 +184,7 @@ abstract class IntersectionFinder {
   bool aabb_aabb(Aabb3 b1, Aabb3 b2 );
   bool poly_poly(List<Vector3> a, List<Vector3> b);
   bool poly_point(List<Vector3> a, Vector3 b);
+  bool poly_segment(List<Vector3> a, Vector3 s1, Vector3 s2);
 }
 
 /// TODO optimize: reduce Vector3 creation (each operation) by using instance cache (or by using x,y instead of vector)
@@ -262,25 +285,50 @@ class IntersectionFinderXY implements IntersectionFinder {
         && ( b1.max.x >= b2.min.x ) && ( b1.max.y >= b2.min.y);
   }
 
+  // SAT done on segment and normal of segment (2D required)
+  bool poly_segment(List<Vector3> a, Vector3 s1, Vector3 s2) {
+    var axis = _v0.setFrom(s1).sub(s2);
+    MinMax amm = _mm0;
+    MinMax bmm = _mm1;
+    var separated = false;
+    resetMinMax(bmm);
+    updateMinMaxProjection(s1, axis, bmm);
+    updateMinMaxProjection(s2, axis, bmm);
+    extractMinMaxProjection(a, axis, amm);
+    separated = isSeparated(amm.min, amm.max, bmm.min, bmm.max);
+
+    if (!separated) {
+      //check on normal
+      var t = axis.x;
+      axis.x = - axis.y;
+      axis.y = t;
+      resetMinMax(bmm);
+      updateMinMaxProjection(s1, axis, bmm);
+      updateMinMaxProjection(s2, axis, bmm);
+      extractMinMaxProjection(a, axis, amm);
+      separated = isSeparated(amm.min, amm.max, bmm.min, bmm.max);
+    }
+    return !separated;
+  }
 
   // use SAT check intersection (first againts the longer poly (nb of edge))
   // [a] and [b] should be clockwise concave polygone ???
   bool poly_poly(List<Vector3> a, List<Vector3> b) {
     var separated = false;
 
-    separated = _poly_poly0(a, b);
-    separated = separated || _poly_poly0(b, a);
+    separated = _no_poly_poly0(a, b);
+    separated = separated || _no_poly_poly0(b, a);
     return !separated;
   }
 
-  bool _poly_poly0(List<Vector3> a, List<Vector3> b) {
+  bool _no_poly_poly0(List<Vector3> a, List<Vector3> b) {
     var axis = _v0;
     MinMax amm = _mm0;
     MinMax bmm = _mm1;
 
     var separated = false;
     for (var i = 0; (!separated) && (i < a.length); i++) {
-      // axis is the left normal of the side
+      // axis is the left normal of the edge
       axis.setFrom(a[(i+1) % a.length]).sub(a[i]);
       var t = axis.x;
       axis.x = - axis.y;
@@ -301,7 +349,7 @@ class IntersectionFinderXY implements IntersectionFinder {
 
     var separated = false;
     for (var i = 0; (!separated) && (i < a.length); i++) {
-      // axis is the left normal of the side
+      // axis is the egde of poly
       axis.setFrom(a[(i+1) % a.length]).sub(a[i]);
       var t = axis.x;
       axis.x = - axis.y;
@@ -313,6 +361,6 @@ class IntersectionFinderXY implements IntersectionFinder {
       bmm.max = p;
       separated = isSeparated(amm.min, amm.max, bmm.min, bmm.max);
     }
-    return separated;
+    return !separated;
   }
 }

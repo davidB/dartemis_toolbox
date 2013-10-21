@@ -123,8 +123,8 @@ class Checker_T1 implements Checker{
 class Checker_MvtAsPoly4 implements Checker{
   final IntersectionFinder _intf = new IntersectionFinderXY();
   var _v0 = new Vector3.zero();
-  var _poly0 = new List.generate(4, (i) => new Vector3.zero(), growable: false);
-  var _poly1 = new List.generate(4, (i) => new Vector3.zero(), growable: false);
+  var _poly0 = new Poly4();
+  var _poly1 = new Poly4();
 
   /// Returns whether two particles A ([psA] + [iA]) and B [psB] + [iB]) intersect
   /// [psA.collide[iA]] and [psB.collide[iB]] are set to true if collision.
@@ -134,7 +134,7 @@ class Checker_MvtAsPoly4 implements Checker{
     //TODO optimisation (less computation if (psA.radius[iA] == 0.0 && psB.radius[iB] == 0.0) make segment_segment or no collision)
     var b = (psA.radius[iA] == 0.0 || psB.radius[iB] == 0.0) ?
       false
-      : _intf.poly_poly(makePoly4(psA, iA, _poly0), makePoly4(psB, iB, _poly1));
+      : _checkPoly4(_makePoly4_P(psA, iA, _poly0), _makePoly4_P(psB, iB, _poly1), acol);
     if (b) {
       psA.collide[iA] = -1;
       psB.collide[iB] = -1;
@@ -147,15 +147,9 @@ class Checker_MvtAsPoly4 implements Checker{
   /// Returns whether the provided particle A and the segment [s]
   /// Doesn't check if provided particles are the same or part of same group,... should be done before calling.
   collideParticleSegment(Particles psA, int iA, Segment s, Vector4 scol) {
-    makePoly4(psA, iA, _poly0);
-    _poly1[0].setFrom(s.ps.position3dPrevious[s.i1]);
-    _poly1[1].setFrom(s.ps.position3dPrevious[s.i2]);
-    _poly1[2].setFrom(s.ps.position3d[s.i2]);
-    _poly1[3].setFrom(s.ps.position3d[s.i1]);
-    //proto2d.printPoly(_poly0, 0x0f0000ff);
-    //proto2d.printPoly(_poly1, 0x000f00ff);
-    var b = _intf.poly_poly(_poly0, _poly1);
+    var b = _checkPoly4(_makePoly4_P(psA, iA, _poly0), _makePoly4_S(s, _poly1), scol);
     if (b) {
+      //print("collide ${_poly0.nbPoints} ${_poly1.nbPoints} // ${_poly0.points} // ${_poly1.points}");
       psA.collide[iA] = -1;
       s.collide = -1;
       //TODO project scol on segment (final position)
@@ -165,35 +159,84 @@ class Checker_MvtAsPoly4 implements Checker{
     return b;
   }
 
+  _checkPoly4(Poly4 poly0, Poly4 poly1, Vector4 scol) {
+    var out = false;
+    if (poly0.nbPoints == 1) {
+      if (poly1.nbPoints == 1) {
+        out = poly0.points[0] == poly1.points[0];
+      } else if (poly1.nbPoints == 2) {
+        out = _intf.segment_sphere(poly1.points[0], poly1.points[1], poly0.points[0], 0.0);
+      } else {
+        out = _intf.poly_point(poly1.points, poly0.points[0]);
+      }
+    } else if (poly0.nbPoints == 2) {
+      if (poly1.nbPoints == 1) {
+        out = _intf.segment_sphere(poly0.points[0], poly0.points[1], poly1.points[0], 0.0);
+      } else if (poly1.nbPoints == 2) {
+        out = _intf.segment_segment(poly0.points[0], poly0.points[1], poly1.points[0], poly1.points[1], scol);
+      } else {
+        out = _intf.poly_segment(poly1.points, poly0.points[0], poly0.points[1]);
+      }
+    } else {
+      if (poly1.nbPoints == 1) {
+        out = _intf.poly_point(poly0.points, poly1.points[0]);
+      } else if (poly1.nbPoints == 2) {
+        out = _intf.poly_segment(poly0.points, poly1.points[0], poly1.points[1]);
+      } else {
+        out = _intf.poly_poly(poly0.points, poly1.points);
+      }
+    }
+    return out;
+  }
+
+  _makePoly4_S(Segment s, Poly4 out) {
+    var points = out.points;
+    if (eqV2(s.ps.position3dPrevious[s.i1], s.ps.position3d[s.i1]) && eqV2(s.ps.position3dPrevious[s.i2], s.ps.position3d[s.i2])) {
+      out.nbPoints = 2;
+      points[0].setFrom(s.ps.position3d[s.i2]);
+      points[1].setFrom(s.ps.position3d[s.i1]);
+    } else {
+      out.nbPoints = 4;
+      points[0].setFrom(s.ps.position3dPrevious[s.i1]);
+      points[1].setFrom(s.ps.position3dPrevious[s.i2]);
+      points[2].setFrom(s.ps.position3d[s.i2]);
+      points[3].setFrom(s.ps.position3d[s.i1]);
+    }
+    return out;
+  }
+
   // if no displacement (< r/10) then an outside square is return;
-  makePoly4(Particles ps, int i, List<Vector3> out) {
+  _makePoly4_P(Particles ps, int i, Poly4 out) {
     var pn = ps.position3d[i];
     var pp = ps.position3dPrevious[i];
     var r = ps.radius[i];
+    var points = out.points;
     if (r == 0.0) {
-      out[0].x = pp.x;
-      out[0].y = pp.y;
-      out[1].x = pp.x;
-      out[1].y = pp.y;
-      out[2].x = pn.x;
-      out[2].y = pn.y;
-      out[3].x = pn.x;
-      out[3].y = pn.y;
+      points[0].x = pp.x;
+      points[0].y = pp.y;
+      if (eqV2(pp, pn)) {
+        out.nbPoints =  1;
+      } else {
+        out.nbPoints =  2;
+        points[1].x = pn.x;
+        points[1].y = pn.y;
+      }
     } else {
+      out.nbPoints = 4;
       // _v0.setFrom(pn).sub(pp);
       var vx = pn.x - pp.x;
       var vy = pn.y - pp.y;
       //var l = _v0.length;
       var l2 = vx * vx + vy * vy;
       if ((l2 * 10) < r) {
-        out[0].x = pn.x + r;
-        out[0].y = pn.y + r;
-        out[1].x = pn.x + r;
-        out[1].y = pn.y - r;
-        out[2].x = pn.x - r;
-        out[2].y = pn.y - r;
-        out[3].x = pn.x - r;
-        out[3].y = pn.y + r;
+        points[0].x = pn.x + r;
+        points[0].y = pn.y + r;
+        points[1].x = pn.x + r;
+        points[1].y = pn.y - r;
+        points[2].x = pn.x - r;
+        points[2].y = pn.y - r;
+        points[3].x = pn.x - r;
+        points[3].y = pn.y + r;
       } else {
         //var t = _v0.x;
         //_v0.scale(r / l);
@@ -201,20 +244,25 @@ class Checker_MvtAsPoly4 implements Checker{
         var t = vx;
         vx = -vy * rl;
         vy = t * rl;
-        //out[0].setFrom(pp).add(_v0);
-        out[0].x = pp.x + vx;
-        out[0].y = pp.y + vy;
-        //out[1].setFrom(ps.position3dPrevious[i]).sub(_v0);
-        out[1].x = pp.x - vx;
-        out[1].y = pp.y - vy;
-        //out[2].setFrom(ps.position3d[i]).sub(_v0);
-        out[2].x = pn.x - vx;
-        out[2].y = pn.y - vy;
-        //out[3].setFrom(ps.position3d[i]).add(_v0);
-        out[3].x = pn.x + vx;
-        out[3].y = pn.y + vy;
+        //points[0].setFrom(pp).add(_v0);
+        points[0].x = pp.x + vx;
+        points[0].y = pp.y + vy;
+        //points[1].setFrom(ps.position3dPrevious[i]).sub(_v0);
+        points[1].x = pp.x - vx;
+        points[1].y = pp.y - vy;
+        //points[2].setFrom(ps.position3d[i]).sub(_v0);
+        points[2].x = pn.x - vx;
+        points[2].y = pn.y - vy;
+        //points[3].setFrom(ps.position3d[i]).add(_v0);
+        points[3].x = pn.x + vx;
+        points[3].y = pn.y + vy;
       }
     }
     return out;
   }
+}
+
+class Poly4 {
+  final points = new List.generate(4, (i) => new Vector3.zero(), growable: false);
+  int nbPoints = 4;
 }
