@@ -19,7 +19,7 @@ addNewEntity(world, List<Component> cs, {String player, List<String> groups}) {
 }
 
 /**
- * Non generic version of ComponentMapper from dartemis (remove type cast)
+ * Non generic/type parametric version of ComponentMapper from dartemis (remove type cast)
  * High performance component retrieval from entities. Use this wherever you need
  * to retrieve components from entities often and fast.
  */

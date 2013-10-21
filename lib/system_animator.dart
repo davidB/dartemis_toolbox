@@ -2,7 +2,6 @@
 
 library system_animator;
 
-import 'dart:math' as math;
 import 'package:dartemis/dartemis.dart';
 import 'utils.dart';
 
@@ -38,6 +37,11 @@ class Animatable extends ComponentPoolable {
   ///
   Animatable add(Animation a) {
     l.add(a);
+    return this;
+  }
+
+  Animatable addAll(List<Animation> as) {
+    as.forEach((a) => l.add(a));
     return this;
   }
 }
