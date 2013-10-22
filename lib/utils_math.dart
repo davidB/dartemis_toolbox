@@ -40,6 +40,13 @@ eqV2(Vector3 v0, Vector3 v1) {
   var s1 = v1.storage;
   return s0[1] == s1[1] && s0[0] == s0[0];
 }
+
+rot90V2(Vector3 inout) {
+  var t = inout.x;
+  inout.x = - inout.y;
+  inout.y = t;
+  return inout;
+}
 /// return [out]
 Vector3 lookAt(Vector3 target, Vector3 position3d, Vector3 out, [Vector3 up]) {
   up = (up == null) ? VY_AXIS : up;
@@ -286,9 +293,7 @@ class IntersectionFinderXY implements IntersectionFinder {
 
     if (!separated) {
       //check on normal
-      var t = axis.x;
-      axis.x = - axis.y;
-      axis.y = t;
+      rot90V2(axis);
       resetMinMax(bmm);
       updateMinMaxProjection(s1, axis, bmm);
       updateMinMaxProjection(s2, axis, bmm);
@@ -316,10 +321,7 @@ class IntersectionFinderXY implements IntersectionFinder {
     var separated = false;
     for (var i = 0; (!separated) && (i < a.length); i++) {
       // axis is the left normal of the edge
-      axis.setFrom(a[(i+1) % a.length]).sub(a[i]);
-      var t = axis.x;
-      axis.x = - axis.y;
-      axis.y = t;
+      rot90V2(axis.setFrom(a[(i+1) % a.length]).sub(a[i]));
 
       extractMinMaxProjection(a, axis, amm);
       extractMinMaxProjection(b, axis, bmm);
@@ -337,11 +339,7 @@ class IntersectionFinderXY implements IntersectionFinder {
     var separated = false;
     for (var i = 0; (!separated) && (i < a.length); i++) {
       // axis is the egde of poly
-      axis.setFrom(a[(i+1) % a.length]).sub(a[i]);
-      var t = axis.x;
-      axis.x = - axis.y;
-      axis.y = t;
-
+      rot90V2(axis.setFrom(a[(i+1) % a.length]).sub(a[i]));
       extractMinMaxProjection(a, axis, amm);
       var p = b.dot(axis);
       bmm.min = p;
