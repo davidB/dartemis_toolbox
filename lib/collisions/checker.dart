@@ -121,6 +121,8 @@ class Checker_T1 implements Checker{
 ///  * longer : displacement
 /// Segment : previous[s.i1], previous[s.i2], current[s.i2], current[s.i1] (ignore radius)
 class Checker_MvtAsPoly4 implements Checker{
+  // print info (for debugging)
+  var printCollidePS = false;
   final IntersectionFinder _intf = new IntersectionFinderXY();
   var _v0 = new Vector3.zero();
   var _poly0 = new Poly4();
@@ -149,7 +151,7 @@ class Checker_MvtAsPoly4 implements Checker{
   collideParticleSegment(Particles psA, int iA, Segment s, Vector4 scol) {
     var b = _checkPoly4(_makePoly4_P(psA, iA, _poly0), _makePoly4_S(s, _poly1), scol);
     if (b) {
-      //print("collide ${_poly0.nbPoints} ${_poly1.nbPoints} // ${_poly0.points} // ${_poly1.points}");
+      if (printCollidePS) print("[DEBUG] collide PS ${_poly0.nbPoints} ${_poly1.nbPoints} // ${_poly0.points} // ${_poly1.points}");
       psA.collide[iA] = -1;
       s.collide = -1;
       //TODO project scol on segment (final position)
