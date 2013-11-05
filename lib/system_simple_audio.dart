@@ -66,13 +66,15 @@ class System_Audio extends EntityProcessingSystem {
   final AudioManager _audioManager;
 
   ClipProvider _clipProvider;
+  Function _handleError;
 
   /// [clipProvider] is the function to find AudioClip from name,
   /// default implementation is [clipProvider0]
-  System_Audio(this._audioManager, {clipProvider, positional : false}):
+  System_Audio(this._audioManager, {clipProvider, positional : false, handleError : null}):
     super(Aspect.getAspectForAllOf([AudioDef])),
     _positional = positional {
     _clipProvider = (clipProvider == null) ? this.clipProvider0 : clipProvider;
+    _handleError = handleError;
   }
 
   void initialize(){
@@ -92,18 +94,23 @@ class System_Audio extends EntityProcessingSystem {
       _applyTransform(obj, entity);
       var def = _objDefMapper.get(entity);
       def.l.iterateAndUpdate((x) {
-        var clip = _clipProvider(x);
-        if (clip == null) {
-          //TODO log("can't play sound '${x}' : notfound in audioManager nor assetManager");
-        } else {
-          //TODO log("play ${x} : ${_assetManager.getAssetAtPath(x).url} : ${clip}");
-          if (obj != _listener) {
-            obj.playOnce(clip);
+        try {
+          var clip = _clipProvider(x);
+          if (clip == null) {
+            //TODO log("can't play sound '${x}' : notfound in audioManager nor assetManager");
           } else {
-            _audioManager.music.stop();
-            _audioManager.music.clip = clip;
-            _audioManager.music.play(loop : false);
+            //TODO log("play ${x} : ${_assetManager.getAssetAtPath(x).url} : ${clip}");
+            if (obj != _listener) {
+              obj.playOnce(clip);
+            } else {
+              _audioManager.music.stop();
+              _audioManager.music.clip = clip;
+              _audioManager.music.play(loop : false);
+            }
           }
+        } catch(err, s) {
+          //TODO better bug report
+          if (_handleError != null) _handleError(err, s, "audio");
         }
         return null;
       });
