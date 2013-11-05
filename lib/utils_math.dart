@@ -32,13 +32,13 @@ final VZ_AXIS = new Vector3(0.0, 0.0, 1.0);
 eqV3(Vector3 v0, Vector3 v1) {
   var s0 = v0.storage;
   var s1 = v1.storage;
-  return s0[2] == s1[2] && s0[1] == s1[1] && s0[0] == s0[0];
+  return s0[2] == s1[2] && s0[1] == s1[1] && s0[0] == s1[0];
 }
 
 eqV2(Vector3 v0, Vector3 v1) {
   var s0 = v0.storage;
   var s1 = v1.storage;
-  return s0[1] == s1[1] && s0[0] == s0[0];
+  return s0[1] == s1[1] && s0[0] == s1[0];
 }
 
 rot90V2(Vector3 inout) {
