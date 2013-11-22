@@ -5,6 +5,8 @@ description: 'A set of libraries for game developpement : easing function, color
   particles, collisions, verlet physics, addons for dartemis, ...'
 homepage: http://davidb.github.io/dartemis_toolbox/
 documentation: http://davidb.github.io/dartemis_toolbox/apidoc/
+environment:
+  sdk: ">=1.0.0 <2.0.0"
 dev_dependencies:
   dartemis: '>=0.4.1'
   simple_audio:
@@ -13,3 +15,5 @@ dev_dependencies:
   unittest: any
   vector_math: any
   web_ui: '>=0.4.8+1'
+  html_toolbox:
+    git: https://github.com/davidB/html_toolbox

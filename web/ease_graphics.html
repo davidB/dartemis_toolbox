@@ -14,8 +14,12 @@
     <!--link rel="stylesheet" href="index.css"-->
     <link rel="stylesheet" href="http://weloveiconfonts.com/api/?family=fontawesome">
     <title>ease_graphics : dartemis_toolbox</title>
-    <link rel="import" href="packages/dartemis_toolbox/widgets/xfchart.html">
-    <link rel="import" href="packages/dartemis_toolbox/widgets/xtchart.html">
+    <style>
+      canvas {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
   </head>
   <body>
     <div class="container-fluid">
@@ -25,14 +29,15 @@
         <li><a href="http://sol.gfxile.net/interpolation/">Interpolation Tricks</a></li>
       </ul>
       <h1>Graphics of the ease's functions</h1>
-      <!--div is="x-tchart" style="height:200px" class="span10"></div-->
-      <div template iterate='k in eases.keys'>
-        <div class="span3">
-          <h3>{{k}}</h3>
-          <div is="x-fchart" fct="{{eases[k]}}"></div>
-          <h3>goback<sub>({{k}})</sub></h3>
-          <div is="x-fchart" fct="{{ease.goback(eases[k])}}"></div>
+      <div>
+        <script class="ease" type="text/tmpl">
+        <div class="span3 ease">
+          <h3>${k}</h3>
+          <canvas data-ease="${k}"></canvas>
+          <h3>goback<sub>(${k})</sub></h3>
+          <canvas data-ease="goback.${k}"></canvas>
         </div>
+        </script>
       </div>
     </div>
     <script type="application/dart" src="ease_graphics.dart"></script>
