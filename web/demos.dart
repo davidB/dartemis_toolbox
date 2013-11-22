@@ -2,7 +2,6 @@ library demos;
 
 import 'dart:html';
 import 'dart:math' as math;
-import 'package:web_ui/web_ui.dart';
 import 'package:dartemis_toolbox/ease.dart' as ease;
 import 'package:dartemis_toolbox/system_transform.dart';
 import 'package:dartemis_toolbox/system_animator.dart';
@@ -17,6 +16,8 @@ import 'package:dartemis_toolbox/startstopstats.dart';
 import 'package:dartemis/dartemis.dart';
 import 'dart:async';
 import 'package:vector_math/vector_math.dart';
+import 'package:html_toolbox/html_toolbox.dart';
+import 'package:html_toolbox/widgets_charts.dart';
 
 part 'demos/proto2d.dart';
 
@@ -26,6 +27,7 @@ void main() {
   // xtag is null until the end of the event loop (known dart web ui issue)
   new Timer(const Duration(), () {
     _setupRoutes();
+    _updateMenuEntry(null);
   });
 }
 
@@ -36,8 +38,8 @@ void _setupRoutes() {
   _route(window.location.hash);
 }
 
-@observable
-var activeDemo = null;
+
+
 var activeCtrl = new Future.value(new Ctrl());
 void _route(String hash) {
   var k = (hash != null && hash.length < 2)? null : hash.substring(2);
@@ -50,10 +52,22 @@ void _route(String hash) {
     window.location.hash = '/${initDemo.keys.first}';
     return;
   }
-  activeDemo = k;
+  _updateMenuEntry(k);
   activeCtrl.then((x) => x.running = false);
   activeCtrl = init(initEntities).then(start);
 }
+
+void _updateMenuEntry(active) {
+  if (_tmpl == null) {
+    _tmpl = new MicroTemplate(querySelector("script.menuEntry"));
+  }
+  var items = initDemo.keys.map((x) =>{
+    "k" : x,
+    "activeClass" : (x == active) ? 'active' : ''
+  }).toList();
+  _tmpl.apply(items);
+}
+var _tmpl;
 
 Future init(initEntities) => handleError((){
   var world = new World();
@@ -84,7 +98,9 @@ start(world) {
   var lastT = -1;
   var ctrl = new Ctrl();
   var _statsLoopTxt = querySelector('#statsLoop') as PreElement;
-  var _statsLoopChart = querySelector("#statsLoop_xtchart").xtag;
+  var _statsLoopChart = new ChartT()
+  ..el = querySelector("#statsLoop_chart")
+  ;
   var values = new List<double>(2);
   //var v0 = random.nextDouble() * 100.0;
 
@@ -139,7 +155,6 @@ var foregroundcolor = 0xe3e3f8ff;
 var foregroundcolors = hsl_tetrad(irgba_hsl(foregroundcolor)).map((hsl) => irgba_rgbaString(hsl_irgba(hsl))).toList();
 var foregroundcolorsM = hsv_monochromatic(irgba_hsv(foregroundcolor), 4).map((hsv) => irgba_rgbaString(hsv_irgba(hsv))).toList(); //monochromatique
 
-@observable
 final initDemo = {
   'proto2d' : demo_proto2d,
   'proto2d + animatable' : (world) {

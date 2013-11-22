@@ -14,7 +14,6 @@
     <link rel="stylesheet" href="index.css">
     <link rel="stylesheet" href="http://weloveiconfonts.com/api/?family=fontawesome">
     <title>demo 0 : proto2d : dartemis_toolbox</title>
-    <link rel="import" href="packages/dartemis_toolbox/widgets/xtchart.html">
     <style>
       #demo {
         height:400px;
@@ -27,14 +26,14 @@
       <canvas id="demo" class="span12 blueprint"></canvas>
       <div class="pagination pagination-centered span12">
         <ul>
-          <template iterate="k in initDemo.keys">
-            <li class="{{(activeDemo == k) ? 'active' : ''}}"><a href="{{'#/${k}'}}">{{k}}</a></li>
-          </template>
+          <script type="text/template" class="menuEntry">
+            <li class="${activeClass}"><a href="#/${k}">${k}</a></li>
+          </script>
         </ul>
       </div>
       <div class="span12">
         <label>Duration (ms) of main loop:</label>
-        <div id="statsLoop_xtchart" is="x-tchart" style="height:50px"></div>
+        <canvas id="statsLoop_chart" style="height:50px"></canvas>
         <pre id="statsLoop"></pre>
       </div>
     </div>
