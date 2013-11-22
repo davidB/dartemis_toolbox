@@ -109,7 +109,7 @@ main() {
         done.add(z);
       });
       expect(nbCall, done.length);
-      expect(nbCall, (2 * n + 1) + ((n * (n - 1) / 2)).toInt());
+      expect(nbCall, (2 * n + 1) + (n * (n - 1) ~/ 2));
     });
   });
   group("scan near", () {

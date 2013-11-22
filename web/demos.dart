@@ -57,7 +57,7 @@ void _route(String hash) {
 
 Future init(initEntities) => handleError((){
   var world = new World();
-  var canvas = query('canvas#demo');
+  var canvas = querySelector('canvas#demo');
   world.addManager(new PlayerManager());
   world.addManager(new GroupManager());
   //world.addSystem(new System_Physics(false), passive : false);
@@ -83,8 +83,8 @@ class Ctrl {
 start(world) {
   var lastT = -1;
   var ctrl = new Ctrl();
-  var _statsLoopTxt = query('#statsLoop') as PreElement;
-  var _statsLoopChart = query("#statsLoop_xtchart").xtag;
+  var _statsLoopTxt = querySelector('#statsLoop') as PreElement;
+  var _statsLoopChart = querySelector("#statsLoop_xtchart").xtag;
   var values = new List<double>(2);
   //var v0 = random.nextDouble() * 100.0;
 
@@ -182,7 +182,7 @@ final initDemo = {
     ..steps = 1
     ..collSpace = new collisions.Space_XY0(new collisions.Checker_T1(), new collisions.Resolver_Noop())
     ;
-    enableQuadtree(world, query('canvas#demo'), false, false);
+    enableQuadtree(world, querySelector('canvas#demo'), false, false);
     addNewEntity(world, [
       new Transform.w2d(50.0, 50.0, 0.0),
       new Emitter()
@@ -274,7 +274,7 @@ final initDemo = {
       ..steps = 3
       ..collSpace = new collisions.Space_XY0(new collisions.Checker_T1(), new collisions.Resolver_Backward())
       ;
-    enableQuadtree(world, query('canvas#demo'), true, false);
+    enableQuadtree(world, querySelector('canvas#demo'), true, false);
     var defaultDraw = proto.drawComponentType([
       new proto.DrawComponentType(Particles.CT, proto.particles(5.0, fillStyle : foregroundcolors[0], strokeStyle : foregroundcolors[1])),
       new proto.DrawComponentType(Constraints.CT, proto.constraints(distanceStyleCollide : "#e20000"))
@@ -324,7 +324,7 @@ final initDemo = {
     return new Future.value(world);
   },
   'collisions' : (world) {
-    var canvas = query('canvas#demo');
+    var canvas = querySelector('canvas#demo');
     var w = canvas.width;
     var h = canvas.height;
     var wm = 10;

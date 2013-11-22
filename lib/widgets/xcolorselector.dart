@@ -134,8 +134,8 @@ class XColorselector extends WebComponent{
   /// An common optimisation is to use a color + bacground image with alpha
   /// like done by yui-color-picker [sample](http://www.colorspire.com/s/j/yui282/asset/picker_mask.png)
   sv_draw() {
-    var c = this.query('canvas.cs_sv') as CanvasElement;
-    var g = c.context2d;
+    var c = this.querySelector('canvas.cs_sv') as CanvasElement;
+    var g = c.context2D;
     var sel = 2;
     var w1 = (c.width - 2 * sel)/ 100.0;
     var h1 = (c.height - 2 * sel)/ 100.0;
@@ -156,7 +156,7 @@ class XColorselector extends WebComponent{
 
   sv_setColorFromEvt(MouseEvent evt){
     var t =  evt.target as CanvasElement;
-    sv_setColorFrom(evt.offsetX, evt.offsetY, t.width, t.height);
+    sv_setColorFrom(evt.offset.x, evt.offset.y, t.width, t.height);
     return true;
   }
 
@@ -173,8 +173,8 @@ class XColorselector extends WebComponent{
 
   /// An common optimisation is to use a image for the hue bar
   h_draw() {
-    var c = this.query('canvas.cs_h') as CanvasElement;
-    var g = c.context2d;
+    var c = this.querySelector('canvas.cs_h') as CanvasElement;
+    var g = c.context2D;
     var sel = 2;
     var w1 = c.width - (2 * sel);
     var h1 = (c.height - (2 * sel))/ 100.0;
@@ -192,7 +192,7 @@ class XColorselector extends WebComponent{
 
   h_setColorFromEvt(MouseEvent evt){
     var t =  evt.target as CanvasElement;
-    h_setColorFrom(evt.offsetX, evt.offsetY, t.width, t.height);
+    h_setColorFrom(evt.offset.x, evt.offset.y, t.width, t.height);
     return true;
   }
 
