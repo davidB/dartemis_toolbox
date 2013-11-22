@@ -1,9 +1,8 @@
 // License [CC0](http://creativecommons.org/publicdomain/zero/1.0/)
+library widgets_charts;
 
 import 'dart:html';
 import 'dart:math';
-import 'package:web_ui/web_ui.dart';
-
 
 /**
  * A simple widget to chart sequence(s) of number like a time-serie.
@@ -13,7 +12,9 @@ import 'package:web_ui/web_ui.dart';
  * * [Smoothie Charts](http://smoothiecharts.org/)
  * * [50 JavaScript Libraries for Charts and Graphs](http://techslides.com/50-javascript-charting-and-graphics-libraries/)
  */
-class XTchart extends WebComponent{
+class ChartT{
+  CanvasElement el;
+
   /// minimal value to display on y axis (clamp), default : 0.0
   var ymin = 0.0;
   /// maximal value to display on y axis (clamp), default : 100.0
@@ -28,7 +29,7 @@ class XTchart extends WebComponent{
   /// the defaults 7 colors use to display values, change the content to change or to add colors
   var colors = ['rgb(153, 216, 201)', 'rgb(158, 188, 218)', 'rgb(253, 187, 132)', 'rgb(201, 148, 199)', 'rgb(188, 189, 220)', 'rgb(161, 217, 155)', 'rgb(189, 189, 189)'];
 
-  clamp0(high, value) => max(0, min(high, value));
+  _clamp0(high, value) => max(0, min(high, value));
 
   /// Forward of one step (1 pixel) and chart [values] as value for the values.length serie.
   /// If values or values[x] is null the value is ignore (~ [ymin]) and chart go one step.
@@ -38,14 +39,14 @@ class XTchart extends WebComponent{
   //see http://stackoverflow.com/questions/8376534/shift-canvas-contents-to-the-left
   //TODO optim canvas copy by create chunck of images and keep imageData between pull
   push(List values) {
-    var c = _onScreen;
-    var g = c.context2d;
+    var c = el;
+    var g = c.context2D;
     var x0 = 0.5;
     var y0 = 0.5;
     var w0 = c.width;
     var h0 = c.height;
     g.save();
-    shiftContext(g, w0, h0, -1, 0);
+    _shiftContext(g, w0, h0, -1, 0);
     if (values != null) {
       var l = values.length;
       var hi = h0 / l;
@@ -57,7 +58,7 @@ class XTchart extends WebComponent{
         var v = values[i];
         if (v == null) v = ymin;
         g.beginPath();
-        h = clamp0(ymax, (v - ymin)) * yratio;
+        h = _clamp0(ymax, (v - ymin)) * yratio;
         g.moveTo(x, y - h);
         g.lineTo(x, y);
         g.closePath();
@@ -81,13 +82,48 @@ class XTchart extends WebComponent{
 //    });
   }
 
-  shiftContext(g, w, h, dx, dy) {
-    var imageData = g.getImageData(clamp0(w, -dx), clamp0(h, -dy), clamp0(w, w-dx), clamp0(h, h-dy));
+  _shiftContext(g, w, h, dx, dy) {
+    var imageData = g.getImageData(_clamp0(w, -dx), _clamp0(h, -dy), _clamp0(w, w-dx), _clamp0(h, h-dy));
     g.putImageData(imageData, 0, 0);
     g.clearRect(w-1, 0, 1, h);
   }
+}
 
-  void inserted() {
-    _onScreen = this.query('canvas') as CanvasElement;
+class ChartF{
+  CanvasElement el;
+  Function fct;
+
+  init() {
+    var c = el;
+    var g = c.context2D;
+    var ymargin = c.height * 0.25;
+    var x0 = 0.5;
+    var y0 = 0.5 + ymargin;
+    var w0 = c.width - 1;
+    var h0 = c.height - 1 - 2 * ymargin;
+
+
+    g.rect(x0, y0, w0, h0);
+    g.lineWidth = 1.0;
+    g.strokeStyle = 'rgb(100,100,100)';
+    g.stroke();
+    g.fillStyle = 'rgb(240, 240, 240)';
+    //g.fillStyle = 0xFFDFDFDF;
+    g.fill();
+
+    g.beginPath();
+    g.moveTo(x0, y0 + h0);
+    if (fct != null && fct is Function) {
+      for(int i = 0; i <= w0; i++) {
+        var ratio = i / w0;
+        var x = 0.5 + ratio * w0;
+        var y = fct(ratio, -h0, y0 + h0);
+        g.lineTo(x, y);
+      }
+    }
+
+    g.lineWidth = 3.0;
+    g.strokeStyle = 'rgb(255,100,100)';
+    g.stroke();
   }
 }

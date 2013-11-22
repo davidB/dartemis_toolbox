@@ -1,9 +1,8 @@
 import 'dart:html';
-import 'package:web_ui/web_ui.dart';
 import 'package:dartemis_toolbox/ease.dart' as ease;
 import 'dart:async';
+import 'package:dartemis_toolbox/widgets/charts.dart';
 
-@observable
 var eases = ease.all;
 
 /**
@@ -19,7 +18,9 @@ void main() {
     const interval = 1000 ~/ 30;
     const duration = 2000 / interval;
     var values = new List<double>(2);
-    var chart = query("#xtchart_demo0").xtag;
+    var chart = new ChartT()
+    ..el = querySelector("#xtchart_demo0")
+    ;
     new Timer.periodic(const Duration(milliseconds: interval), (timer) {
       //var v0 = random.nextDouble() * 100.0;
       cnt = (cnt + 1) % duration;
