@@ -284,8 +284,9 @@ final initDemo = {
     return new Future.value(world);
   },
   'verlet shapes' : (world) {
+    var g = 10.0;
     world.getSystem(System_Simulator)
-      ..globalAccs.y = 10.0
+      ..globalAccs.y = g
       ..steps = 3
       ..collSpace = new collisions.Space_XY0(new collisions.Checker_T1(), new collisions.Resolver_Backward())
       ;
@@ -295,7 +296,7 @@ final initDemo = {
       new proto.DrawComponentType(Constraints.CT, proto.constraints(distanceStyleCollide : "#e20000"))
     ]);
 
-    ParticlesConstructor genP = (nb) => new Particles(nb, withCollides: true, collide0: 1, color0: 0x00A000FF, inertia0: 0.99);
+    ParticlesConstructor genP = (nb) => new Particles(nb, withCollides: true, collide0: 1, color0: 0x00A000FF, inertia0: 0.99, withIsSims: true, withAccs: true);
     // entities
     var segment = addNewEntity(world,
       makeLineSegments(
@@ -306,7 +307,8 @@ final initDemo = {
           new Vector3(80.0, 10.0, 0.0),
           new Vector3(100.0,10.0, 0.0)
         ],
-        0.02,
+        10.0 * g,
+        0.0,
         false,
         genP
       ).toList()..add(new proto.Drawable(defaultDraw))
@@ -314,22 +316,36 @@ final initDemo = {
     pinParticle(segment, 0);
     pinParticle(segment, 4);
 
-    var e1 = addNewEntity(world, makeTireXY(new Vector3(200.0, 50.0, 0.0), 50.0, 30, 0.3, 0.9, genP).toList()..add(new proto.Drawable(defaultDraw)));
-    setCollideOfSegment(e1, 1);
-    var e2 = addNewEntity(world, makeTireXY(new Vector3(400.0, 50.0, 0.0), 70.0, 7, 0.1, 0.2, genP).toList()..add(new proto.Drawable(defaultDraw)));
-    setCollideOfSegment(e2, 1);
-    var e3 = addNewEntity(world, makeTireXY(new Vector3(600.0, 50.0, 0.0), 70.0, 3, 1.0, 1.0, genP).toList()..add(new proto.Drawable(defaultDraw)));
-    setCollideOfSegment(e3, 1);
-    var e4 = addNewEntity(world, makeCloth(new Vector3(800.0, 50.0, 0.0), new Vector3(300.0, 0.0, 0.0), new Vector3(0.0, 200.0, 0.0), 15, 14, 0.5, genP).toList()..add(new proto.Drawable(defaultDraw)));
+    var pendule = addNewEntity(world,
+      makeLineSegments(
+        [
+          new Vector3(20.0, 60.0, 0.0),
+          new Vector3(100.0,63.0, 0.0)
+        ],
+        2 * g,
+        0.0,
+        false,
+        genP
+      ).toList()..add(new proto.Drawable(defaultDraw))
+    );
+    pinParticle(pendule, 0);
 
-    var e5 = addNewEntity(world, makeTireXY(new Vector3(600.0, 300.0, 0.0), 70.0, 4, 1.0, 1.0, genP).toList()..add(new proto.Drawable(defaultDraw)));
+    var e1 = addNewEntity(world, makeTireXY(new Vector3(200.0, 50.0, 0.0), 50.0, 30, 0.3 * g, 0.9 * g, 0.0, 0.0, genP).toList()..add(new proto.Drawable(defaultDraw)));
+    setCollideOfSegment(e1, 1);
+    var e2 = addNewEntity(world, makeTireXY(new Vector3(400.0, 50.0, 0.0), 70.0, 7, 0.1 * g, 0.2 *g, 0.0, 0.0, genP).toList()..add(new proto.Drawable(defaultDraw)));
+    setCollideOfSegment(e2, 1);
+    var e3 = addNewEntity(world, makeTireXY(new Vector3(600.0, 50.0, 0.0), 70.0, 3, 1.0 * g, 1.0 *g, 0.0, 0.0, genP).toList()..add(new proto.Drawable(defaultDraw)));
+    setCollideOfSegment(e3, 1);
+    var e4 = addNewEntity(world, makeCloth(new Vector3(800.0, 50.0, 0.0), new Vector3(300.0, 0.0, 0.0), new Vector3(0.0, 200.0, 0.0), 15, 14, 10 * g, 0.2, genP).toList()..add(new proto.Drawable(defaultDraw)));
+
+    var e5 = addNewEntity(world, makeTireXY(new Vector3(600.0, 300.0, 0.0), 70.0, 4, 1.0 * g, 1.0 *g, 0.0, 0.0, genP).toList()..add(new proto.Drawable(defaultDraw)));
     setCollideOfSegment(e5, 1);
-    var e6 = addNewEntity(world, makeParallelogram(new Vector3(400.0, 300.0, 0.0), new Vector3(70.0, 0.0, 0.0), new Vector3(0.0, 70.0, 0.0), 1.0, genP).toList()..add(new proto.Drawable(defaultDraw)));
+    var e6 = addNewEntity(world, makeParallelogram(new Vector3(400.0, 300.0, 0.0), new Vector3(70.0, 0.0, 0.0), new Vector3(0.0, 70.0, 0.0), 0.1 * g, 0.0, genP).toList()..add(new proto.Drawable(defaultDraw)));
     setCollideOfSegment(e6, 1);
-    var e7 = addNewEntity(world, makeParallelogram(new Vector3(200.0, 300.0, 0.0), new Vector3(70.0, 10.0, 0.0), new Vector3(10.0, 30.0, 0.0), 1.0, genP).toList()..add(new proto.Drawable(defaultDraw)));
+    var e7 = addNewEntity(world, makeParallelogram(new Vector3(200.0, 300.0, 0.0), new Vector3(70.0, 10.0, 0.0), new Vector3(10.0, 30.0, 0.0), 0.1 * g, 0.0, genP).toList()..add(new proto.Drawable(defaultDraw)));
     setCollideOfSegment(e7, 1);
 
-    var ground = addNewEntity(world, makeParallelogram(new Vector3(10.0, 380.0, 0.0), new Vector3(1100.0, 0.0, 0.0), new Vector3(0.0, 10.0, 0.0), 1.0, genP).toList()..add(new proto.Drawable(defaultDraw)));
+    var ground = addNewEntity(world, makeParallelogram(new Vector3(10.0, 380.0, 0.0), new Vector3(1100.0, 0.0, 0.0), new Vector3(0.0, 10.0, 0.0), 0.1 * g, 0.0, genP).toList()..add(new proto.Drawable(defaultDraw)));
     pinParticle(ground, 0);
     pinParticle(ground, 1);
     pinParticle(ground, 2);

@@ -24,7 +24,7 @@ class Resolver_Print implements Resolver {
 class Resolver_Backward implements Resolver {
   backward(Vector3 vc, Vector3 vp, double t) {
     vc.sub(vp).scale(t).add(vp);
-    vp.setValues(vc.x, vc.y, vc.z); //HACK to reset valocity// inertie
+    //vp.setValues(vc.x, vc.y, vc.z); //HACK to reset velocity// inertie
   }
 
   void notifyCollisionParticleSegment(Particles psA, int iA, Segment s, double tcoll) {

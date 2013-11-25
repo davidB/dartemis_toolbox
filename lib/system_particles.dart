@@ -47,6 +47,8 @@ class Particles extends Component {
   final ItemOption<Vector3> acc;
   /// the inertia on particule how it keep movement (velocity)
   final ItemOption<double> inertia;
+  /// is the particles managed by simulator
+  final ItemOption<bool> isSim;
   /// link to extra data, can be the host Entity or array, map, structure
   /// for energy, ttl, kind,...
   var extradata;
@@ -59,6 +61,7 @@ class Particles extends Component {
     withCollides: false, collide0: 0,
     withAccs: false, acc0: null,
     withInertias: false, inertia0: 1.0,
+    withIsSims: false, isSim0: true,
     this.intraCollide: false
   }) :
     this.length = length,
@@ -69,6 +72,7 @@ class Particles extends Component {
     radius = withRadius ? new ItemSome(new List.generate(length, (i) => radius0)) : new ItemDefault(radius0),
     collide = withCollides ? new ItemSome(new List.generate(length, (i) => collide0)) : new ItemDefault(collide0),
     acc = withAccs ? new ItemSome(new List.generate(length, (i) => acc0 == null ? new Vector3.zero() : new Vector3.copy(acc0))) : new ItemDefault(acc0 == null ? new Vector3.zero() : acc0),
+    isSim = withIsSims ? new ItemSome(new List.generate(length, (i) => isSim0)) : new ItemDefault(isSim0),
     inertia = withInertias ? new ItemSome(new List.generate(length, (i) => inertia0)) : new ItemDefault(inertia0)
   ;
 

@@ -106,7 +106,11 @@
     <dart_check file="collisions"/>
   </target>
 
-  <target name="check" depends="system_entity_state, utils, system_animator, system_simple_audio, system_transform, ease, colors, collisions">
+  <target name="system_verlet">
+    <dart_check file="system_verlet"/>
+  </target>
+
+  <target name="check" depends="system_entity_state, utils, system_animator, system_simple_audio, system_transform, system_verlet, ease, colors, collisions">
   </target>
 <!--
   <path id="tools.path">

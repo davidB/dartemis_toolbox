@@ -284,6 +284,8 @@ DrawCanvas particles(num radiusScale, {fillStyle, strokeStyle, strokeLineWidth :
         int color = particle0s.color[i];
         if (particle0s.collide[i] == -1) {
           color = hsl_irgba(hsl_complement(irgba_hsl(color)));
+        } else if (!particle0s.isSim[i]) {
+          color = hsl_irgba(hsl_triad(irgba_hsl(color))[1]);
         }
         var fillStyle0 = irgba_rgbaString(color);
         //g.moveTo(pos.x, pos.y);
