@@ -201,7 +201,7 @@ final initDemo = {
     addNewEntity(world, [
       new Transform.w2d(50.0, 50.0, 0.0),
       new Emitter()
-        ..genParticles = ((nb) => new Particles(nb, inertia0: 0.0))
+        ..genParticles = ((nb) => new Particles(nb, inertia0: 0.0, isSim0 : false))
         ..counter = steady(100)
         ..initializers.add(particlesStartPosition(
             //constant(new Vector3.zero())
@@ -242,7 +242,7 @@ final initDemo = {
     addNewEntity(world, [
       new Transform.w2d(600.0, 50.0, 0.0),
       new Emitter()
-        ..genParticles = ((nb) => new Particles(nb, withColors: true, color0: 0xff0000ff, radius0: 4.0, withCollides: true, collide0: 0, intraCollide: true, inertia0: 0.98))
+        ..genParticles = ((nb) => new Particles(nb, withColors: true, color0: 0xff0000ff, radius0: 4.0, withCollides: true, collide0: 0, intraCollide: true, inertia0: 0.98, isSim0: true))
         ..counter = steady(100)
         ..initializers.add(particlesStartPosition(
           constant(new Vector3.zero())
@@ -251,8 +251,6 @@ final initDemo = {
       ..initializers.add(particlesStartPositionPrevious(line(new Vector3.zero(), new Vector3(5.0, 0.0, 0.0), ease.periodicRatio(ease.random, 3000)), true))
       ..initializers.add(addComponents([
         () => new proto.Drawable(proto.particles(1.0, fillStyle : foregroundcolors[0], strokeStyle : foregroundcolors[1])),
-        // move by verlet simulator
-        () => new Constraints(),
         // living for 5s
         () => new Animatable()
           ..add(new Animation()
@@ -293,7 +291,7 @@ final initDemo = {
     enableQuadtree(world, querySelector('canvas#demo'), true, false);
     var defaultDraw = proto.drawComponentType([
       new proto.DrawComponentType(Particles.CT, proto.particles(5.0, fillStyle : foregroundcolors[0], strokeStyle : foregroundcolors[1])),
-      new proto.DrawComponentType(Constraints.CT, proto.constraints(distanceStyleCollide : "#e20000"))
+      new proto.DrawComponentType(Segments.CT, proto.segments(distanceStyleCollide : "#e20000"))
     ]);
 
     ParticlesConstructor genP = (nb) => new Particles(nb, withCollides: true, collide0: 1, color0: 0x00A000FF, inertia0: 0.99, withIsSims: true, withAccs: true);
@@ -369,7 +367,7 @@ final initDemo = {
     addNewEntity(world, [
       new Transform.w2d(50.0, 50.0, 0.0),
       new Emitter()
-      ..genParticles = ((nb) => new Particles(nb, withRadius : true, radius0 : 3.0, withColors: true, color0: 0xff0000ff, withCollides: true, collide0: 1, intraCollide: true))
+      ..genParticles = ((nb) => new Particles(nb, withRadius : true, radius0 : 3.0, withColors: true, color0: 0xff0000ff, withCollides: true, collide0: 1, intraCollide: true, isSim0: true))
       ..counter = singleWave(500)
       ..initializers.add(particlesStartPosition(
           //constant(new Vector3.zero())
@@ -379,7 +377,6 @@ final initDemo = {
       ..initializers.add(particlesStartPositionPrevious(box(new Vector3.zero(), new Vector3(3.0, 3.0, 0.0)), false))
       ..initializers.add(addComponents([
         () => new proto.Drawable(proto.particles(1.0, fillStyle : foregroundcolors[0], strokeStyle : foregroundcolors[1])),
-        () => new Constraints(),
         () => new Animatable()
           ..add(new Animation()
             ..onTick = (e, t, t0) {

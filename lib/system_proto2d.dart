@@ -18,7 +18,6 @@ import 'package:dartemis/dartemis.dart';
 import 'package:vector_math/vector_math.dart';
 import 'system_transform.dart';
 import 'system_particles.dart';
-import 'system_verlet.dart';
 import 'colors.dart';
 
 typedef void DrawCanvas(CanvasRenderingContext2D g, Entity e, Vector2 area);
@@ -311,15 +310,10 @@ DrawCanvas particles(num radiusScale, {fillStyle, strokeStyle, strokeLineWidth :
   };
 }
 
-DrawCanvas constraints({pinStyle : "rgba(0,153,255,0.1)", distanceStyle : "#d8dde2", distanceStyleCollide : "#e2ddd8", angleStyle:"rgba(255,255,0,0.2)"}) => (CanvasRenderingContext2D g, Entity e, area) {
-  var cs = e.getComponent(Constraints.CT) as Constraints;
-  cs.l.forEach((x) {
-    if (distanceStyle != null && x is Constraint_Distance)
-      drawSegment(g, x.segment, distanceStyle, distanceStyleCollide);
-    else if (pinStyle != null && x is Constraint_Pin)
-      drawCPin(g, x, pinStyle);
-    else if (angleStyle != null && x is Constraint_AngleXY)
-      drawCAngle(g, x, angleStyle);
+DrawCanvas segments({pinStyle : "rgba(0,153,255,0.1)", distanceStyle : "#d8dde2", distanceStyleCollide : "#e2ddd8"}) => (CanvasRenderingContext2D g, Entity e, area) {
+  var ss = e.getComponent(Segments.CT) as Segments;
+  ss.l.forEach((x) {
+    drawSegment(g, x, distanceStyle, distanceStyleCollide);
   });
 };
 
@@ -333,25 +327,6 @@ drawSegment(g, Segment x, strokeStyle, strokeStyleCollide) {
   g.stroke();
 }
 
-drawCPin(g, Constraint_Pin x, fillStyle) {
-  g.beginPath();
-  g.arc(x.pin.x, x.pin.y, 6, 0, 2*math.PI);
-  g.fillStyle = fillStyle;//;
-  g.fill();
-}
-
-//TODO write arc in the angle
-drawCAngle(g, Constraint_AngleXY x, strokeStyle) {
-  g.beginPath();
-  g.moveTo(x.a.x, x.a.y);
-  g.lineTo(x.b.x, x.b.y);
-  g.lineTo(x.c.x, x.c.y);
-  var tmp = g.lineWidth;
-  g.lineWidth = 5;
-  g.strokeStyle = strokeStyle;//;
-  g.stroke();
-  g.lineWidth = tmp;
-}
 
 var printCanvas = null;
 

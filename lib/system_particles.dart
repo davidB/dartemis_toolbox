@@ -83,6 +83,15 @@ class Particles extends Component {
   }
 }
 
+class Segments extends Component {
+  static final CT = ComponentTypeManager.getTypeFor(Segments);
+  final l = new List<Segment>();
+  add(s){
+    l.add(s);
+    return s;
+  }
+}
+
 class Segment {
   final Particles ps;
   final int i1;

@@ -9,18 +9,6 @@ import 'package:dartemis/dartemis.dart';
 import 'package:vector_math/vector_math.dart';
 import 'system_particles.dart';
 import 'collisions.dart' as collisions;
-import 'utils_dartemis.dart';
-
-/// [Constraint] is a class (vs a typedef of Function) to allow
-/// others service, function to read data and use it in other way (eg: draw)
-abstract class Constraint {
-  relax(double stepCoef);
-}
-
-class Constraints extends Component {
-  static final CT = ComponentTypeManager.getTypeFor(Constraints);
-  final l = new List<Constraint>();
-}
 
 /// [Force] is a class (vs a typedef of Function) to allow
 /// others service, function to read data and use it in other way (eg: draw)
@@ -53,7 +41,7 @@ class Forces extends Component {
 
 class System_Simulator extends EntitySystem {
   ReadOnlyBag<Particles> _particles;
-  ReadOnlyBag<Constraints> _constraints;
+  ReadOnlyBag<Segments> _segments;
   ReadOnlyBag<Forces> _forces;
 
   var steps = 10;
@@ -71,7 +59,7 @@ class System_Simulator extends EntitySystem {
 
   void initialize(){
     _particles = world.componentManager.getComponentsByType(Particles.CT).readOnly;
-    _constraints = world.componentManager.getComponentsByType(Constraints.CT).readOnly;
+    _segments = world.componentManager.getComponentsByType(Segments.CT).readOnly;
     _forces = world.componentManager.getComponentsByType(Forces.CT).readOnly;
   }
 
@@ -123,45 +111,13 @@ class System_Simulator extends EntitySystem {
     });
   }
 
-  _applyConstraintes() {
-    // iterate collisions + constraints
-    var stepCoef = 1.0/steps;
-    //var bodies = maps(entities, _bodiesMapper);
-
-    for(int step = 0; step < steps; ++step ) { //Repeat this a few times to give more exact results
-
-//    // bounds checking
-//    //TODO define bounds as constraintes
-//    for (c in this.composites) {
-//      var particles = this.composites[c].particles;
-//      for (i in particles)
-//        this.bounds(particles[i]);
-//    }
-
-      //relax Constraints (include Edge) correction step
-      //TODO optimize the loop
-      //TODO check if relax should be done in the same loop as collision
-      //TODO check if relax should be done once constraint per step or every constraint per step
-      _forEach(_constraints, (c){
-        c.l.forEach((j) {
-          j.relax(stepCoef);
-        });
-      });
-    }
-  }
-
   _applyCollision() {
     collSpace.reset();
     _forEach(_particles, (ps){
       collSpace.addParticles(ps);
     });
-    _forEach(_constraints, (e){
-      for(var j = 0; j < e.l.length; j++) {
-        var c = e.l[j];
-        if(c is Constraint_Distance) {
-          collSpace.addSegment(c.segment);
-        }
-      }
+    _forEach(_segments, (e){
+      e.l.forEach((s) => collSpace.addSegment(s));
     });
     collSpace.handleCollision();
   }
@@ -222,9 +178,9 @@ class Force_Spring extends Force {
     _restLength = (restLength < 0) ? (segment.ps.position3d[segment.i1] - segment.ps.position3d[segment.i2]).length : restLength;
   }
 
-  factory Force_Spring.fromParticles(ps, i1, i2, stiffness, damping, [collide = 0]) {
-    return new Force_Spring(new Segment(ps, i1, i2, collide), stiffness, damping);
-  }
+//  factory Force_Spring.fromParticles(ps, i1, i2, stiffness, damping, [collide = 0]) {
+//    return new Force_Spring(new Segment(ps, i1, i2, collide), stiffness, damping);
+//  }
 
   apply() {
     var a = segment.ps.position3d[segment.i1];
@@ -258,92 +214,6 @@ class Force_Spring extends Force {
   }
 }
 
-class Constraint_Distance implements Constraint {
-  final Segment segment;
-  double stiffness;
-  double _distance2;
-  Vector3 _stick = new Vector3.zero();
-
-  Constraint_Distance(this.segment, this.stiffness) {
-    _distance2 = (segment.ps.position3d[segment.i1] - segment.ps.position3d[segment.i2]).length;
-  }
-
-  factory Constraint_Distance.fromParticles(ps, i1, i2, stiffness, [collide = 0]) {
-    return new   Constraint_Distance(new Segment(ps, i1, i2, collide), stiffness);
-  }
-
-  //get a => segment.ps.position3d[segment.i1];
-  //get b => segment.ps.position3d[segment.i2];
-
-  relax(stepCoef) {
-    var a = segment.ps.position3d[segment.i1];
-    var b = segment.ps.position3d[segment.i2];
-    _stick.setFrom(a).sub(b);
-    var l = _stick.length;
-    var diff = ( _distance2 - l)/l;
-    _stick.scale(diff *  stiffness * stepCoef);
-    var ma = segment.ps.mass[segment.i1];
-    var mb = segment.ps.mass[segment.i2];
-    var mw = (ma + mb);// * stiffness;
-    a.add(_stick.scale(ma / mw));
-    b.sub(_stick.scale(mb / ma)); // _stick(mb / mw)
-  }
-}
-
-class Constraint_Pin implements Constraint{
-  /// position of the pin
-  final Vector3 pin;
-  final Vector3 a;
-
-  Constraint_Pin(Vector3 v) : pin = v.clone(), a = v;
-
-  relax(stepCoef) {
-    a.setFrom(pin);
-  }
-}
-///TODO support 3D
-class Constraint_AngleXY implements Constraint {
-  Vector3 a;
-  Vector3 b;
-  Vector3 c;
-  double stiffness;
-  double _angle;
-  Constraint_AngleXY(this.a, this.b, this.c, this.stiffness) {
-    _angle = _fangle2(b, a, c);
-  }
-
-  relax(stepCoef) {
-    var angle = _fangle2(b, a, c);
-    var diff = angle - _angle;
-
-    if (diff <= - math.PI)
-      diff += 2 * math.PI;
-    else if (diff >= math.PI)
-      diff -= 2 * math.PI;
-
-    diff *= stepCoef * stiffness;
-
-    a = _frotate(a, b, diff);
-    c = _frotate(c, b, -diff);
-    b = _frotate(b, a, diff);
-    b = _frotate(b, c, -diff);
-  }
-
-  _fangle(Vector3 v0, Vector3 v1) =>
-    math.atan2(v0.x * v1.y - v0.y * v1.x, v0.x * v1.x + v0.y * v1.y);
-
-  _fangle2(Vector3 v0, vLeft, vRight) =>
-    _fangle(vLeft - v0, vRight - v0);
-
-  _frotate(Vector3 v0, Vector3 origin, theta) {
-    var x = v0.x - origin.x;
-    var y = v0.y - origin.y;
-    return new Vector3( x * math.cos(theta) - y * math.sin(theta) + origin.x, x* math.sin(theta) + y* math.cos(theta) + origin.y, v0.z);
-  }
-
-}
-
-
 Iterable<Component> makeTireXY(Vector3 origin, double radius, int segments, double spokeStiffness, double treadStiffness, double spokeDamping, double treadDamping, ParticlesConstructor genP) {
   var stride = (2 * math.PI) / segments;
 
@@ -357,20 +227,19 @@ Iterable<Component> makeTireXY(Vector3 origin, double radius, int segments, doub
   }
   ps.position3d[segments].setFrom(origin);
   ps.copyPosition3dIntoPrevious();
-  // constraints
-  var cs = new Constraints();
-  for (var i=0; i < segments; ++i) {
-    cs.l.add(new Constraint_Distance.fromParticles(ps, i, (i + 1) % segments, treadStiffness));
-    cs.l.add(new Constraint_Distance.fromParticles(ps, i, segments, spokeStiffness));
-    cs.l.add(new Constraint_Distance.fromParticles(ps, i, (i + 5) % segments, treadStiffness));
-  }
+  var ss = new Segments();
   var fs = new Forces();
-  for (var i = 1; i < ps.position3d.length; ++i) {
-    fs.add(new Force_Spring.fromParticles(ps, i, (i + 1) % segments, treadStiffness, treadDamping));
-    fs.add(new Force_Spring.fromParticles(ps, i, segments, spokeStiffness, spokeDamping));
-    fs.add(new Force_Spring.fromParticles(ps, i, (i + 5) % segments, treadStiffness, treadDamping));
+  for (var i = 0; i < segments; ++i) {
+    var s = ss.add(new Segment(ps, i, (i + 1) % segments));
+    fs.add(new Force_Spring(s, treadStiffness, treadDamping));
+    s = ss.add(new Segment(ps, i, segments));
+    fs.add(new Force_Spring(s, spokeStiffness, spokeDamping));
+    if (segments > 5) {
+      s = ss.add(new Segment(ps, i, (i + 2) % segments));
+      fs.add(new Force_Spring(s, treadStiffness, treadDamping));
+    }
   }
-  return [ps,cs,fs];
+  return [ps,ss,fs];
 }
 
 Iterable<Component> makeLineSegments(List<Vector3> vertices, double stiffness, double damping, bool closed, ParticlesConstructor genP) {
@@ -379,21 +248,17 @@ Iterable<Component> makeLineSegments(List<Vector3> vertices, double stiffness, d
     ps.position3d[i].setFrom(vertices[i]);
   }
   ps.copyPosition3dIntoPrevious();
-  var cs = new Constraints();
-  for (var i = 1; i < ps.length; ++i) {
-    cs.l.add(new Constraint_Distance.fromParticles(ps, i, i-1, stiffness));
-  }
-  if (closed) {
-    cs.l.add(new Constraint_Distance.fromParticles(ps, 0, ps.length - 1, stiffness));
-  }
+  var ss = new Segments();
   var fs = new Forces();
   for (var i = 1; i < ps.length; ++i) {
-    fs.add(new Force_Spring.fromParticles(ps, i, i-1, stiffness, damping));
+    var s = ss.add(new Segment(ps, i, i-1));
+    fs.add(new Force_Spring(s, stiffness, damping));
   }
   if (closed) {
-    fs.add(new Force_Spring.fromParticles(ps, 0, ps.length - 1, stiffness, damping));
+    var s = ss.add(new Segment(ps, 0, ps.length - 1));
+    fs.add(new Force_Spring(s, stiffness, damping));
   }
-  return [ps, cs, fs];
+  return [ps,ss,fs];
 }
 
 Iterable<Component>  makeParallelogram(Vector3 origin, Vector3 width, Vector3 height, double stiffness, double damping, ParticlesConstructor genP) {
@@ -409,25 +274,25 @@ Iterable<Component> makeCloth(Vector3 origin, Vector3 width, Vector3 height, int
   var yStiffness = stiffness * height.length / diagl;
 
   var ps = genP(segments * segments);
-  var cs = new Constraints();
+  var ss = new Segments();
   var fs = new Forces();
   for (var y=0; y < segments; ++y) {
     var x0 = ps.position3d[y*segments + 0];
     x0.setFrom(yStride).scale(y.toDouble()).add(origin);
     if (y > 0) {
-      cs.l.add(new Constraint_Distance.fromParticles(ps, y*segments + 0, (y-1)*segments, yStiffness));
-      fs.add(new Force_Spring.fromParticles(ps, y*segments + 0, (y-1)*segments, yStiffness, damping));
+      var s = ss.add(new Segment(ps, y*segments + 0, (y-1)*segments));
+      fs.add(new Force_Spring(s, yStiffness, damping));
     }
     for (var x = 1; x < segments; ++x) {
 //      var px = origin.x + x*xStride - width/2 + xStride/2;
 //      var py = origin.y + y*yStride - height/2 + yStride/2;
       var xi = ps.position3d[y*segments + x];
       xi.setFrom(xStride).scale(x.toDouble()).add(x0);
-      cs.l.add(new Constraint_Distance.fromParticles(ps, y*segments + x, y*segments+x-1, xStiffness));
-      fs.add(new Force_Spring.fromParticles(ps, y*segments + x, y*segments+x-1, xStiffness, damping));
+      var s = ss.add(new Segment(ps, y*segments + x, y*segments+x-1));
+      fs.add(new Force_Spring(s, xStiffness, damping));
       if (y > 0) {
-        cs.l.add(new Constraint_Distance.fromParticles(ps, y*segments + x, (y-1)*segments+x, yStiffness));
-        fs.add(new Force_Spring.fromParticles(ps, y*segments + x, (y-1)*segments+x, yStiffness, damping));
+        s = ss.add(new Segment(ps, y*segments + x, (y-1)*segments+x));
+        fs.add(new Force_Spring(s, yStiffness, damping));
         //cs.l.add(new Constraint_Distance.fromParticles(ps, y*segments + x, (y-1)*segments+x-1, stiffness));
       }
     }
@@ -439,28 +304,17 @@ Iterable<Component> makeCloth(Vector3 origin, Vector3 width, Vector3 height, int
       ps.isSim[x] = false;
   }
 
-  return [ps, cs, fs];
+  return [ps,ss,fs];
 }
 
 
 pinParticle(Entity e, int index) {
-//  pinVector3(
-//    (e.getComponent(Particles.CT) as Particles).position3d[index],
-//    e.getComponent(Constraints.CT)
-//  );
   (e.getComponent(Particles.CT) as Particles).isSim[index] = false;
 }
 
-//pinVector3(Vector3 v, Constraints cs) {
-//  cs.l.add(new Constraint_Pin(v));
-//}
-
 setCollideOfSegment(Entity e, collide) {
-  forEachSegment(e.getComponent(Constraints.CT), (s) => s.collide = collide);
-}
-
-forEachSegment(Constraints cs, f) {
-  cs.l.forEach((c){
-    if (c is Constraint_Distance) f(c.segment);
-  });
+  var ss = e.getComponent(Segments.CT);
+  if (ss != null) {
+    ss.l.forEach((s) => s.collide = collide);
+  }
 }
