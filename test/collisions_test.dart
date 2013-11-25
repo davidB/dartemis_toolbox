@@ -177,9 +177,9 @@ main() {
 _addBox(collSpace, Vector3 origin, Vector3 width, Vector3 height){
   var b = true;
   ParticlesConstructor genP = (nb) => new Particles(nb, withCollides: true, collide0: 1);
-  var components = Verlet.makeParallelogram(origin, width, height, 1.0, genP);
+  var components = Verlet.makeParallelogram(origin, width, height, 1.0, 0.5, genP);
   collSpace.addParticles(components[0]);
-  Verlet.forEachSegment(components[1], (s) {
+  components[1].l.forEach((s) {
     s.collide = 1;
     b = collSpace.addSegment(s) && b;
   });

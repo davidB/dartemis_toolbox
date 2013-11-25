@@ -10,7 +10,7 @@ main() {
 
       expect(new Vector3(49.0,49.0,0.0).storage == new Vector3(49.0,49.0,0.0).storage, equals(false), reason: "v3.storage == v3bis.storage (not supported by vector_math)");
       expect(new Vector3(49.0,49.0,0.0) == new Vector3(49.0,49.0,0.0), equals(false), reason: "v3 == v3bis (not supported by vector_math)");
-      expect(math2.eqV3(new Vector3(49.0,49.0,0.0), new Vector3(49.0,49.0,0.0)), equals(true), reason: "eqV3(v3, v3bis) workaround");
+      expect(math2.VXYZ.eq(new Vector3(49.0,49.0,0.0), new Vector3(49.0,49.0,0.0)), equals(true), reason: "eqV3(v3, v3bis) workaround");
     });
   });
   group("fct", (){
@@ -27,11 +27,16 @@ main() {
     test('poly_point',(){
       //[0.10294092446565628,-131.0096435546875,0.0], [101.5,-122.5,0.0], [98.5,-122.5,0.0], [98.5,-119.5,0.0]] // [[133.2776336669922,732.2805786132812,0.0], [187.3511199951172,732.2805786132812,0.0], [187.3511199951172,732.280517578125,0.0], [133.2776336669922,732.280517578125,0.0]]
       var poly = [ new Vector3(1.0, 1.0,0.0), new Vector3(1.0, -1.0, 0.0), new Vector3(-1.0,-1.0,0.0), new Vector3(-1.0, 1.0,0.0)];
-      expect(sut.poly_point(poly, new Vector3(2.0, 0.0, 0.0)), equals(false), reason : "point outside poly");
+      expect(sut.poly_point(poly, new Vector3(2.0, 0.0, 0.0)), equals(false), reason : "point outside poly axis 1");
+      expect(sut.poly_point(poly, new Vector3(0.0, 2.0, 0.0)), equals(false), reason : "point outside poly axis 2");
+      expect(sut.poly_point(poly, new Vector3(2.0, 2.0, 0.0)), equals(false), reason : "point outside poly axis 2 & 1");
       expect(sut.poly_point(poly, new Vector3(0.0, 0.0, 0.0)), equals(true), reason : "point 0 inside poly");
       expect(sut.poly_point(poly, new Vector3(0.5, 0.0, 0.0)), equals(true), reason : "point inside poly");
       expect(sut.poly_point(poly, new Vector3(1.0, 0.0, 0.0)), equals(true), reason : "point on edge poly");
       expect(sut.poly_point(poly, poly[0]), equals(true), reason : "point on corner poly");
+//      //[DEBUG] collide PS 1 4 // [[61.0,50.5,0.0], [95.44999694824219,4.550000190734863,0.0], [94.55000305175781,4.550000190734863,0.0], [94.55000305175781,5.449999809265137,0.0]] // [[61.187557220458984,59.05839157104492,3.532339096069336], [61.51143264770508,58.10496139526367,-0.46716880798339844], [61.51143264770508,58.10496139526367,-0.4671686887741089], [61.187557220458984,59.05839538574219,3.532339334487915]]
+      poly = [[61.187557220458984,59.05839157104492,3.532339096069336], [61.51143264770508,58.10496139526367,-0.46716880798339844], [61.51143264770508,58.10496139526367,-0.4671686887741089], [61.187557220458984,59.05839538574219,3.532339334487915]].map((x) => new Vector3(x[0], x[1], x[2])).toList();
+      expect(sut.poly_point(poly, new Vector3(61.0,50.5,0.0)), equals(false), reason : "wrong result if z is not ignored");
     });
     test('segment_sphere', () {
       // [[15.0,-121.0,0.0], [15.0,-121.0,0.0], [15.0,-121.0,0.0], [15.0,-121.0,0.0]] [[15.0,-71.00006103515625,0.0], [15.0,-101.00006103515625,0.0], [15.0,-101.00006103515625,0.0], [15.0,-71.00006103515625,0.0]]

@@ -193,16 +193,22 @@ class Checker_MvtAsPoly4 implements Checker{
 
   _makePoly4_S(Segment s, Poly4 out) {
     var points = out.points;
-    if (eqV2(s.ps.position3dPrevious[s.i1], s.ps.position3d[s.i1]) && eqV2(s.ps.position3dPrevious[s.i2], s.ps.position3d[s.i2])) {
+    if (VXY.eq(s.ps.position3dPrevious[s.i1], s.ps.position3d[s.i1]) && VXY.eq(s.ps.position3dPrevious[s.i2], s.ps.position3d[s.i2])) {
       out.nbPoints = 2;
       points[0].setFrom(s.ps.position3d[s.i2]);
       points[1].setFrom(s.ps.position3d[s.i1]);
+      points[0].z = 0.0;
+      points[1].z = 0.0;
     } else {
       out.nbPoints = 4;
       points[0].setFrom(s.ps.position3dPrevious[s.i1]);
       points[1].setFrom(s.ps.position3dPrevious[s.i2]);
       points[2].setFrom(s.ps.position3d[s.i2]);
       points[3].setFrom(s.ps.position3d[s.i1]);
+      points[0].z = 0.0;
+      points[1].z = 0.0;
+      points[2].z = 0.0;
+      points[3].z = 0.0;
     }
     return out;
   }
@@ -216,12 +222,14 @@ class Checker_MvtAsPoly4 implements Checker{
     if (r == 0.0) {
       points[0].x = pp.x;
       points[0].y = pp.y;
-      if (eqV2(pp, pn)) {
+      points[0].z = 0.0;
+      if (VXY.eq(pp, pn)) {
         out.nbPoints =  1;
       } else {
         out.nbPoints =  2;
         points[1].x = pn.x;
         points[1].y = pn.y;
+        points[1].z = 0.0;
       }
     } else {
       out.nbPoints = 4;
@@ -259,6 +267,10 @@ class Checker_MvtAsPoly4 implements Checker{
         points[3].x = pn.x + vx;
         points[3].y = pn.y + vy;
       }
+      points[0].z = 0.0;
+      points[1].z = 0.0;
+      points[2].z = 0.0;
+      points[3].z = 0.0;
     }
     return out;
   }

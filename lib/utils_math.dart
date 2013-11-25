@@ -29,23 +29,79 @@ final VX_AXIS = new Vector3(1.0, 0.0, 0.0);
 final VY_AXIS = new Vector3(0.0, 1.0, 0.0);
 final VZ_AXIS = new Vector3(0.0, 0.0, 1.0);
 
-eqV3(Vector3 v0, Vector3 v1) {
-  var s0 = v0.storage;
-  var s1 = v1.storage;
-  return s0[2] == s1[2] && s0[1] == s1[1] && s0[0] == s1[0];
+final VXY = new _VXY();
+final VXYZ = new _VXYZ();
+
+abstract class V {
+  double dot(Vector3 v0, Vector3 v1);
+
+  /// the MinMax use axis as unit vector, and (0,0,0) as origin point.
+  MinMax extractMinMaxProjection(List<Vector3> vs, Vector3 axis, MinMax out) {
+    var p = dot(vs[0], axis);
+    out.min = p;
+    out.max = p;
+    for (int i = 1; i < vs.length; i++) {
+      updateMinMaxProjection(vs[i], axis, out);
+    }
+  }
+
+  /// Update the MinMax use axis as unit vector, and (0,0,0) as origin point.
+  MinMax updateMinMaxProjection(Vector3 v, Vector3 axis, MinMax inout) {
+    var p = dot(v, axis);
+    if (p < inout.min) inout.min = p;
+    if (p > inout.max) inout.max = p;
+    return inout;
+  }
 }
 
-eqV2(Vector3 v0, Vector3 v1) {
-  var s0 = v0.storage;
-  var s1 = v1.storage;
-  return s0[1] == s1[1] && s0[0] == s1[0];
+class _VXYZ extends V {
+  eq(Vector3 v0, Vector3 v1) {
+    var s0 = v0.storage;
+    var s1 = v1.storage;
+    return s0[2] == s1[2] && s0[1] == s1[1] && s0[0] == s1[0];
+  }
+
+  double dot(Vector3 v0, Vector3 v1) {
+    return v0.dot(v1);
+  }
 }
 
-rot90V2(Vector3 inout) {
-  var t = inout.x;
-  inout.x = - inout.y;
-  inout.y = t;
-  return inout;
+class _VXY extends V {
+  eq(Vector3 v0, Vector3 v1) {
+    var s0 = v0.storage;
+    var s1 = v1.storage;
+    return s0[1] == s1[1] && s0[0] == s1[0];
+  }
+
+  rot90(Vector3 inout) {
+    var t = inout.x;
+    inout.x = - inout.y;
+    inout.y = t;
+    return inout;
+  }
+
+  double dot(Vector3 v0, Vector3 v1) {
+    double sum;
+    sum = v0.storage[0] * v1.storage[0];
+    sum += v0.storage[1] * v1.storage[1];
+    return sum;
+  }
+
+
+  Vector3 extractCenter(List<Vector3> shape, Vector3 out) {
+    out.x = 0.0;
+    out.y = 0.0;
+
+    for (int i = 0; i < shape.length; i++) {
+      var v = shape[i];
+      out.x += v.x;
+      out.y += v.y;
+    }
+
+    out.x /= shape.length;
+    out.y /= shape.length;
+    return out;
+  }
 }
 /// return [out]
 Vector3 lookAt(Vector3 target, Vector3 position3d, Vector3 out, [Vector3 up]) {
@@ -64,20 +120,6 @@ Vector3 lookAt(Vector3 target, Vector3 position3d, Vector3 out, [Vector3 up]) {
   return out;
 }
 
-Vector3 extractCenter(List<Vector3> shape, Vector3 out) {
-  out.x = 0.0;
-  out.y = 0.0;
-
-  for (int i = 0; i < shape.length; i++) {
-    var v = shape[i];
-    out.x += v.x;
-    out.y += v.y;
-  }
-
-  out.x /= shape.length;
-  out.y /= shape.length;
-  return out;
-}
 
 Aabb3 extractAabbDisc(Vector3 v, double radius, Aabb3 out){
   out.min.setValues(v.x - radius, v.y - radius, v.z - radius);
@@ -153,23 +195,6 @@ MinMax resetMinMax(MinMax out) {
   out.max = double.NEGATIVE_INFINITY;
 }
 
-/// the MinMax use axis as unit vector, and (0,0,0) as origin point.
-MinMax extractMinMaxProjection(List<Vector3> vs, Vector3 axis, MinMax out) {
-  var p = vs[0].dot(axis);
-  out.min = p;
-  out.max = p;
-  for (int i = 1; i < vs.length; i++) {
-    updateMinMaxProjection(vs[i], axis, out);
-  }
-}
-
-/// Update the MinMax use axis as unit vector, and (0,0,0) as origin point.
-MinMax updateMinMaxProjection(Vector3 v, Vector3 axis, MinMax inout) {
-  var p = v.dot(axis);
-  if (p < inout.min) inout.min = p;
-  if (p > inout.max) inout.max = p;
-  return inout;
-}
 
 abstract class IntersectionFinder {
   bool segment_segment(Vector3 a1, Vector3 a2, Vector3 b1, Vector3 b2, Vector4 acol);
@@ -286,18 +311,18 @@ class IntersectionFinderXY implements IntersectionFinder {
     MinMax bmm = _mm1;
     var separated = false;
     resetMinMax(bmm);
-    updateMinMaxProjection(s1, axis, bmm);
-    updateMinMaxProjection(s2, axis, bmm);
-    extractMinMaxProjection(a, axis, amm);
+    VXY.updateMinMaxProjection(s1, axis, bmm);
+    VXY.updateMinMaxProjection(s2, axis, bmm);
+    VXY.extractMinMaxProjection(a, axis, amm);
     separated = isSeparated(amm.min, amm.max, bmm.min, bmm.max);
 
     if (!separated) {
       //check on normal
-      rot90V2(axis);
+      VXY.rot90(axis);
       resetMinMax(bmm);
-      updateMinMaxProjection(s1, axis, bmm);
-      updateMinMaxProjection(s2, axis, bmm);
-      extractMinMaxProjection(a, axis, amm);
+      VXY.updateMinMaxProjection(s1, axis, bmm);
+      VXY.updateMinMaxProjection(s2, axis, bmm);
+      VXY.extractMinMaxProjection(a, axis, amm);
       separated = isSeparated(amm.min, amm.max, bmm.min, bmm.max);
     }
     return !separated;
@@ -321,16 +346,17 @@ class IntersectionFinderXY implements IntersectionFinder {
     var separated = false;
     for (var i = 0; (!separated) && (i < a.length); i++) {
       // axis is the left normal of the edge
-      rot90V2(axis.setFrom(a[(i+1) % a.length]).sub(a[i]));
+      VXY.rot90(axis.setFrom(a[(i+1) % a.length]).sub(a[i]));
 
-      extractMinMaxProjection(a, axis, amm);
-      extractMinMaxProjection(b, axis, bmm);
+      VXY.extractMinMaxProjection(a, axis, amm);
+      VXY.extractMinMaxProjection(b, axis, bmm);
       separated = isSeparated(amm.min, amm.max, bmm.min, bmm.max);
     }
     return separated;
   }
 
   // use SAT check intersection (first againts the longer poly (nb of edge))
+  // if any z != 0.0 then it can return invalid result
   bool poly_point(List<Vector3> a, Vector3 b) {
     var axis = _v0;
     MinMax amm = _mm0;
@@ -339,9 +365,9 @@ class IntersectionFinderXY implements IntersectionFinder {
     var separated = false;
     for (var i = 0; (!separated) && (i < a.length); i++) {
       // axis is the egde of poly
-      rot90V2(axis.setFrom(a[(i+1) % a.length]).sub(a[i]));
-      extractMinMaxProjection(a, axis, amm);
-      var p = b.dot(axis);
+      VXY.rot90(axis.setFrom(a[(i+1) % a.length]).sub(a[i]));
+      VXY.extractMinMaxProjection(a, axis, amm);
+      var p = VXY.dot(b,axis);
       bmm.min = p;
       bmm.max = p;
       separated = isSeparated(amm.min, amm.max, bmm.min, bmm.max);
