@@ -52,6 +52,24 @@ abstract class V {
     if (p > inout.max) inout.max = p;
     return inout;
   }
+
+  /// the MinMax use axis as unit vector, and (0,0,0) as origin point.
+  MinMax extractMinMaxProjectionAA(List<Vector3> vs, int axis, MinMax out) {
+    var p = vs[0].storage[axis];
+    out.min = p;
+    out.max = p;
+    for (int i = 1; i < vs.length; i++) {
+      updateMinMaxProjectionAA(vs[i], axis, out);
+    }
+  }
+
+  /// Update the MinMax use axis as unit vector, and (0,0,0) as origin point.
+  MinMax updateMinMaxProjectionAA(Vector3 v, int axis, MinMax inout) {
+    var p = v.storage[axis];
+    if (p < inout.min) inout.min = p;
+    if (p > inout.max) inout.max = p;
+    return inout;
+  }
 }
 
 class _VXYZ extends V {
@@ -321,9 +339,12 @@ class IntersectionFinderXY implements IntersectionFinder {
       VXY.rot90(axis);
       resetMinMax(bmm);
       VXY.updateMinMaxProjection(s1, axis, bmm);
-      VXY.updateMinMaxProjection(s2, axis, bmm);
+      //VXY.updateMinMaxProjection(s2, axis, bmm);
       VXY.extractMinMaxProjection(a, axis, amm);
       separated = isSeparated(amm.min, amm.max, bmm.min, bmm.max);
+    }
+    if (!separated) {
+      separated = _no_poly_poly0(a, [s1, s2]);
     }
     return !separated;
   }
@@ -363,6 +384,13 @@ class IntersectionFinderXY implements IntersectionFinder {
     MinMax bmm = _mm1;
 
     var separated = false;
+    for(var aa = 0; (!separated) && aa < 2; aa++) {
+      VXY.extractMinMaxProjectionAA(a, aa, amm);
+      bmm.min = b.storage[aa];
+      bmm.max = b.storage[aa];
+      separated = isSeparated(amm.min, amm.max, bmm.min, bmm.max);
+    }
+
     for (var i = 0; (!separated) && (i < a.length); i++) {
       // axis is the egde of poly
       VXY.rot90(axis.setFrom(a[(i+1) % a.length]).sub(a[i]));
