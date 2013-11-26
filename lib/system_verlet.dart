@@ -169,12 +169,13 @@ class Force_Spring extends Force {
   final reaction = true;
   double stiffness;
   double damping;
+  double stiffnessRatioLonger = 1.0;
   double _restLength;
   Vector3 _dir = new Vector3.zero();
   Vector3 _fa = new Vector3.zero();
   Vector3 _fb = new Vector3.zero();
 
-  Force_Spring(this.segment, this.stiffness, this.damping, [restLength = -1]) {
+  Force_Spring(this.segment, this.stiffness, this.damping, {restLength : -1}) {
     _restLength = (restLength < 0) ? (segment.ps.position3d[segment.i1] - segment.ps.position3d[segment.i2]).length : restLength;
   }
 
@@ -197,6 +198,7 @@ class Force_Spring extends Force {
       //_fa.setFrom(segment.ps.acc[segment.i1]).add(segment.ps.acc[segment.i2]).scale(0.5);
       //print(_fa.dot(_dir).abs());
       var fs = stiffness * diff;
+      if (diff < 0) fs *= stiffnessRatioLonger;
       // spring damping force
       //var fd = _fa.setFrom(segment.ps.acc[segment.i1]).sub(segment.ps.acc[segment.i2]).dot(_dir);
       _fa.setFrom(segment.ps.position3d[segment.i1]).sub(segment.ps.position3dPrevious[segment.i1]);
