@@ -272,14 +272,14 @@ DrawCanvas text(String txt, {fillStyle, strokeStyle, strokeLineWidth : 1, stroke
 ////    area.y = radius.toDouble();
 //  };
 //}
-DrawCanvas particles(num radiusScale, {fillStyle, strokeStyle, strokeLineWidth : 1, strokeLineDashOffset : 0}){
+DrawCanvas particles(num radiusScale, {fillStyle, strokeStyle, strokeLineWidth : 1, strokeLineDashOffset : 0, radiusMin : 0.0}){
   return (CanvasRenderingContext2D g, Entity entity, area) {
     var particle0s = entity.getComponent(Particles.CT) as Particles;
     if (particle0s == null || particle0s.position3d.isEmpty) return;
     for(var i = particle0s.length - 1; i > -1; --i){
       var pos = particle0s.position3d[i];
       if (pos != null) {
-        var radius0 = particle0s.radius[i] * radiusScale;
+        var radius0 = math.max(particle0s.radius[i] * radiusScale, radiusMin);
         int color = particle0s.color[i];
         if (particle0s.collide[i] == -1) {
           color = hsl_irgba(hsl_complement(irgba_hsl(color)));
