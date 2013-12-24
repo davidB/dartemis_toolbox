@@ -83,6 +83,7 @@ class System_EntityState extends EntityProcessingSystem {
     } else {
       var addOrRemove = false;
       if (current != null) {
+        if (current.onExit != null) current.onExit(e);
         //TODO optimize the computation of component diff
         current.forEach((provider) {
           var np = next.getByType(provider.type);
@@ -104,6 +105,7 @@ class System_EntityState extends EntityProcessingSystem {
       next.modifiers.forEach((modifier){
         modifier.apply(e);
       });
+      if (next.onEnter != null) next.onEnter(e);
       if (addOrRemove) e.changedInWorld();
     }
   }
@@ -171,11 +173,15 @@ class ComponentModifier<T> {
   }
 }
 
+typedef void EntityAction<T>(Entity e);
+
 class EntityState {
   final _componentProviderByType = new Bag<ComponentProvider>();
   final _indicesP = new Set<int>();
 
   final modifiers = new List<ComponentModifier>();
+  EntityAction onEnter;
+  EntityAction onExit;
 
   void add(ComponentProvider provider) {
     int index = provider.type.id;
