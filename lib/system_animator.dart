@@ -41,7 +41,10 @@ class Animatable extends ComponentPoolable {
   }
 
   Animatable addAll(List<Animation> as) {
-    as.forEach((a) => l.add(a));
+    as.forEach((a){
+      a._t0 = -1.0; // to allow reuse of animation
+      l.add(a);
+    });
     return this;
   }
 }
