@@ -194,7 +194,7 @@ class QuadTreeXYAabb{
 //  }
 
   scanNear(Aabb3 v, Function found) {
-    if (v.intersectsWith(_dim)) {
+    if (v.intersectsWithAabb3(_dim)) {
       for (var j = 1; j < _children.length; j +=2) {
         found(_children[j]);
       }

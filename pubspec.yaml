@@ -13,7 +13,7 @@ dev_dependencies:
     git: git://github.com/johnmccutchan/simpleaudio.git
     version: '>=0.9.0'
   unittest: any
-  vector_math: any
+  vector_math: '>=1.4.3'
   web_ui: '>=0.4.8+1'
   html_toolbox:
     git: https://github.com/davidB/html_toolbox
