@@ -4,7 +4,8 @@ pubspec.lock
 package
 packages
 off
-target
+target/
+build/
 .buildlog
 web/out
 .idea
