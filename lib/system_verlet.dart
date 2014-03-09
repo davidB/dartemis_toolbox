@@ -82,6 +82,7 @@ class System_Simulator extends EntitySystem {
     var timeScale = (_timestep / timestepPrevious);
     var timestep2 = _timestep * _timestep;
     _particles.forEach((ps){
+      if (ps == null) return;
       for (var i = ps.length -1 ; i > -1; --i){
         if (!ps.isSim[i]) continue;
         var position3d = ps.position3d[i];
