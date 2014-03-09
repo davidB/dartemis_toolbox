@@ -10,10 +10,9 @@ environment:
 dev_dependencies:
   dartemis: '>=0.6.0'
   simple_audio:
-    git: git://github.com/johnmccutchan/simpleaudio.git
+    git: https://github.com/johnmccutchan/simpleaudio.git
     version: '>=0.9.0'
   unittest: any
   vector_math: '>=1.4.3'
   web_ui: '>=0.4.8+1'
-  html_toolbox:
-    git: https://github.com/davidB/html_toolbox
+  html_toolbox: '>=0.2.0'
