@@ -193,6 +193,6 @@ class EntityState {
     _indicesP.forEach((index) => f(_componentProviderByType[index]));
   }
 
-  ComponentProvider getByType(ComponentType type) => _componentProviderByType[type.id];
+  ComponentProvider getByType(ComponentType type) => (type.id >= _componentProviderByType.size) ? null : _componentProviderByType[type.id];
 
 }

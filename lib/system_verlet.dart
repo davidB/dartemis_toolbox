@@ -40,9 +40,9 @@ class Forces extends Component {
 //}
 
 class System_Simulator extends EntitySystem {
-  ReadOnlyBag<Particles> _particles;
-  ReadOnlyBag<Segments> _segments;
-  ReadOnlyBag<Forces> _forces;
+  Iterable<Particles> _particles;
+  Iterable<Segments> _segments;
+  Iterable<Forces> _forces;
 
   var steps = 10;
   /// eg : gravity
@@ -58,14 +58,14 @@ class System_Simulator extends EntitySystem {
     ;
 
   void initialize(){
-    _particles = world.componentManager.getComponentsByType(Particles.CT).readOnly;
-    _segments = world.componentManager.getComponentsByType(Segments.CT).readOnly;
-    _forces = world.componentManager.getComponentsByType(Forces.CT).readOnly;
+    _particles = world.componentManager.getComponentsByType(Particles.CT) as Iterable<Particles>;
+    _segments = world.componentManager.getComponentsByType(Segments.CT) as Iterable<Segments>;
+    _forces = world.componentManager.getComponentsByType(Forces.CT) as Iterable<Forces>;
   }
 
   bool checkProcessing() => true;
 
-  void processEntities(ReadOnlyBag<Entity> entities) {
+  void processEntities(Iterable<Entity> entities) {
     _applyForces();
     _applyIntergrator();
 //    _applyConstraintes();
@@ -81,7 +81,7 @@ class System_Simulator extends EntitySystem {
     _timestep = dt;
     var timeScale = (_timestep / timestepPrevious);
     var timestep2 = _timestep * _timestep;
-    _forEach(_particles, (ps){
+    _particles.forEach((ps){
       for (var i = ps.length -1 ; i > -1; --i){
         if (!ps.isSim[i]) continue;
         var position3d = ps.position3d[i];
@@ -113,34 +113,28 @@ class System_Simulator extends EntitySystem {
 
   _applyCollision() {
     collSpace.reset();
-    _forEach(_particles, (ps){
-      collSpace.addParticles(ps);
+    _particles.forEach((ps){
+      if (ps != null) collSpace.addParticles(ps);
     });
-    _forEach(_segments, (e){
-      e.l.forEach((s) => collSpace.addSegment(s));
+    _segments.forEach((e){
+      if (e != null) e.l.forEach((s) => collSpace.addSegment(s));
     });
     collSpace.handleCollision();
   }
 
   _applyForces() {
-    _forEach(_particles, (ps){
-      for(var i=0; i < ps.length; i++) {
-        ps.acc[i].setFrom(globalAccs);
+    _particles.forEach((ps){
+      if (ps != null) {
+        for(var i=0; i < ps.length; i++) {
+          ps.acc[i].setFrom(globalAccs);
+        }
       }
     });
-    _forEach(_forces, (fs){
-      fs.actions.forEach((x) => x.apply());
+    _forces.forEach((fs){
+      if (fs != null) fs.actions.forEach((x) => x.apply());
     });
-    _forEach(_forces, (fs){
-      fs.reactions.forEach((x) => x.apply());
-    });
-  }
-
-  _forEach(ReadOnlyBag bag, f){
-    bag.forEach((x){
-      if (x != null){
-        f(x);
-      }
+    _forces.forEach((fs){
+      if (fs != null) fs.reactions.forEach((x) => x.apply());
     });
   }
 }
