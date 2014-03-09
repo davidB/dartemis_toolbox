@@ -43,6 +43,7 @@ abstract class V {
     for (int i = 1; i < vs.length; i++) {
       updateMinMaxProjection(vs[i], axis, out);
     }
+    return out;
   }
 
   /// Update the MinMax use axis as unit vector, and (0,0,0) as origin point.
@@ -61,6 +62,7 @@ abstract class V {
     for (int i = 1; i < vs.length; i++) {
       updateMinMaxProjectionAA(vs[i], axis, out);
     }
+    return out;
   }
 
   /// Update the MinMax use axis as unit vector, and (0,0,0) as origin point.
@@ -142,6 +144,7 @@ Vector3 lookAt(Vector3 target, Vector3 position3d, Vector3 out, [Vector3 up]) {
 Aabb3 extractAabbDisc(Vector3 v, double radius, Aabb3 out){
   out.min.setValues(v.x - radius, v.y - radius, v.z - radius);
   out.max.setValues(v.x + radius, v.y + radius, v.z + radius);
+  return out;
 }
 
 Aabb3 extractAabbDisc2(Vector3 v0, Vector3 v1, double radius, Aabb3 out){
@@ -170,6 +173,7 @@ Aabb3 extractAabbDisc2(Vector3 v0, Vector3 v1, double radius, Aabb3 out){
   }
   //out.min.setValues(math.min(v0.x, v1.x) - radius, math.min(v0.y, v1.y) - radius, math.min(v0.z, v1.z) - radius);
   //out.max.setValues(math.max(v0.x, v1.x) + radius, math.max(v0.y, v1.y) + radius, math.max(v0.z, v1.z) + radius);
+  return out;
 }
 
 Aabb3 extractAabbPoly(List<Vector3> vs, Aabb3 out){
@@ -211,6 +215,7 @@ Aabb3 updateAabbPoly(List<Vector3> vs, Aabb3 inout){
 MinMax resetMinMax(MinMax out) {
   out.min = double.INFINITY;
   out.max = double.NEGATIVE_INFINITY;
+  return out;
 }
 
 

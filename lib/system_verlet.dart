@@ -40,9 +40,9 @@ class Forces extends Component {
 //}
 
 class System_Simulator extends EntitySystem {
-  Iterable<Particles> _particles;
-  Iterable<Segments> _segments;
-  Iterable<Forces> _forces;
+  /*Iterable<Particles>*/ var _particles;
+  /*Iterable<Segments>*/ var _segments;
+  /*Iterable<Forces>*/ var _forces;
 
   var steps = 10;
   /// eg : gravity
@@ -58,9 +58,9 @@ class System_Simulator extends EntitySystem {
     ;
 
   void initialize(){
-    _particles = world.componentManager.getComponentsByType(Particles.CT) as Iterable<Particles>;
-    _segments = world.componentManager.getComponentsByType(Segments.CT) as Iterable<Segments>;
-    _forces = world.componentManager.getComponentsByType(Forces.CT) as Iterable<Forces>;
+    _particles = world.componentManager.getComponentsByType(Particles.CT);
+    _segments = world.componentManager.getComponentsByType(Segments.CT);
+    _forces = world.componentManager.getComponentsByType(Forces.CT);
   }
 
   bool checkProcessing() => true;
