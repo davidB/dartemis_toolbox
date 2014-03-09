@@ -60,6 +60,7 @@ class LinkedEntry {
 abstract class ItemOption<T> {
   T operator[](int i);
   operator[]=(int i, T v);
+  setAll(T v);
 }
 
 class ItemSome<T> extends ItemOption<T> {
@@ -67,12 +68,19 @@ class ItemSome<T> extends ItemOption<T> {
   ItemSome(this._vs);
   T operator[](int i) => _vs[i];
   operator[]=(int i, T v) => _vs[i] = v;
+  setAll(T v) {
+    for(var i = _vs.length - 1; i > -1; i--) {_vs[i] = v;};
+  }
 }
 
 class ItemDefault<T> extends ItemOption<T>{
-  final T _value;
+  T _value;
   ItemDefault(this._value);
   T operator[](int i) => _value;
   /// do nothing
   operator[]=(int i, T v) {}
+  setAll(T v) {
+    _value = v;
+  }
+
 }
