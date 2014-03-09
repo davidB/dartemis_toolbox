@@ -1,5 +1,5 @@
 name: dartemis_toolbox
-version: 0.5.0-dev
+version: 0.5.0
 author: david bernard <david.bernard.31@gmail.com>
 description: 'A set of libraries for game developpement : easing function, colors,
   particles, collisions, verlet physics, addons for dartemis, ...'
