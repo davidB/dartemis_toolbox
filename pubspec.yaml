@@ -12,7 +12,10 @@ dev_dependencies:
   simple_audio:
     git: https://github.com/johnmccutchan/simpleaudio.git
     version: '>=0.9.0'
+
   unittest: any
   vector_math: '>=1.4.3'
   web_ui: '>=0.4.8+1'
   html_toolbox: '>=0.2.0'
+  asset_pack:
+    git: https://github.com/johnmccutchan/asset_pack.git
